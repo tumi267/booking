@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  clerkId    String?  @unique
+  email      String   @unique
+  imageurl   String?
+  firstName  String
+  lastName   String
+  phone      String?
+  role       UserRole @default(CLIENT)
+  provider   Provider?
+  bookings   Booking[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Provider {
+  id              String             @id @default(uuid())
+  clerkId         String?            @unique
+  firstName       String
+  lastName        String
+  imageurl        String?
+  bio             String?
+  email           String?
+  userId          String?            @unique
+  user            User?              @relation(fields: [userId], references: [id])
+  bookings        Booking[]
+  bookingSettings BookingSettings[]  @relation("BookingSettingsProviders")
+  rating          Float?             @default(0)
+  totalReviews    Int?               @default(0)
+  role            ProviderRole       @default(TRAINER)
+  isAvailable     Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model Service {
+  id              String             @id @default(uuid())
+  name            String
+  description     String?
+  bookings        Booking[]
+  bookingSettings BookingSettings[]
+  isActive        Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  clientId        String?
+  client          User?         @relation(fields: [clientId], references: [id])
+  providerId      String
+  provider        Provider      @relation(fields: [providerId], references: [id])
+  serviceId       String
+  services        Service       @relation(fields: [serviceId], references: [id])
+  price           Float
+  sessionDuration Int
+  date            DateTime
+  time            String
+  status          BookingStatus  @default(PENDING)
+  specialRequests String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model OperatingHours {
+  id         String   @id @default(uuid())
+  dayOfWeek  Int
+  startTime  String
+  endTime    String
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([dayOfWeek])
+}
+
+model BookingSettings {
+  id                     String      @id @default(uuid())
+  serviceId              String
+  service                Service     @relation(fields: [serviceId], references: [id])
+  providers              Provider[]  @relation("BookingSettingsProviders")
+  defaultSessionDuration Int         @default(60)
+  defaultPrice           Float       @default(650.00)
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+
+  @@unique([serviceId, id])
+}
+
+enum ProviderRole {
+  ADMIN
+  TRAINER
+  NUTRITIONIST
+  PHYSIOTHERAPIST
+  MASSAGE_THERAPIST
+  MANAGER
+  ASSISTANT
+}
+
+enum UserRole {
+  CLIENT
+  PROVIDER
+  ADMIN
+  SUPPORT
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
