@@ -6,8 +6,10 @@ interface props{
 function Hero({url,text}:props) {
   return (
     <div>
-    {url}
-    {text}
+      <div>
+      <img src={url} alt='hero image'/>
+      </div>
+      <h1>{text}</h1>
     </div>
   )
 }

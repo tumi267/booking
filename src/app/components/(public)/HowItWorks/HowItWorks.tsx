@@ -16,7 +16,9 @@ function HowItWorks({images,text}:Props) {
         <h2>How It Works</h2>
         <div>
         <p>{text}</p>
-        {images.map((e,i)=>{return <div key={i}>{e.url}</div>})}
+        {images.map((e,i)=>{return <div key={i}>
+          <img src={e.url} alt='working image'/>
+        </div>})}
         </div>
     </div>
   )

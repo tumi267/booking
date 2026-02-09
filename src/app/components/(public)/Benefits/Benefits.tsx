@@ -13,10 +13,12 @@ interface Props {
 function Benefits({images,text}:Props) {
   return (
     <div>
-        <h2>How It Works</h2>
+        <h2>Benifits</h2>
         <div>
         <p>{text}</p>
-        {images.map((e,i)=>{return <div key={i}>{e.url}</div>})}
+        {images.map((e,i)=>{return <div key={i}>
+          <img src={e.url} alt='benifits text'/>
+          </div>})}
         </div>
     </div>
   )

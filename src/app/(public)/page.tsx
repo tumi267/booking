@@ -2,32 +2,32 @@ import Image from 'next/image'
 import Hero from '../components/(public)/Hero/Hero'
 import HowItWorks from '../components/(public)/HowItWorks/HowItWorks'
 import SocialProof from '../components/(public)/SocialProof/SocialProof'
-import Benefits from '../components/Benefits/Benefits'
+import Benefits from '../components/(public)/Benefits/Benefits'
 
 export default function Home() {
   let images=[ {
-    url: '/images/step-1.png',
+    url: '/images/IMG-20260119-WA0006.jpg',
     alt: 'Choose a service'
   },
   {
-    url: '/images/step-2.png',
+    url: '/images/IMG-20260119-WA0006.jpg',
     alt: 'Pick a provider'
   },
   {
-    url: '/images/step-3.png',
+    url: '/images/IMG-20260119-WA0006.jpg',
     alt: 'Confirm your booking'
   }]
   const clients = [
     {
-      image: '/images/client-1.png',
+      image: '/images/IMG-20260119-WA0006.jpg',
       text: 'Booking my trainer takes less than a minute.'
     },
     {
-      image: '/images/client-2.png',
+      image: '/images/IMG-20260119-WA0006.jpg',
       text: 'Super smooth experience and great providers.'
     },
     {
-      image: '/images/client-3.png',
+      image: '/images/IMG-20260119-WA0006.jpg',
       text: 'I love how easy everything is.'
     }
   ]
@@ -35,7 +35,7 @@ export default function Home() {
     <main >
       <div>
       <Hero
-      url='image url'
+      url='/images/buddy-an-BVyzjR1AcOI-unsplash.jpg'
       text='some text'
       />
       <SocialProof
@@ -50,7 +50,7 @@ export default function Home() {
       text='some text'
       />
       <Hero
-      url='image url'
+      url='/images/buddy-an-BVyzjR1AcOI-unsplash.jpg'
       text='some text'
       />
       CTA
