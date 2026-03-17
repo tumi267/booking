@@ -1,8 +1,11 @@
 import React from 'react'
+import Dash from '../components/admin/Dash/Dash'
 
 function Admin() {
   return (
-    <div>Admin</div>
+    <div>
+      <Dash/>
+    </div>
   )
 }
 

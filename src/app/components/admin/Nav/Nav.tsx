@@ -1,8 +1,25 @@
 import React from 'react'
 
-function Nav() {
+interface NavProps {
+  selected: 'bookings' | 'team' | 'services' | 'customers' | 'operations'|'pagelayout'
+  setSelected: React.Dispatch<React.SetStateAction<'bookings' | 'team' | 'services' | 'customers' | 'operations' |'pagelayout'>>
+}
+
+function Nav({ selected, setSelected }: NavProps) {
+  const links: NavProps['selected'][] = ['bookings', 'team', 'services', 'customers', 'operations','pagelayout']
+
   return (
-    <div>Nav</div>
+    <div>
+      {links.map((link, i) => (
+        <span
+          key={i}
+          onClick={() => setSelected(link)}
+          style={{ marginRight: 12, cursor: 'pointer', fontWeight: selected === link ? 'bold' : 'normal' }}
+        >
+          {link}
+        </span>
+      ))}
+    </div>
   )
 }
 
