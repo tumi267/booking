@@ -1,16 +1,17 @@
 'use client'
+import Link from 'next/link'
 import React from 'react'
 
 interface PageCardProps {
   name: string
   lastUpdated: string
   isLive: boolean
-  onEdit: (name: string) => void
+
 }
 
-function PageCard({ name, lastUpdated, isLive, onEdit }: PageCardProps) {
+function PageCard({ name, lastUpdated, isLive, }: PageCardProps) {
   return (
-    <div className="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-500 hover:shadow-md transition-all cursor-pointer" onClick={() => onEdit(name)}>
+    <Link href={`/admin/PageLayout/${name}`}><div className="group bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-500 hover:shadow-md transition-all cursor-pointer" >
       <div className="flex justify-between items-start mb-4">
         <div className="p-3 bg-gray-50 rounded-lg group-hover:bg-blue-50 transition">
           {/* Simple Icon placeholder based on page name */}
@@ -29,7 +30,7 @@ function PageCard({ name, lastUpdated, isLive, onEdit }: PageCardProps) {
       <div className="mt-6 flex items-center text-sm font-semibold text-blue-600 group-hover:gap-2 transition-all">
         Edit Content <span>→</span>
       </div>
-    </div>
+    </div></Link>
   )
 }
 
@@ -41,10 +42,7 @@ function Pagelayout() {
     { name: 'contact', updated: '3 days ago', live: false }
   ]
 
-  const handleEdit = (pageName: string) => {
-    console.log(`Opening Editor for: ${pageName}`)
-    // This is where you'd navigate to your dynamic form
-  }
+
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -60,7 +58,7 @@ function Pagelayout() {
             name={page.name} 
             lastUpdated={page.updated} 
             isLive={page.live}
-            onEdit={handleEdit}
+            
           />
         ))}
       </div>
