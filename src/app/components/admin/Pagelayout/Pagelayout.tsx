@@ -16,7 +16,7 @@ function PageCard({ name, lastUpdated, isLive, }: PageCardProps) {
         <div className="p-3 bg-gray-50 rounded-lg group-hover:bg-blue-50 transition">
           {/* Simple Icon placeholder based on page name */}
           <span className="text-xl">
-            {name === 'Home' ? '🏠' : name === 'booking' ? '📅' : name === 'contact' ? '📞' : '📖'}
+            {name === 'Home' ? '🏠' : name === 'contact' ? '📞' : '📖'}
           </span>
         </div>
         <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${isLive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
@@ -37,9 +37,9 @@ function PageCard({ name, lastUpdated, isLive, }: PageCardProps) {
 function Pagelayout() {
   const pages = [
     { name: 'Home', updated: '2 hours ago', live: true },
-    { name: 'about', updated: 'Yesterday', live: true },
-    { name: 'booking', updated: '5 mins ago', live: true },
-    { name: 'contact', updated: '3 days ago', live: false }
+    { name: 'About', updated: 'Yesterday', live: true },
+    
+    { name: 'Contact', updated: '3 days ago', live: false }
   ]
 
 

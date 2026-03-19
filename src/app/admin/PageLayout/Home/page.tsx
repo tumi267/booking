@@ -9,7 +9,10 @@ function page() {
     <div>
       <Hero/>
       <HowItWorks/>
+      <Hero/>
+      <HowItWorks/>
       <Features/>
+      <Hero/>
     </div>
   )
 }
