@@ -296,12 +296,12 @@ function TeamAbout() {
 <label style={label}>Flex direction</label>
 <select
   style={input}
-  value={cardStyle.flexDirection as string}
+  value={cardStyle.flexDirection as 'row' | 'row-reverse' | 'column' | 'column-reverse'}
   onChange={(e) =>
     setCardStyle({
       ...cardStyle,
       display: 'flex',
-      flexDirection: e.target.value,
+      flexDirection: e.target.value as 'row' | 'row-reverse' | 'column' | 'column-reverse',
     })
   }
 >

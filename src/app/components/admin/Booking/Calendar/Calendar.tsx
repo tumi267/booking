@@ -1,6 +1,7 @@
 'use client'
 import React, { useState } from 'react'
 import styles from './Calendar.module.css'
+import Link from 'next/link'
 
 function Calendar() {
     const today = new Date()
@@ -70,7 +71,7 @@ function Calendar() {
                     const hasBooking = mockBookings.find(b => b.day === day && b.month === month)
 
                     return (
-                        <div 
+                        <Link href={`/admin/Booking/${day}-${month}-${year}`}><div 
                             key={day} 
                             className={`${styles.day_cell} ${isToday ? styles.currentday : ''}`}
                         >
@@ -83,6 +84,7 @@ function Calendar() {
                                 </div>
                             )}
                         </div>
+                    </Link>
                     )
                 })}
             </div>

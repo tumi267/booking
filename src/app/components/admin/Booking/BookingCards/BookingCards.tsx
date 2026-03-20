@@ -14,16 +14,12 @@ type Booking = {
     status: BookingStatus
     url: string
 }
+interface props{
+    bookingData:Booking[]
+}
 
-function BookingCards() {
-    // Mocking what prisma.booking.findMany({ include: { provider: true, service: true } }) returns
-    const bookings: Booking[] = [
-        { id: 'BK-001', providerName: 'John Doe', date: new Date('2026-03-16'), time: '13:00', serviceName: 'Personal Training', amount: 650, status: 'PAID', url: '/1' },
-        { id: 'BK-002', providerName: 'Sarah Smith', date: new Date('2026-03-16'), time: '14:30', serviceName: 'Consultation', amount: 450, status: 'PENDING', url: '/2' },
-        { id: 'BK-003', providerName: 'John Doe', date: new Date('2026-03-16'), time: '16:00', serviceName: 'Therapy', amount: 800, status: 'PARTIAL', url: '/3' },
-    ]
+function BookingCards({bookingData}:props) {
 
-    // Helper for dynamic styling based on status
     const getStatusStyle = (status: BookingStatus) => {
         switch (status) {
             case 'PAID': return 'bg-green-100 text-green-700';
@@ -36,8 +32,8 @@ function BookingCards() {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-            {bookings.map((booking) => (
-                <div key={booking.id} className="border rounded-xl p-5 shadow-sm bg-white hover:shadow-md transition">
+            {bookingData.map((booking,i) => (
+                <div key={i} className="border rounded-xl p-5 shadow-sm bg-white hover:shadow-md transition">
                     <div className="flex justify-between items-start mb-4">
                         <span className="text-xs font-mono text-gray-400">#{booking.id}</span>
                         <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase ${getStatusStyle(booking.status)}`}>
