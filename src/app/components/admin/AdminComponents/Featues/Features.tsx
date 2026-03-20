@@ -59,7 +59,7 @@ function FeaturesSection() {
   })
 
   // DRAG EDITOR
-  const [dragPosition, setDragPosition] = useState({ x: 50, y: 50 })
+  const [dragPosition, setDragPosition] = useState({ x: 600, y: 50 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
 
@@ -89,8 +89,8 @@ function FeaturesSection() {
   const addFeature = () => {
     const newFeature: Feature = {
       id: crypto.randomUUID(),
-      title: 'Feature title',
-      text: 'Feature text',
+      title: 'title',
+      text: 'text',
       image: '/next.svg',
       fontSize: '16px',
       fontColor: '#000000',
@@ -121,7 +121,7 @@ function FeaturesSection() {
     background: '#ffffff',
     padding: 14,
     border: '1px solid #ccc',
-    borderRadius: 8,
+  
     zIndex: 999,
     cursor: isDragging ? 'grabbing' : 'grab',
     boxShadow: '0 6px 18px rgba(0,0,0,0.2)',

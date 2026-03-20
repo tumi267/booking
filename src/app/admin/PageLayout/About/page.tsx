@@ -1,5 +1,6 @@
 import Features from '@/app/components/admin/AdminComponents/Featues/Features'
 import HowItWorks from '@/app/components/admin/AdminComponents/HowItWorks/HowItWorks'
+import TeamAbout from '@/app/components/admin/AdminComponents/TeamAbout/TeamAbout'
 import Hero from '@/app/components/admin/Hero/Hero'
 import React from 'react'
 
@@ -8,7 +9,7 @@ function page() {
     <div>
       <Hero/>
       <HowItWorks/>
-      {/* meet the team */}
+      <TeamAbout/>
       <Features/>
     </div>
   )
