@@ -1,21 +1,47 @@
 'use client'
 import React, { useState } from 'react'
 
-// Dummy Data matching your Service model
-const initialServices = [
-  { id: 's1', name: 'Personal Training', price: 650, duration: 60, isActive: true },
-  { id: 's2', name: 'Nutritional Plan', price: 450, duration: 30, isActive: true },
-  { id: 's3', name: 'Massage Therapy', price: 800, duration: 90, isActive: false },
+// Types
+type TeamMember = {
+  id: string
+  name: string
+}
+
+type Service = {
+  id: string
+  name: string
+  price: number
+  isActive: boolean
+  assignedTeam: TeamMember[]
+}
+
+// Dummy Data
+const initialServices: Service[] = [
+  { id: 's1', name: 'Personal Training', price: 650, isActive: true, assignedTeam: [] },
+  { id: 's2', name: 'Nutritional Plan', price: 450, isActive: true, assignedTeam: [] },
+  { id: 's3', name: 'Massage Therapy', price: 800, isActive: false, assignedTeam: [] },
+]
+
+const initialTeam: TeamMember[] = [
+  { id: 't1', name: 'John Doe' },
+  { id: 't2', name: 'Sarah Smith' },
+  { id: 't3', name: 'Alice Johnson' },
 ]
 
 export default function ServiceManagement() {
-  const [services, setServices] = useState(initialServices)
+  const [services, setServices] = useState<Service[]>(initialServices)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
+  const [team] = useState<TeamMember[]>(initialTeam)
 
   const selectedService = services.find((s) => s.id === selectedId)
 
-  const updateService = (id: string, key: keyof typeof selectedService, value: any) => {
+  // Type-safe update
+  const updateService = <K extends keyof Service>(
+    id: string,
+    key: K,
+    value: Service[K]
+  ) => {
     setServices((prev) =>
       prev.map((s) => (s.id === id ? { ...s, [key]: value } : s))
     )
@@ -29,20 +55,21 @@ export default function ServiceManagement() {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-sm border">
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h2 className="text-xl font-bold">Services & Pricing</h2>
-          <p className="text-sm text-gray-500">Manage your offerings and default rates.</p>
+          <p className="text-sm text-gray-500">Manage your offerings, rates, and team assignments.</p>
         </div>
         <button
           className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
           onClick={() => {
-            const newService = {
+            const newService: Service = {
               id: crypto.randomUUID(),
               name: 'New Service',
               price: 0,
-              duration: 30,
               isActive: true,
+              assignedTeam: [],
             }
             setServices((prev) => [...prev, newService])
             setSelectedId(newService.id)
@@ -53,6 +80,7 @@ export default function ServiceManagement() {
         </button>
       </div>
 
+      {/* Service Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {services.map((service) => (
           <div
@@ -76,8 +104,12 @@ export default function ServiceManagement() {
                 <span className="font-semibold text-blue-600">R{service.price}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Duration:</span>
-                <span className="font-semibold">{service.duration} mins</span>
+                <span className="text-gray-500">Assigned Team:</span>
+                <span className="font-semibold">
+                  {service.assignedTeam.length > 0
+                    ? service.assignedTeam.map((t) => t.name).join(', ')
+                    : 'None'}
+                </span>
               </div>
             </div>
 
@@ -112,7 +144,9 @@ export default function ServiceManagement() {
             <input
               className="w-full border px-2 py-1 rounded mb-2"
               value={selectedService.name}
-              onChange={(e) => updateService(selectedService.id, 'name', e.target.value)}
+              onChange={(e) =>
+                updateService(selectedService.id, 'name', e.target.value)
+              }
             />
 
             <label className="block text-sm font-medium">Price</label>
@@ -120,15 +154,9 @@ export default function ServiceManagement() {
               type="number"
               className="w-full border px-2 py-1 rounded mb-2"
               value={selectedService.price}
-              onChange={(e) => updateService(selectedService.id, 'price', parseInt(e.target.value))}
-            />
-
-            <label className="block text-sm font-medium">Duration (mins)</label>
-            <input
-              type="number"
-              className="w-full border px-2 py-1 rounded mb-2"
-              value={selectedService.duration}
-              onChange={(e) => updateService(selectedService.id, 'duration', parseInt(e.target.value))}
+              onChange={(e) =>
+                updateService(selectedService.id, 'price', parseInt(e.target.value))
+              }
             />
 
             <label className="block text-sm font-medium">Status</label>
@@ -142,6 +170,31 @@ export default function ServiceManagement() {
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
+
+            <label className="block text-sm font-medium mb-1">Assign Team Members</label>
+            <div className="flex flex-col gap-1 max-h-40 overflow-y-auto mb-4 border p-2 rounded">
+              {team.map((member) => {
+                const checked = selectedService.assignedTeam.some((t) => t.id === member.id)
+                return (
+                  <label key={member.id} className="flex items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={(e) => {
+                        let newAssigned: TeamMember[]
+                        if (e.target.checked) {
+                          newAssigned = [...selectedService.assignedTeam, member]
+                        } else {
+                          newAssigned = selectedService.assignedTeam.filter((t) => t.id !== member.id)
+                        }
+                        updateService(selectedService.id, 'assignedTeam', newAssigned)
+                      }}
+                    />
+                    {member.name}
+                  </label>
+                )
+              })}
+            </div>
 
             <div className="flex justify-end space-x-2">
               <button

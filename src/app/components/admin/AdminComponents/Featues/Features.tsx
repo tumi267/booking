@@ -1,5 +1,6 @@
 'use client'
-import React, { CSSProperties, useState } from 'react'
+import Loading from '@/app/components/Loading/Loading'
+import React, { CSSProperties, useEffect, useState } from 'react'
 
 type Feature = {
   id: string
@@ -12,13 +13,15 @@ type Feature = {
   imageHeight?: string
 }
 
-function FeaturesSection() {
+function FeaturesSection({location,sectionNum,}:{location: string
+  sectionNum: string}) {
   const [features, setFeatures] = useState<Feature[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
-
+  const [isLoading,setLoading]=useState(true)
   // SECTION STYLE
   const [sectionStyle, setSectionStyle] = useState<CSSProperties>({
+    position:'relative',
     marginTop: '40px',
     marginBottom: '40px',
   })
@@ -130,16 +133,85 @@ function FeaturesSection() {
   const labelStyle: CSSProperties = { fontSize: 12, marginTop: 8, display: 'block' }
   const titleStyle: CSSProperties = { fontWeight: 600, marginTop: 12, marginBottom: 4 }
   const inputStyle: CSSProperties = { width: '100%', padding: '4px', marginBottom: '4px' }
-  const editBtn: CSSProperties = {}
-
+  const editBtn2: CSSProperties = {    position: 'absolute',
+    top: 10,
+    right: 10,
+    background: 'rgba(0,0,0,0.6)',
+    color: '#fff',
+    border: 'none',
+    padding: '6px 10px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    zIndex: 5,}
+    const editBtn: CSSProperties = {
+      position: 'absolute',
+      top: 10,
+      left: 10,
+      background: 'rgba(0,0,0,0.6)',
+      color: '#fff',
+      border: 'none',
+      padding: '6px 10px',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      zIndex: 5,
+    }
   const computedCardWidth = cardWidth !== null ? cardWidth : 100 / columns
-
+  useEffect(()=>{
+    const getdata=async()=>{
+      const res= await fetch('/api/features/get', {
+        method: 'POST',
+        body: JSON.stringify({location,sectionNum}),
+      })
+      const featuredata=await res.json()
+      console.log(featuredata)
+      const {cardStyle,cardWidth,columns,features,gridStyle,imageStyle,sectionStyle,textStyle}=featuredata
+      setCardStyle(cardStyle)
+      setCardWidth(cardWidth)
+      setColumns(columns)
+      setFeatures(features)
+      setGridStyle(gridStyle)
+      setImageStyle(imageStyle)
+      setSectionStyle(sectionStyle)
+      setTextStyle(textStyle)
+      setLoading(false)
+    }
+    getdata()
+  },[])
+  const handleSave = async() => {
+    const data = {
+      location,
+      sectionNum,
+  
+      features,
+  
+      sectionStyle,
+      gridStyle,
+      columns,
+  
+      cardStyle,
+      cardWidth,
+  
+      textStyle,
+      imageStyle,
+    }
+  
+    const res= await fetch('/api/features/upsert', {
+      method: 'POST',
+      body: JSON.stringify({location,sectionNum,data}),
+    })
+    const newdata=await res.json()
+    console.log(newdata)
+  
+    // TODO → send to API / DB here
+  
+    setShowEditor(false)
+  }
+  if(isLoading)return <Loading/>
   return (
     <div style={sectionStyle}>
       <button style={editBtn} onClick={() => setShowEditor(!showEditor)}>
         {showEditor ? 'Close' : 'Edit'}
       </button>
-      {showEditor && <button onClick={addFeature}>Add Feature</button>}
 
       {/* GRID */}
       <div style={gridStyle}>
@@ -184,7 +256,12 @@ function FeaturesSection() {
           onMouseUp={handleMouseUp}
         >
           <strong>Feature Editor</strong>
-
+          <button style={editBtn2} onClick={() => setShowEditor(!showEditor)}>
+        {showEditor ? 'Close' : 'Edit'}
+      </button>
+      <div>
+      <button onClick={addFeature}>Add Feature</button>
+      </div>
           {/* SECTION */}
           <div style={titleStyle}>Section</div>
           <label style={labelStyle}>Margin Top</label>
@@ -330,6 +407,19 @@ function FeaturesSection() {
               </button>
             </>
           )}
+          <button
+            style={{
+            marginTop: 10,
+            padding: "8px",
+            background: "black",
+            color: "white",
+            border: "none",
+            cursor: "pointer",
+          }}
+          onClick={handleSave}
+          >
+          Save
+          </button>
         </div>
       )}
     </div>

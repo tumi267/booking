@@ -2,106 +2,361 @@
 import React, { useState } from 'react'
 
 const stats = [
-  { label: "Today's Bookings", value: '14', change: '+12%', status: 'positive' },
-  { label: 'Pending Confirmations', value: '3', change: 'Action Required', status: 'warning' },
-  { label: 'Active Providers', value: '8/10', change: 'Live', status: 'neutral' },
-  { label: 'Daily Revenue', value: 'R9,450', change: '+5%', status: 'positive' },
+  { label: "Today's Bookings", value: '14' },
+  { label: 'Pending Confirmations', value: '3' },
+  { label: 'Active Providers', value: '8/10' },
+  { label: 'Daily Revenue', value: 'R9,450' },
 ]
 
-export default function OperationsDashboard() {
-  // Business hours state
-  const [openingTime, setOpeningTime] = useState('08:00')
-  const [closingTime, setClosingTime] = useState('18:00')
-  
-  // Blocked days state (dates in YYYY-MM-DD format)
-  const [blockedDays, setBlockedDays] = useState<string[]>(['2026-03-21', '2026-03-25'])
+const weekdays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'] as const
 
-  // Add/remove blocked day
+type DayKey = typeof weekdays[number]
+
+type DaySchedule = {
+  open: string
+  close: string
+  working: boolean
+}
+
+type WeekSchedule = Record<DayKey, DaySchedule>
+
+export default function OperationsDashboard() {
+
+  // ---------- WEEK SCHEDULE ----------
+
+  const [schedule, setSchedule] = useState<WeekSchedule>({
+    Mon: { open: '08:00', close: '18:00', working: true },
+    Tue: { open: '08:00', close: '18:00', working: true },
+    Wed: { open: '08:00', close: '18:00', working: true },
+    Thu: { open: '08:00', close: '18:00', working: true },
+    Fri: { open: '08:00', close: '18:00', working: true },
+    Sat: { open: '08:00', close: '13:00', working: true },
+    Sun: { open: '08:00', close: '13:00', working: false },
+  })
+
+
+  const updateTime = (
+    day: DayKey,
+    type: 'open' | 'close',
+    value: string
+  ) => {
+
+    setSchedule(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        [type]: value,
+      }
+    }))
+  }
+
+
+  const toggleWorking = (day: DayKey) => {
+
+    setSchedule(prev => ({
+      ...prev,
+      [day]: {
+        ...prev[day],
+        working: !prev[day].working,
+      }
+    }))
+  }
+
+
+  // ---------- CALENDAR ----------
+
+  const today = new Date()
+
+  const [month, setMonth] = useState(today.getMonth())
+  const [year, setYear] = useState(today.getFullYear())
+
+  const [blockedDays, setBlockedDays] = useState<string[]>([])
+
+
   const toggleBlockedDay = (date: string) => {
-    setBlockedDays((prev) =>
+
+    setBlockedDays(prev =>
       prev.includes(date)
-        ? prev.filter((d) => d !== date)
+        ? prev.filter(d => d !== date)
         : [...prev, date]
     )
   }
 
-  // Simple calendar for current month
-  const today = new Date()
-  const year = today.getFullYear()
-  const month = today.getMonth() // 0-indexed
+
+  const firstDay = new Date(year, month, 1).getDay()
   const daysInMonth = new Date(year, month + 1, 0).getDate()
-  const dates = Array.from({ length: daysInMonth }, (_, i) => i + 1)
-  const monthString = (month + 1).toString().padStart(2, '0')
+
+
+  const prevMonth = () => {
+
+    if (month === 0) {
+      setMonth(11)
+      setYear(year - 1)
+    } else {
+      setMonth(month - 1)
+    }
+  }
+
+
+  const nextMonth = () => {
+
+    if (month === 11) {
+      setMonth(0)
+      setYear(year + 1)
+    } else {
+      setMonth(month + 1)
+    }
+  }
+
+
+  const monthNames = [
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December'
+  ]
+
 
   return (
+
     <div className="space-y-6 p-6">
-      {/* KPI Cards */}
+
+
+      {/* KPI */}
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
         {stats.map((stat, i) => (
+
           <div key={i} className="p-4 bg-white border rounded-xl shadow-sm">
-            <p className="text-sm text-gray-500">{stat.label}</p>
-            <p className="text-2xl font-bold">{stat.value}</p>
-            <p
-              className={`text-xs mt-1 ${
-                stat.status === 'positive'
-                  ? 'text-green-600'
-                  : stat.status === 'warning'
-                  ? 'text-amber-600 font-bold'
-                  : 'text-gray-400'
-              }`}
-            >
-              {stat.change}
+
+            <p className="text-sm text-gray-500">
+              {stat.label}
             </p>
+
+            <p className="text-2xl font-bold">
+              {stat.value}
+            </p>
+
           </div>
+
         ))}
+
       </div>
 
-      {/* Operations Section */}
+
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Business Hours */}
+
+
+
+        {/* ---------- OPERATING HOURS ---------- */}
+
         <div className="bg-white border rounded-xl p-4">
-          <h3 className="font-bold mb-4">Business Hours</h3>
-          <div className="flex gap-4 items-center">
-            <label className="text-sm">Open:</label>
-            <input
-              type="time"
-              value={openingTime}
-              onChange={(e) => setOpeningTime(e.target.value)}
-              className="border px-2 py-1 rounded"
-            />
-            <label className="text-sm">Close:</label>
-            <input
-              type="time"
-              value={closingTime}
-              onChange={(e) => setClosingTime(e.target.value)}
-              className="border px-2 py-1 rounded"
-            />
-          </div>
+
+          <h3 className="font-bold mb-4">
+            Operating Hours
+          </h3>
+
+
+          {weekdays.map(day => {
+
+            const d = schedule[day]
+
+            return (
+
+              <div
+                key={day}
+                className="flex gap-2 mb-2 items-center"
+              >
+
+                <div className="w-12">
+                  {day}
+                </div>
+
+
+                {/* toggle */}
+
+                <input
+                  type="checkbox"
+                  checked={d.working}
+                  onChange={() => toggleWorking(day)}
+                />
+
+
+                {/* open */}
+
+                <input
+                  type="time"
+                  disabled={!d.working}
+                  value={d.open}
+                  onChange={(e) =>
+                    updateTime(
+                      day,
+                      'open',
+                      e.target.value
+                    )
+                  }
+                  className="border px-2 py-1 rounded"
+                />
+
+
+                <span>-</span>
+
+
+                {/* close */}
+
+                <input
+                  type="time"
+                  disabled={!d.working}
+                  value={d.close}
+                  onChange={(e) =>
+                    updateTime(
+                      day,
+                      'close',
+                      e.target.value
+                    )
+                  }
+                  className="border px-2 py-1 rounded"
+                />
+
+
+                {!d.working && (
+
+                  <span className="text-xs text-red-500">
+                    Closed
+                  </span>
+
+                )}
+
+              </div>
+
+            )
+
+          })}
+
         </div>
 
-        {/* Blocked Days / Calendar */}
+
+
+        {/* ---------- CALENDAR ---------- */}
+
         <div className="bg-white border rounded-xl p-4">
-          <h3 className="font-bold mb-4">Blocked Days (Holidays / Off Days)</h3>
-          <div className="grid grid-cols-7 gap-1 text-center text-sm">
-            {dates.map((d) => {
-              const dateString = `${year}-${monthString}-${d.toString().padStart(2, '0')}`
-              const isBlocked = blockedDays.includes(dateString)
-              return (
-                <div
-                  key={d}
-                  className={`p-2 border rounded cursor-pointer ${
-                    isBlocked ? 'bg-red-500 text-white' : 'bg-gray-100'
-                  }`}
-                  onClick={() => toggleBlockedDay(dateString)}
-                  title={dateString}
-                >
-                  {d}
-                </div>
-              )
-            })}
+
+
+          {/* header */}
+
+          <div className="flex justify-between mb-4">
+
+            <button onClick={prevMonth}>
+              ◀
+            </button>
+
+            <div className="font-bold">
+              {monthNames[month]} {year}
+            </div>
+
+            <button onClick={nextMonth}>
+              ▶
+            </button>
+
           </div>
+
+
+
+          {/* weekdays */}
+
+          <div className="grid grid-cols-7 text-center text-xs mb-1">
+
+            {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => (
+
+              <div key={d}>
+                {d}
+              </div>
+
+            ))}
+
+          </div>
+
+
+
+          {/* calendar */}
+
+          <div className="grid grid-cols-7 gap-1 text-center text-sm">
+
+
+            {/* empty */}
+
+            {Array.from({ length: firstDay }).map((_, i) => (
+
+              <div key={i}></div>
+
+            ))}
+
+
+            {/* days */}
+
+            {Array.from({
+              length: daysInMonth
+            }).map((_, i) => {
+
+              const day = i + 1
+
+              const dateString =
+                `${year}-${
+                  (month + 1)
+                  .toString()
+                  .padStart(2,'0')
+                }-${
+                  day
+                  .toString()
+                  .padStart(2,'0')
+                }`
+
+
+              const blocked =
+                blockedDays.includes(
+                  dateString
+                )
+
+
+              return (
+
+                <div
+                  key={day}
+                  onClick={() =>
+                    toggleBlockedDay(
+                      dateString
+                    )
+                  }
+                  className={`
+                    p-2
+                    border
+                    rounded
+                    cursor-pointer
+                    ${
+                      blocked
+                        ? 'bg-red-500 text-white'
+                        : 'bg-gray-100'
+                    }
+                  `}
+                >
+
+                  {day}
+
+                </div>
+
+              )
+
+            })}
+
+          </div>
+
         </div>
+
+
+
       </div>
+
     </div>
+
   )
 }

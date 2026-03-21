@@ -13,7 +13,8 @@ type TeamMember = {
   imageRadius?: string
 }
 
-function TeamAbout() {
+function TeamAbout({location,sectionNum,}:{location: string
+  sectionNum: string}) {
   const [intro, setIntro] = useState<string>('Meet The Team')
 
   const [members, setMembers] = useState<TeamMember[]>([
@@ -45,7 +46,7 @@ function TeamAbout() {
   })
 
   const [cardStyle, setCardStyle] = useState<CSSProperties>({
-    background: 'pink',
+    background: '#ffff',
     borderRadius: '8px',
     padding: '10px',
     textAlign: 'center',
@@ -164,7 +165,37 @@ function TeamAbout() {
     padding: 4,
     marginBottom: 4,
   }
-
+  const editBtn: CSSProperties = {    position: 'absolute',
+    top: 10,
+    right: 10,
+    background: 'rgba(0,0,0,0.6)',
+    color: '#fff',
+    border: 'none',
+    padding: '6px 10px',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    zIndex: 5,}
+  const handleSave = () => {
+    const payload = {
+      location,
+      sectionNum,
+  
+      intro,
+      members,
+  
+      columns,
+  
+      gridStyle,
+      cardStyle,
+      introStyle,
+    }
+  
+    console.log("Saving TeamAbout:", payload)
+  
+    // send to API / DB here
+  
+    setShowEditor(false)
+  }
   return (
     <div>
 
@@ -172,11 +203,7 @@ function TeamAbout() {
         {showEditor ? 'Close' : 'Edit'}
       </button>
 
-      {showEditor && (
-        <button onClick={addMember}>
-          Add Member
-        </button>
-      )}
+
 
       <h3 style={introStyle}>{intro}</h3>
 
@@ -229,7 +256,14 @@ function TeamAbout() {
         >
 
           <b>Team Editor</b>
-
+          <button style={editBtn} onClick={() => setShowEditor(!showEditor)}>
+        {showEditor ? 'Close' : 'Edit'}
+      </button>
+      <div>
+      <button onClick={addMember}>
+          Add Member
+        </button>
+      </div>
           <label style={label}>Intro</label>
 
           <input
@@ -485,8 +519,24 @@ console.log('image logic')  }
               </button>
             </>
           )}
+          <div>
+           <button
+  style={{
+    marginTop: 10,
+    padding: "8px",
+    background: "black",
+    color: "white",
+    border: "none",
+    cursor: "pointer",
+  }}
+  onClick={handleSave}
+>
+  Save
+</button>
+</div>
         </div>
       )}
+     
     </div>
   )
 }

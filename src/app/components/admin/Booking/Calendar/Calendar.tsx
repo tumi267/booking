@@ -71,8 +71,8 @@ function Calendar() {
                     const hasBooking = mockBookings.find(b => b.day === day && b.month === month)
 
                     return (
-                        <Link href={`/admin/Booking/${day}-${month}-${year}`}><div 
-                            key={day} 
+                        <Link href={`/admin/Booking/${day}-${month}-${year}`} key={day} ><div 
+                            
                             className={`${styles.day_cell} ${isToday ? styles.currentday : ''}`}
                         >
                             <span className={styles.day_num}>{day}</span>

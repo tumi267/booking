@@ -95,7 +95,99 @@ model BookingSettings {
 
   @@unique([serviceId, id])
 }
+model HeroSection {
+  id            String   @id @default(uuid())
 
+  location      String
+  sectionNum    String
+
+  text          String?
+
+  textStyle     Json?
+  textContain   Json?
+  heroContainer Json?
+  heroImage     Json?
+
+  imageUrl      String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([location, sectionNum])
+}
+model FeaturesSection {
+  id            String        @id @default(uuid())
+  location      String
+  sectionNum    String
+
+  sectionStyle  Json?
+  gridStyle     Json?
+  columns       Int?
+  cardStyle     Json?
+  cardWidth     Int?
+  textStyle     Json?
+  imageStyle    Json?
+
+  features      FeatureItem[]
+
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([location, sectionNum])
+}
+
+model FeatureItem {
+  id               String   @id @default(uuid())
+  featuresSection  FeaturesSection @relation(fields: [sectionId], references: [id])
+  sectionId        String
+  title            String
+  text             String
+  image            String
+  fontSize         String?
+  fontColor        String?
+  imageWidth       String?
+  imageHeight      String?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+model HowItWorksSection {
+  id             String   @id @default(uuid())
+  location       String
+  sectionNum     String
+
+  text           String?
+  textStyle      Json?
+  imageUrl       String?
+  imageHeight    String?
+  containerStyle Json?
+  mainContain    Json?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([location, sectionNum])
+}
+model TeamAboutSection {
+  id         String       @id @default(uuid())
+  location   String
+  sectionNum String
+
+  intro      String?
+  introStyle Json?
+  columns    Int?
+
+  cardStyle  Json?
+  gridStyle  Json?
+
+  members    Json?       // array of TeamMember objects:
+                          // [{ id, name, role, image, fontSize, fontColor, imageWidth, imageHeight, imageRadius }]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([location, sectionNum])
+}
 enum ProviderRole {
   ADMIN
   TRAINER

@@ -1,17 +1,25 @@
 'use client'
-import React, { CSSProperties, useState } from 'react'
 
-function Hero() {
+import React, { CSSProperties, useEffect, useState } from 'react'
+import Loading from '../../Loading/Loading'
+interface props{
+  location:string
+  sectionNum:string
+}
+function Hero({location,sectionNum}:props) {
+
+
   const [url, setUrl] = useState('/images/buddy-an-BVyzjR1AcOI-unsplash.jpg')
-  const [text, setText] = useState('some text')
+  const [text, setText] = useState('')
+  const [isLoading,setLoading]=useState(true)
 
   const [textStyle, setTextStyle] = useState<CSSProperties>({
-    color: 'blue',
-    fontSize: '5rem',
-    fontWeight: '400',
+    color: '',
+    fontSize: '',
+    fontWeight: '',
     textAlign: 'center',
-    lineHeight: '1.2',
-    width: '100%',
+    lineHeight: '',
+    width: '',
   })
 
   const [textContain, setTextContain] = useState<CSSProperties>({
@@ -27,14 +35,14 @@ function Hero() {
     height: '650px',
     margin: '0px auto',
     position: 'relative',
-    borderRadius: '8px',
+    borderRadius: '0px',
     overflow: 'hidden',
   })
 
   const heroImage: CSSProperties = {
     width: '100%',
     height: '100%',
-    objectFit: 'cover',
+    objectFit: 'fill',
     display: 'block',
     borderRadius: heroContainer.borderRadius,
   }
@@ -102,7 +110,15 @@ function Hero() {
     overflowY: 'auto',
     boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
   }
-
+  const saveButtonStyle: CSSProperties = {
+    padding: '8px 12px',
+    background: 'rgba(0,0,0,0.6)',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    zIndex: 10,
+  }
   const sectionHeaderStyle: CSSProperties = {
     fontWeight: 600,
     marginBottom: '8px',
@@ -119,6 +135,43 @@ function Hero() {
     marginBottom: '12px',
   }
 
+  useEffect(()=>{
+    const getdata=async()=>{
+      const res= await fetch('/api/hero/get', {
+        method: 'POST',
+        body: JSON.stringify({location,sectionNum}),
+      })
+      const herodata=await res.json()
+      const {heroContainer,heroImage,text,textContain,textStyle}=herodata
+      setHeroContainer(heroContainer)
+      setText(text)
+      setTextContain(textContain)
+      setTextStyle(textStyle)
+      setLoading(false)
+    }
+    getdata()
+  },[])
+
+  //save setting
+  const handelSave=async()=>{
+    const data = {
+      text,
+      textStyle,
+      textContain,
+      heroContainer,
+      heroImage,
+    }
+  
+   const res= await fetch('/api/hero/upsert', {
+    method: 'POST',
+    body: JSON.stringify({location,sectionNum,data}),
+  })
+  const newdata=await res.json()
+  console.log(newdata)
+  // loading state
+    setShowEditor(!showEditor)
+  }
+  if(isLoading)return <Loading/>
   return (
     <div>
       {/* Hero */}
@@ -154,7 +207,9 @@ function Hero() {
         >
           <strong>Hero Editor</strong>
           <hr style={{ margin: '8px 0' }} />
-
+          <button style={editButtonStyle} onClick={() => setShowEditor(!showEditor)}>
+          {showEditor ? 'Close Editor' : 'Edit'}
+        </button>
           {/* Text Section */}
           <div>
             <div style={sectionHeaderStyle} onClick={() => toggleSection('text')}>
@@ -182,7 +237,7 @@ function Hero() {
                 <label>Line Height:</label>
                 <input
                   type="range"
-                  min={1}
+                  min={0}
                   max={20}
                   step={0.1}
                   value={parseFloat(textStyle.lineHeight as string) || 1.2}
@@ -322,6 +377,9 @@ function Hero() {
               </div>
             )}
           </div>
+          <button style={saveButtonStyle} onClick={() =>{ handelSave()}}>
+          save
+        </button>
         </div>
       )}
     </div>
