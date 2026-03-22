@@ -1,22 +1,11 @@
-import Image from 'next/image'
 import Hero from '../components/(public)/Hero/Hero'
 import HowItWorks from '../components/(public)/HowItWorks/HowItWorks'
 import SocialProof from '../components/(public)/SocialProof/SocialProof'
 import Benefits from '../components/(public)/Benefits/Benefits'
+import Features from '../components/(public)/features/Features'
 
 export default function Home() {
-  let images=[ {
-    url: '/images/IMG-20260119-WA0006.jpg',
-    alt: 'Choose a service'
-  },
-  {
-    url: '/images/IMG-20260119-WA0006.jpg',
-    alt: 'Pick a provider'
-  },
-  {
-    url: '/images/IMG-20260119-WA0006.jpg',
-    alt: 'Confirm your booking'
-  }]
+
   const clients = [
     {
       image: '/images/IMG-20260119-WA0006.jpg',
@@ -35,23 +24,35 @@ export default function Home() {
     <main >
       <div>
       <Hero
-      url='/images/buddy-an-BVyzjR1AcOI-unsplash.jpg'
-      text='some text'
+      location='0'
+      sectionNum='0'
       />
-      <SocialProof
+      {/* <SocialProof
       clients={clients}
+      /> */}
+      <HowItWorks
+      location='0'
+      sectionNum='0'
+      />
+      {/* <Benefits
+      images={images}
+      text='some text'
+      /> */}
+      <Hero
+      location='0'
+      sectionNum='1'
       />
       <HowItWorks
-      images={images}
-      text='some text'
-      />
-      <Benefits
-      images={images}
-      text='some text'
+      location='0'
+      sectionNum='1'
       />
       <Hero
-      url='/images/buddy-an-BVyzjR1AcOI-unsplash.jpg'
-      text='some text'
+      location='0'
+      sectionNum='3'
+      />
+      <Features
+        location='0'
+        sectionNum='0'
       />
       CTA
       {/* FAQs */}

@@ -1,5 +1,6 @@
 'use client'
-import React, { CSSProperties, useState } from 'react'
+import Loading from '@/app/components/Loading/Loading'
+import React, { CSSProperties, useEffect, useState } from 'react'
 
 type TeamMember = {
   id: string
@@ -15,8 +16,8 @@ type TeamMember = {
 
 function TeamAbout({location,sectionNum,}:{location: string
   sectionNum: string}) {
-  const [intro, setIntro] = useState<string>('Meet The Team')
-
+  const [intro, setIntro] = useState<string>('')
+  const [isLoading,setLoading]=useState(true)
   const [members, setMembers] = useState<TeamMember[]>([
     {
       id: crypto.randomUUID(),
@@ -175,27 +176,52 @@ function TeamAbout({location,sectionNum,}:{location: string
     borderRadius: '4px',
     cursor: 'pointer',
     zIndex: 5,}
-  const handleSave = () => {
-    const payload = {
+
+    useEffect(()=>{
+      const getdata=async()=>{
+        const res= await fetch('/api/aboutteam/get', {
+          method: 'POST',
+          body: JSON.stringify({location,sectionNum}),
+        })
+        const teamdata=await res.json()
+       console.log(teamdata)
+        if (!teamdata) {
+          setLoading(false)
+          return
+        }
+        const {cardStyle,columns,gridStyle,intro,introStyle,members}=teamdata
+        setColumns(columns)
+        setCardStyle(cardStyle)
+        setGridStyle(gridStyle)
+        setIntro(intro)
+        setIntroStyle(introStyle)
+        setMembers(members)
+        setLoading(false)
+      }
+      getdata()
+    },[])
+  const handleSave = async() => {
+    const data = {
       location,
       sectionNum,
-  
       intro,
       members,
-  
       columns,
-  
       gridStyle,
       cardStyle,
       introStyle,
     }
   
-    console.log("Saving TeamAbout:", payload)
-  
-    // send to API / DB here
+    const res= await fetch('/api/aboutteam/upsert', {
+      method: 'POST',
+      body: JSON.stringify({location,sectionNum,data}),
+    })
+    const newdata=await res.json()
+    console.log(newdata)
   
     setShowEditor(false)
   }
+  if(isLoading)return <Loading/>
   return (
     <div>
 

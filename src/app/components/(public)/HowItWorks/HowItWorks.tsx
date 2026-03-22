@@ -1,27 +1,47 @@
-import React from 'react'
+import { getHowItWorks } from '@/app/libs/crud/sections/howItWorks'
+import React, { CSSProperties } from 'react'
 
-type Image = {
-    url: string
-    alt:string
-  }
-  
 interface Props {
-    images: Image[]
-    text:string
-    
+  location: string
+  sectionNum: string
 }
-function HowItWorks({images,text}:Props) {
+
+export default async function HowItWorks({ location, sectionNum }: Props) {
+  const data = await getHowItWorks(location, sectionNum)
+
+  if (!data) return null
+
+  const {
+    text,
+    textStyle,
+    imageUrl,
+    imageHeight,
+    containerStyle,
+    mainContain,
+    // textContain,
+  } = data
+
+  const containerStyles: CSSProperties = { ...(containerStyle as CSSProperties) }
+  const mainContainStyles: CSSProperties = { ...(mainContain as CSSProperties) }
+  const textStyles: CSSProperties = { ...(textStyle as CSSProperties) }
+
   return (
-    <div>
-        <h2>How It Works</h2>
-        <div>
-        <p>{text}</p>
-        {images.map((e,i)=>{return <div key={i}>
-          <img src={e.url} alt='working image'/>
-        </div>})}
+    <div style={mainContainStyles}>
+      <div style={containerStyles}>
+        <img
+          src={imageUrl ?? '/next.svg'}
+          alt="hero"
+          style={{ width: '100%', height: imageHeight||'100%', objectFit: 'fill', borderRadius: containerStyles.borderRadius }}
+        />
+        <div
+          style={{
+            width: textStyles.width,
+            textAlign: textStyles.textAlign as any,
+          }}
+        >
+          <h1 style={textStyles}>{text}</h1>
         </div>
+      </div>
     </div>
   )
 }
-
-export default HowItWorks

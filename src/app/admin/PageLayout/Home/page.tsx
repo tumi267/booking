@@ -23,14 +23,15 @@ function page() {
       location='0'
       sectionNum='1'
       />
-      <Features
-        location='0'
-        sectionNum='0'
-      />
       <Hero
       location='0'
       sectionNum='2'
       />
+      <Features
+      location='0'
+      sectionNum='0'
+      />
+
     </div>
   )
 }

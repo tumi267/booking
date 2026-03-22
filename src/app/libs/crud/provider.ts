@@ -18,9 +18,7 @@ export async function getProvider(id: string) {
 }
 
 export async function getAllProviders() {
-  return prisma.provider.findMany({
-    where: { isAvailable: true },
-  })
+  return prisma.provider.findMany()
 }
 
 export async function updateProvider(id: string, data: any) {

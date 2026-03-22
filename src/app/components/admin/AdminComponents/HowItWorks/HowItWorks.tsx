@@ -148,7 +148,11 @@ function HowItWorks({ location, sectionNum }: { location: string; sectionNum: st
         body: JSON.stringify({location,sectionNum}),
       })
       const howitworksdata=await res.json()
-      console.log(howitworksdata)
+     
+      if (!howitworksdata) {
+        setLoading(false)
+        return
+      }
       const {mainContain,imageUrl,text,containerStyle,textStyle,imageHeight}=howitworksdata
       setMainContain(mainContain)
       setUrl(imageUrl)

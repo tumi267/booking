@@ -142,6 +142,10 @@ function Hero({location,sectionNum}:props) {
         body: JSON.stringify({location,sectionNum}),
       })
       const herodata=await res.json()
+      if (!herodata) {
+        setLoading(false)
+        return
+      }
       const {heroContainer,heroImage,text,textContain,textStyle}=herodata
       setHeroContainer(heroContainer)
       setText(text)

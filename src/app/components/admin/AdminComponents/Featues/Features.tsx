@@ -163,7 +163,11 @@ function FeaturesSection({location,sectionNum,}:{location: string
         body: JSON.stringify({location,sectionNum}),
       })
       const featuredata=await res.json()
-      console.log(featuredata)
+      
+      if (!featuredata) {
+        setLoading(false)
+        return
+      }
       const {cardStyle,cardWidth,columns,features,gridStyle,imageStyle,sectionStyle,textStyle}=featuredata
       setCardStyle(cardStyle)
       setCardWidth(cardWidth)
@@ -202,7 +206,7 @@ function FeaturesSection({location,sectionNum,}:{location: string
     const newdata=await res.json()
     console.log(newdata)
   
-    // TODO → send to API / DB here
+    //remove has bug
   
     setShowEditor(false)
   }

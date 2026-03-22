@@ -8,19 +8,19 @@ function page() {
   return (
     <div>
       <Hero
-            location='0'
+            location='1'
             sectionNum='0'
       />
       <HowItWorks
-            location='0'
+            location='1'
             sectionNum='0'
       />
       <TeamAbout
-        location='0'
+        location='1'
         sectionNum='0'
       />
       <Features
-            location='0'
+            location='1'
             sectionNum='0'
       />
     </div>

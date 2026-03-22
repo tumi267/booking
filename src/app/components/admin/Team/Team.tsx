@@ -1,59 +1,152 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { ProviderRole } from '@prisma/client'
+import Loading from '../../Loading/Loading'
 
-// Dummy Team Data (Mocking the Prisma Join)
-const initialTeam = [
-  { 
-    id: 'u1', 
-    name: 'John Doe', 
-    email: 'john@fit.com', 
-    role: 'TRAINER', 
-    isAvailable: true 
-  },
-  { 
-    id: 'u2', 
-    name: 'Sarah Smith', 
-    email: 'sarah@fit.com', 
-    role: 'PHYSIOTHERAPIST', 
-    isAvailable: false 
-  },
-]
+type Banner = {
+  type: 'success' | 'error'
+  message: string
+}
 
 export default function TeamManagement() {
-  const [team, setTeam] = useState(initialTeam)
+  const [team, setTeam] = useState<any[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [banner, setBanner] = useState<Banner | null>(null)
 
-  const selectedMember = team.find((m) => m.id === selectedId)
+  const roles = Object.values(ProviderRole)
+  const selectedMember = team.find((m) => m.id === selectedId || m.tempId === selectedId)
 
+  // ---------- Load Providers ----------
+  useEffect(() => {
+    loadProviders()
+  }, [])
+
+  const loadProviders = async () => {
+    try {
+      setLoading(true)
+      const res = await fetch('/api/providers')
+      const data = await res.json()
+      setTeam(data)
+      setLoading(false)
+    } catch (err) {
+      setLoading(false)
+      setBanner({ type: 'error', message: 'Failed to load team members.' })
+    }
+  }
+
+  // ---------- Update local state ----------
   const updateMember = (id: string, key: keyof typeof selectedMember, value: any) => {
     setTeam((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, [key]: value } : m))
+      prev.map((m) => (m.id === id || m.tempId === id ? { ...m, [key]: value } : m))
     )
   }
 
-  const removeMember = (id: string) => {
-    setTeam((prev) => prev.filter((m) => m.id !== id))
-    setSelectedId(null)
-    setShowEditor(false)
+  // ---------- Remove member ----------
+  const removeMember = async (id: string) => {
+    const member = team.find((m) => m.id === id || m.tempId === id)
+    if (!member) return
+
+    try {
+      setLoading(true)
+      if (member.id) {
+        await fetch(`/api/providers/${member.id}`, { method: 'DELETE' })
+      }
+      setTeam((prev) => prev.filter((m) => m.id !== member.id && m.tempId !== member.tempId))
+      setSelectedId(null)
+      setShowEditor(false)
+      setBanner({ type: 'success', message: 'Member removed successfully.' })
+      setLoading(false)
+    } catch (err) {
+      setLoading(false)
+      setBanner({ type: 'error', message: 'Failed to remove member.' })
+    }
   }
 
+  // ---------- Save member (create or update) ----------
+  const saveMember = async (id: string) => {
+    const member = team.find((m) => m.id === id || m.tempId === id)
+    if (!member) return
+
+    try {
+      setLoading(true)
+      let savedMember
+      if (!member.id) {
+        // CREATE new
+        const res = await fetch('/api/providers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: member.firstName,
+            lastName: member.lastName,
+            email: member.email || null,
+            role: member.role || ProviderRole.TRAINER,
+            isAvailable: member.isAvailable ?? true,
+          }),
+        })
+        savedMember = await res.json()
+      } else {
+        // UPDATE existing
+        const res = await fetch(`/api/providers/${member.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            firstName: member.firstName,
+            lastName: member.lastName,
+            email: member.email,
+            role: member.role,
+            isAvailable: member.isAvailable,
+          }),
+        })
+        savedMember = await res.json()
+      }
+
+      setTeam((prev) =>
+        prev.map((m) => (m.id === id || m.tempId === id ? savedMember : m))
+      )
+      setShowEditor(false)
+      setSelectedId(null)
+      setLoading(false)
+      setBanner({ type: 'success', message: 'Member saved successfully.' })
+    } catch (err) {
+      setLoading(false)
+      setBanner({ type: 'error', message: 'Failed to save member.' })
+    }
+  }
+{/* ---------- Loading ---------- */}
+if(loading)return <Loading/>
   return (
     <div className="p-6 bg-white rounded-xl shadow-sm border">
+      
+
+      {/* ---------- Banner ---------- */}
+      {banner && (
+        <div
+          className={`mb-4 px-4 py-2 rounded ${
+            banner.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+          }`}
+        >
+          {banner.message}
+        </div>
+      )}
+
+      {/* ---------- Header ---------- */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Team Members</h2>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
           onClick={() => {
             const newMember = {
-              id: crypto.randomUUID(),
-              name: 'New Member',
+              tempId: crypto.randomUUID(),
+              firstName: 'New',
+              lastName: 'Member',
               email: '',
-              role: 'TRAINER',
+              role: ProviderRole.TRAINER,
               isAvailable: true,
             }
             setTeam((prev) => [...prev, newMember])
-            setSelectedId(newMember.id)
+            setSelectedId(newMember.tempId)
             setShowEditor(true)
           }}
         >
@@ -61,6 +154,7 @@ export default function TeamManagement() {
         </button>
       </div>
 
+      {/* ---------- Team Table ---------- */}
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b text-gray-500 text-sm">
@@ -72,14 +166,14 @@ export default function TeamManagement() {
         </thead>
         <tbody className="divide-y">
           {team.map((member) => (
-            <tr key={member.id} className="hover:bg-gray-50 transition">
+            <tr key={member.id || member.tempId} className="hover:bg-gray-50 transition">
               <td className="py-4">
-                <div className="font-semibold">{member.name}</div>
+                <div className="font-semibold">{member.firstName} {member.lastName}</div>
                 <div className="text-xs text-gray-400">{member.email}</div>
               </td>
               <td className="py-4 text-sm">
                 <span className="bg-gray-100 px-2 py-1 rounded capitalize">
-                  {member.role.toLowerCase()}
+                  {member.role.toLowerCase().replaceAll('_', ' ')}
                 </span>
               </td>
               <td className="py-4">
@@ -94,7 +188,7 @@ export default function TeamManagement() {
                 <button
                   className="text-blue-600 text-sm font-medium hover:underline"
                   onClick={() => {
-                    setSelectedId(member.id)
+                    setSelectedId(member.id || member.tempId)
                     setShowEditor(true)
                   }}
                 >
@@ -102,7 +196,7 @@ export default function TeamManagement() {
                 </button>
                 <button
                   className="text-red-600 text-sm font-medium hover:underline"
-                  onClick={() => removeMember(member.id)}
+                  onClick={() => removeMember(member.id || member.tempId)}
                 >
                   Remove
                 </button>
@@ -112,42 +206,65 @@ export default function TeamManagement() {
         </tbody>
       </table>
 
-      {/* Editor Modal */}
+      {/* ---------- Editor Modal ---------- */}
       {showEditor && selectedMember && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
             <h3 className="text-lg font-bold mb-4">Edit Member</h3>
 
-            <label className="block text-sm font-medium">Name</label>
+            <label className="block text-sm font-medium">First Name</label>
             <input
               className="w-full border px-2 py-1 rounded mb-2"
-              value={selectedMember.name}
-              onChange={(e) => updateMember(selectedMember.id, 'name', e.target.value)}
+              value={selectedMember.firstName}
+              onChange={(e) =>
+                updateMember(selectedMember.id || selectedMember.tempId, 'firstName', e.target.value)
+              }
+            />
+
+            <label className="block text-sm font-medium">Last Name</label>
+            <input
+              className="w-full border px-2 py-1 rounded mb-2"
+              value={selectedMember.lastName}
+              onChange={(e) =>
+                updateMember(selectedMember.id || selectedMember.tempId, 'lastName', e.target.value)
+              }
             />
 
             <label className="block text-sm font-medium">Email</label>
             <input
               className="w-full border px-2 py-1 rounded mb-2"
               value={selectedMember.email}
-              onChange={(e) => updateMember(selectedMember.id, 'email', e.target.value)}
+              onChange={(e) =>
+                updateMember(selectedMember.id || selectedMember.tempId, 'email', e.target.value)
+              }
             />
 
             <label className="block text-sm font-medium">Role</label>
             <select
               className="w-full border px-2 py-1 rounded mb-2"
               value={selectedMember.role}
-              onChange={(e) => updateMember(selectedMember.id, 'role', e.target.value)}
+              onChange={(e) =>
+                updateMember(selectedMember.id || selectedMember.tempId, 'role', e.target.value)
+              }
             >
-              <option value="TRAINER">Trainer</option>
-              <option value="PHYSIOTHERAPIST">Physiotherapist</option>
-              <option value="ADMIN">Admin</option>
+              {roles.map((role) => (
+                <option key={role} value={role}>
+                  {role.replaceAll('_', ' ')}
+                </option>
+              ))}
             </select>
 
             <label className="block text-sm font-medium">Status</label>
             <select
               className="w-full border px-2 py-1 rounded mb-4"
               value={selectedMember.isAvailable ? 'Active' : 'On Leave'}
-              onChange={(e) => updateMember(selectedMember.id, 'isAvailable', e.target.value === 'Active')}
+              onChange={(e) =>
+                updateMember(
+                  selectedMember.id || selectedMember.tempId,
+                  'isAvailable',
+                  e.target.value === 'Active'
+                )
+              }
             >
               <option value="Active">Active</option>
               <option value="On Leave">On Leave</option>
@@ -162,9 +279,15 @@ export default function TeamManagement() {
               </button>
               <button
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                onClick={() => removeMember(selectedMember.id)}
+                onClick={() => removeMember(selectedMember.id || selectedMember.tempId)}
               >
                 Remove
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={() => saveMember(selectedMember.id || selectedMember.tempId)}
+              >
+                Save
               </button>
             </div>
           </div>

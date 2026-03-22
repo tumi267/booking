@@ -1,7 +1,9 @@
 import Hero from '@/app/components/(public)/Hero/Hero'
+import HowItWorks from '@/app/components/(public)/HowItWorks/HowItWorks'
 import History from '@/app/components/(public)/about/history/History'
 import Offer from '@/app/components/(public)/about/offers/Offer'
 import Team from '@/app/components/(public)/about/team/Team'
+import Features from '@/app/components/(public)/features/Features'
 import React from 'react'
 
 function About() {
@@ -31,10 +33,10 @@ bio:'4'
     <div>
         <h2>About</h2>
         <Hero
-        url='/images/buddy-an-BVyzjR1AcOI-unsplash.jpg'
-        text='some text'
+        location='1'
+        sectionNum='0'
         />
-        <History
+                {/* <History
         description='lorem'
         image='/images/buddy-an-BVyzjR1AcOI-unsplash.jpg'
         />
@@ -42,7 +44,19 @@ bio:'4'
         teamMember={teamMember}
         />
         <Offer
-        service={teamMember}/>
+        service={teamMember}/> */}
+        <HowItWorks
+        location='1'
+        sectionNum='0'
+        />
+        <Team
+        location='1'
+        sectionNum='0'
+        />
+        <Features
+        location='1'
+        sectionNum='0'
+        />
     </div>
   )
 }
