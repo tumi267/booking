@@ -1,21 +1,34 @@
 'use client'
+
 import React, { useEffect, useState } from 'react'
 import { ProviderRole } from '@prisma/client'
 import Loading from '../../Loading/Loading'
 
+// ---------- Types ----------
 type Banner = {
   type: 'success' | 'error'
   message: string
 }
 
+type TeamMember = {
+  id: string | null
+  tempId: string
+  firstName: string
+  lastName: string
+  email: string
+  role: ProviderRole
+  isAvailable: boolean
+}
+
+// ---------- Component ----------
 export default function TeamManagement() {
-  const [team, setTeam] = useState<any[]>([])
+  const [team, setTeam] = useState<TeamMember[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
   const [loading, setLoading] = useState(false)
   const [banner, setBanner] = useState<Banner | null>(null)
 
-  const roles = Object.values(ProviderRole)
+  const roles = Object.values(ProviderRole) as ProviderRole[]
   const selectedMember = team.find((m) => m.id === selectedId || m.tempId === selectedId)
 
   // ---------- Load Providers ----------
@@ -37,7 +50,7 @@ export default function TeamManagement() {
   }
 
   // ---------- Update local state ----------
-  const updateMember = (id: string, key: keyof typeof selectedMember, value: any) => {
+  const updateMember = <K extends keyof TeamMember>(id: string, key: K, value: TeamMember[K]) => {
     setTeam((prev) =>
       prev.map((m) => (m.id === id || m.tempId === id ? { ...m, [key]: value } : m))
     )
@@ -58,20 +71,20 @@ export default function TeamManagement() {
       setShowEditor(false)
       setBanner({ type: 'success', message: 'Member removed successfully.' })
       setLoading(false)
-    } catch (err) {
+    } catch {
       setLoading(false)
       setBanner({ type: 'error', message: 'Failed to remove member.' })
     }
   }
 
-  // ---------- Save member (create or update) ----------
+  // ---------- Save member ----------
   const saveMember = async (id: string) => {
     const member = team.find((m) => m.id === id || m.tempId === id)
     if (!member) return
 
     try {
       setLoading(true)
-      let savedMember
+      let savedMember: TeamMember
       if (!member.id) {
         // CREATE new
         const res = await fetch('/api/providers', {
@@ -81,20 +94,21 @@ export default function TeamManagement() {
             firstName: member.firstName,
             lastName: member.lastName,
             email: member.email || null,
-            role: member.role || ProviderRole.TRAINER,
-            isAvailable: member.isAvailable ?? true,
+            role: member.role,
+            isAvailable: member.isAvailable,
           }),
         })
         savedMember = await res.json()
       } else {
         // UPDATE existing
-        const res = await fetch(`/api/providers/${member.id}`, {
+        const res = await fetch(`/api/providers`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            id:member.id,
             firstName: member.firstName,
             lastName: member.lastName,
-            email: member.email,
+            email: member.email || null,
             role: member.role,
             isAvailable: member.isAvailable,
           }),
@@ -109,18 +123,18 @@ export default function TeamManagement() {
       setSelectedId(null)
       setLoading(false)
       setBanner({ type: 'success', message: 'Member saved successfully.' })
-    } catch (err) {
+    } catch {
       setLoading(false)
       setBanner({ type: 'error', message: 'Failed to save member.' })
     }
   }
-{/* ---------- Loading ---------- */}
-if(loading)return <Loading/>
+
+  // ---------- Loading ----------
+  if (loading) return <Loading />
+
   return (
     <div className="p-6 bg-white rounded-xl shadow-sm border">
-      
-
-      {/* ---------- Banner ---------- */}
+      {/* Banner */}
       {banner && (
         <div
           className={`mb-4 px-4 py-2 rounded ${
@@ -131,14 +145,15 @@ if(loading)return <Loading/>
         </div>
       )}
 
-      {/* ---------- Header ---------- */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold">Team Members</h2>
         <button
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
           onClick={() => {
-            const newMember = {
+            const newMember: TeamMember = {
               tempId: crypto.randomUUID(),
+              id: null,
               firstName: 'New',
               lastName: 'Member',
               email: '',
@@ -154,7 +169,7 @@ if(loading)return <Loading/>
         </button>
       </div>
 
-      {/* ---------- Team Table ---------- */}
+      {/* Team Table */}
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b text-gray-500 text-sm">
@@ -206,7 +221,7 @@ if(loading)return <Loading/>
         </tbody>
       </table>
 
-      {/* ---------- Editor Modal ---------- */}
+      {/* Editor Modal */}
       {showEditor && selectedMember && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-96 relative">
@@ -244,7 +259,7 @@ if(loading)return <Loading/>
               className="w-full border px-2 py-1 rounded mb-2"
               value={selectedMember.role}
               onChange={(e) =>
-                updateMember(selectedMember.id || selectedMember.tempId, 'role', e.target.value)
+                updateMember(selectedMember.id || selectedMember.tempId, 'role', e.target.value as ProviderRole)
               }
             >
               {roles.map((role) => (

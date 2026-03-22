@@ -1,9 +1,5 @@
-import {
-    createProvider,
-    getAllProviders,
-    updateProvider,
-    deleteProvider,
-  } from "@/app/libs/crud/provider"
+
+import { createService, deleteService, getAllServices, updateService } from "@/app/libs/crud/service"
   
   import { NextRequest, NextResponse } from "next/server"
   
@@ -11,7 +7,7 @@ import {
   // GET ALL
   export async function GET() {
   
-    const data = await getAllProviders()
+    const data = await getAllServices()
   
     return NextResponse.json(data)
   }
@@ -22,7 +18,7 @@ import {
   
     const body = await req.json()
   
-    const data = await createProvider(body)
+    const data = await createService(body)
   
     return NextResponse.json(data)
   }
@@ -30,12 +26,12 @@ import {
   
   // UPDATE
   export async function PATCH(req: NextRequest) {
-
+  
     const body = await req.json()
   
     const { id, ...rest } = body
   
-    const data = await updateProvider(id, rest)
+    const data = await updateService(id, rest)
   
     return NextResponse.json(data)
   }
@@ -48,7 +44,7 @@ import {
   
     const { id } = body
   
-    const data = await deleteProvider(id)
+    const data = await deleteService(id)
   
     return NextResponse.json(data)
   }

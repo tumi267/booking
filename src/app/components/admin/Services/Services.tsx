@@ -1,49 +1,68 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import Loading from '../../Loading/Loading'
 
 // Types
 type TeamMember = {
   id: string
-  name: string
+  lastName: string
+  firstName:string
 }
 
 type Service = {
-  id: string
+  id: string|null
   name: string
   price: number
   isActive: boolean
   assignedTeam: TeamMember[]
+  tempId:string
 }
 
-// Dummy Data
-const initialServices: Service[] = [
-  { id: 's1', name: 'Personal Training', price: 650, isActive: true, assignedTeam: [] },
-  { id: 's2', name: 'Nutritional Plan', price: 450, isActive: true, assignedTeam: [] },
-  { id: 's3', name: 'Massage Therapy', price: 800, isActive: false, assignedTeam: [] },
-]
 
-const initialTeam: TeamMember[] = [
-  { id: 't1', name: 'John Doe' },
-  { id: 't2', name: 'Sarah Smith' },
-  { id: 't3', name: 'Alice Johnson' },
-]
-
+type Banner = {
+  type: 'success' | 'error'
+  message: string
+}
 export default function ServiceManagement() {
-  const [services, setServices] = useState<Service[]>(initialServices)
+  const [services, setServices] = useState<Service[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
-  const [team] = useState<TeamMember[]>(initialTeam)
+  const [banner, setBanner] = useState<Banner | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [team,setTeam] = useState<TeamMember[]>([])
+  // inital load
+useEffect(()=>{
+  loadData()
+},[])
+const loadData=async()=>{
+  try {
+    setLoading(true)
+    const res = await fetch('/api/service')
+    const res2 = await fetch('/api/providers')
+    const data = await res.json()
+    const data2 = await res2.json()
+    if(!data)setServices([])
+    if(!data2)setTeam([])
+    console.log({data,data2})
+    setServices(data)
+    setTeam(data2)
+    setLoading(false)
+  } catch (err) {
+    setLoading(false)
+    setBanner({ type: 'error', message: 'Failed to load team members.' })
+  }
+}
 
-  const selectedService = services.find((s) => s.id === selectedId)
-
-  // Type-safe update
+const selectedService = services.find((s) => s.id === selectedId || s.tempId === selectedId)
+const getKey = (s: Service) => s.id || s.tempId
+  // ---------- Update local state ----------
   const updateService = <K extends keyof Service>(
     id: string,
     key: K,
     value: Service[K]
   ) => {
     setServices((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, [key]: value } : s))
+    prev.map((s) =>getKey(s) === id ? { ...s, [key]: value } : s)
     )
   }
 
@@ -52,7 +71,72 @@ export default function ServiceManagement() {
     setSelectedId(null)
     setShowEditor(false)
   }
+  const saveservice=async()=>{
+    if (!selectedService) return
+  try {
+    setLoading(true)
+    const payload = {
+      name: selectedService.name,
+      price: selectedService.price,
+      isActive: selectedService.isActive,
+      assignedTeamIds: selectedService.assignedTeam.map((t) => t.id),
+    }
+    //  CREATE
+    if (!selectedService.id) {
+      const res = await fetch('/api/service', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
 
+      const newService = await res.json()
+
+      //  replace temp item
+      setServices((prev) =>
+        prev.map((s) =>
+          s.tempId === selectedService.tempId
+            ? { ...newService, tempId: '' }
+            : s
+        )
+      )
+
+      setSelectedId(newService.id)
+      setBanner({ type: 'success', message: 'Service created' })
+
+    } else {
+      // UPDATE
+      const res = await fetch('/api/service', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: selectedService.id,
+          ...payload,
+        }),
+      })
+
+      const updated = await res.json()
+
+      // sync UI with backend
+      setServices((prev) =>
+        prev.map((s) =>
+          s.id === selectedService.id
+            ? { ...s, ...updated }
+            : s
+        )
+      )
+
+      setBanner({ type: 'success', message: 'Service updated' })
+    }
+
+  } catch (err) {
+    console.error(err)
+    setBanner({ type: 'error', message: 'Save failed' })
+  } finally {
+    setLoading(false)
+  }
+  }
+ // ---------- Loading ----------
+if(loading)return <Loading/>
   return (
     <div className="p-6 bg-white rounded-xl shadow-sm border">
       {/* Header */}
@@ -65,14 +149,15 @@ export default function ServiceManagement() {
           className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
           onClick={() => {
             const newService: Service = {
-              id: crypto.randomUUID(),
+              id:null,
+              tempId: crypto.randomUUID(),
               name: 'New Service',
               price: 0,
               isActive: true,
               assignedTeam: [],
             }
             setServices((prev) => [...prev, newService])
-            setSelectedId(newService.id)
+            setSelectedId(newService.tempId)
             setShowEditor(true)
           }}
         >
@@ -107,7 +192,7 @@ export default function ServiceManagement() {
                 <span className="text-gray-500">Assigned Team:</span>
                 <span className="font-semibold">
                   {service.assignedTeam.length > 0
-                    ? service.assignedTeam.map((t) => t.name).join(', ')
+                    ? service.assignedTeam.map((t) => t.firstName).join(', ')
                     : 'None'}
                 </span>
               </div>
@@ -117,7 +202,7 @@ export default function ServiceManagement() {
               <button
                 className="flex-1 text-sm border py-2 rounded hover:bg-gray-50"
                 onClick={() => {
-                  setSelectedId(service.id)
+                  setSelectedId(getKey(service))
                   setShowEditor(true)
                 }}
               >
@@ -125,7 +210,7 @@ export default function ServiceManagement() {
               </button>
               <button
                 className="flex-1 text-sm bg-red-600 text-white py-2 rounded hover:bg-red-700"
-                onClick={() => removeService(service.id)}
+                onClick={() => removeService(getKey(service))}
               >
                 Remove
               </button>
@@ -145,7 +230,7 @@ export default function ServiceManagement() {
               className="w-full border px-2 py-1 rounded mb-2"
               value={selectedService.name}
               onChange={(e) =>
-                updateService(selectedService.id, 'name', e.target.value)
+                updateService(getKey(selectedService), 'name', e.target.value)
               }
             />
 
@@ -155,7 +240,7 @@ export default function ServiceManagement() {
               className="w-full border px-2 py-1 rounded mb-2"
               value={selectedService.price}
               onChange={(e) =>
-                updateService(selectedService.id, 'price', parseInt(e.target.value))
+                updateService(getKey(selectedService), 'price', parseInt(e.target.value))
               }
             />
 
@@ -164,7 +249,7 @@ export default function ServiceManagement() {
               className="w-full border px-2 py-1 rounded mb-4"
               value={selectedService.isActive ? 'Active' : 'Inactive'}
               onChange={(e) =>
-                updateService(selectedService.id, 'isActive', e.target.value === 'Active')
+                updateService(getKey(selectedService), 'isActive', e.target.value === 'Active')
               }
             >
               <option value="Active">Active</option>
@@ -187,10 +272,11 @@ export default function ServiceManagement() {
                         } else {
                           newAssigned = selectedService.assignedTeam.filter((t) => t.id !== member.id)
                         }
-                        updateService(selectedService.id, 'assignedTeam', newAssigned)
+                        updateService(getKey(selectedService), 'assignedTeam', newAssigned)
                       }}
                     />
-                    {member.name}
+                    {member.firstName}
+                    {member.lastName}
                   </label>
                 )
               })}
@@ -205,9 +291,15 @@ export default function ServiceManagement() {
               </button>
               <button
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                onClick={() => removeService(selectedService.id)}
+                onClick={() => removeService(getKey(selectedService))}
               >
                 Remove
+              </button>
+              <button
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={() => saveservice()}
+              >
+                Save
               </button>
             </div>
           </div>
