@@ -1,11 +1,17 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 type BookedDay = {
   date: string
   times: string[]
+  dayOfWeek:number
 }
-
+type Hours = {
+  dayOfWeek: number
+  startTime: string
+  endTime: string
+  isActive: boolean
+}
 interface Props {
   currentStep: number
   step: (newStep: number) => void
@@ -22,9 +28,25 @@ interface Props {
 }
 
 function Time({ step, currentStep, selectedDate, bookingdata }: Props) {
-  const ALL_SLOTS = ["08:00", "09:00", "12:00", "14:00", "15:00"]
+  const [times,setTimes]=useState<any>([])
+  const [ALL_SLOTS, setHours] = useState<string[]>([])
   const { dates } = bookingdata
-
+  const intervile=30
+  useEffect(()=>{
+   const gettime=async ()=>{
+    try {
+      const res = await fetch('/api/publicCal')
+      if (!res.ok) throw new Error('Request failed')
+      const data = await res.json()
+      if(!data)return
+      const timeArr=data.gethours.map((e:any)=>{return {start:e.startTime,end:e.endTime,dayOfWeek:e.dayOfWeek}})
+      setTimes(timeArr)
+    } catch (error) {
+      console.log(error)
+    }
+    }
+    gettime()
+  },[])
   const [selecteddate, setSelectedDate] = useState(0)
 
   const handleTimeChange = (time: string) => {
@@ -44,13 +66,45 @@ function Time({ step, currentStep, selectedDate, bookingdata }: Props) {
       dates: newDates
     })
   }
+  const createtimeslots=(start:string,end:string)=>{
+    const slots: string[] = []
 
+    const [startHour, startMin] = start.split(":").map(Number)
+    const [endHour, endMin] = end.split(":").map(Number)
+  
+    let current = new Date()
+    current.setHours(startHour, startMin, 0, 0)
+  
+    const endDate = new Date()
+    endDate.setHours(endHour, endMin, 0, 0)
+  
+    while (current <= endDate) {
+      const hours = String(current.getHours()).padStart(2, "0")
+      const minutes = String(current.getMinutes()).padStart(2, "0")
+  
+      slots.push(`${hours}:${minutes}`)
+  
+      current.setMinutes(current.getMinutes() + intervile)
+    }
+
+    setHours(slots)
+  }
+
+  const handleDateChange=(e:any)=>{
+    setSelectedDate(e)
+    if (times.length==0)return
+    times.forEach((el:any) => {
+      if(el.dayOfWeek==dates[e].dayOfWeek){
+        createtimeslots(el.start,el.end)
+      }
+    });
+  }
   return (
     <div>
       Time
 
       {dates.map((d, i) => (
-        <div key={i} onClick={() => setSelectedDate(i)}>
+        <div key={i} onClick={() => handleDateChange(i)}>
           {d.date}
         </div>
       ))}

@@ -6,7 +6,7 @@ import { findmemberdata } from '@/app/libs/db/team'
 
 /* ---------- TYPES ---------- */
 
-type BookedDay = { date: string; times: string[] }
+type BookedDay = { date: string; times: string[];dayOfWeek: number }
 
 
 interface Props {
@@ -27,12 +27,29 @@ const ALL_SLOTS = ["08:00", "09:00", "12:00", "14:00", "15:00"]
 function Calendar({ step, currentStep, selectedDate, bookingdata }: Props) {
 
   const [selected, setSelected] = useState<DateRange | undefined>()
+  const [disabledDaysOfWeek, setDisabledDaysOfWeek] = useState<number[]>([])
   const [datesNotAvailable, setDatesNotAvailable] = useState<Date[]>([])
-
+  const [oppertionDate,setopperationDate]=useState()
   /* ---------- DISABLE FULLY BOOKED DAYS ---------- */
 
   useEffect(() => {
     const member = findmemberdata(bookingdata.id)
+    const avaiabledates = async () => {
+      try {
+        const res = await fetch('/api/publicCal')
+        if (!res.ok) throw new Error('Request failed')
+        const data = await res.json()
+        if(!data)return
+        const offday=data.gethours.filter((e:any)=>{return e.isActive==false})
+        const disabledWeekdays = offday.map((d: any) => (d.dayOfWeek + 1) % 7)
+
+        setDisabledDaysOfWeek(disabledWeekdays)
+        setopperationDate(data.gethours)
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    avaiabledates()
     if (!member) return
 
     // A day is unavailable ONLY if all slots are taken
@@ -51,6 +68,10 @@ function Calendar({ step, currentStep, selectedDate, bookingdata }: Props) {
   }, [bookingdata.id])
 
   /* ---------- HELPERS ---------- */
+  const getBackendDay = (date: string) => {
+    const jsDay = new Date(date).getDay()
+    return (jsDay + 6) % 7
+  }
 
   const getDatesInRange = (from: Date, to: Date): string[] => {
     const dates: string[] = []
@@ -101,7 +122,8 @@ function Calendar({ step, currentStep, selectedDate, bookingdata }: Props) {
 
     const structuredDates: BookedDay[] = allDates.map(date => ({
       date,
-      times: [] // user selects times in next step
+      times: [] ,
+      dayOfWeek:getBackendDay(date)
     }))
 
     selectedDate({
@@ -121,7 +143,8 @@ function Calendar({ step, currentStep, selectedDate, bookingdata }: Props) {
         onSelect={handleDateChange}
         disabled={[
           ...datesNotAvailable,
-          { before: new Date() } // disable past dates
+          { before: new Date() },
+          { dayOfWeek: disabledDaysOfWeek } // disable past dates
         ]}
         footer={
           selected?.from

@@ -3,13 +3,15 @@ import React, { useEffect, useState } from 'react'
 import Team from '../team/Team';
 import Calendar from '../calendar/Calendar';
 import Summery from '../summery/Summery';
-import teamMembers from '@/app/libs/db/team'
+// import teamMembers from '@/app/libs/db/team'
 import Time from '../Time/Time';
-type BookedDay = { date: string; times: string[] }
-function Bookingmain() {
+type BookedDay = { date: string; times: string[];dayOfWeek:number; }
+function Bookingmain({data }:any) {
     const [selected,setSelected]=useState(0)
     const [bookingdata,setbookingdata]=useState<{id: string;team: string;dates: BookedDay[];}>({id: '',team: '',dates: []})
-    
+
+    const assignedTeam = data.map((e: any) => e.assignedTeam).flat();
+
     const panel=()=>{
     switch (selected) {
         case 1:
@@ -32,7 +34,7 @@ function Bookingmain() {
             currentStep={selected}
             selectMember={setbookingdata}
             bookingdata={bookingdata}
-            team={teamMembers}
+            team={assignedTeam}
             />
         case 3:
             return <Summery
@@ -46,7 +48,7 @@ function Bookingmain() {
             currentStep={selected}
             selectMember={setbookingdata}
             bookingdata={bookingdata}
-            team={teamMembers}
+            team={assignedTeam}
             />
     }
     }
