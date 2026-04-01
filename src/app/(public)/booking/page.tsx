@@ -24,7 +24,7 @@ type Service = {
 
 async function fetchServices(): Promise<Service[]> {
   const services = await getAllServices()
-  
+ 
   // map Prisma result to match your Service type
   return services.map((s: any) => ({
     id: s.id,

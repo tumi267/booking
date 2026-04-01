@@ -1,67 +1,57 @@
-import prisma  from "../prisma"
+import prisma from "../prisma"
 
+// CREATE
 export async function createService(data: {
   name: string
   price: number
   isActive: boolean
   assignedTeamIds: string[]
+  duration: number
+  description: string
 }) {
   const service = await prisma.service.create({
     data: {
       name: data.name,
       isActive: data.isActive,
-
-      bookingSettings: {
-        create: {
-          defaultPrice: data.price,
-
-          providers: {
-            connect: data.assignedTeamIds.map((id) => ({ id })),
-          },
-        },
+      defaultPrice: data.price,
+      defaultSessionDuration: data.duration,
+      description: data.description,
+      providers: {
+        connect: data.assignedTeamIds.map((id) => ({ id })),
       },
     },
-    include: {
-      bookingSettings: {
-        include: {
-          providers: true,
-        },
-      },
-    },
+    include: { providers: true },
   })
 
-  // 🔁 Transform response
   return {
     id: service.id,
     name: service.name,
     isActive: service.isActive,
-    price: service.bookingSettings[0]?.defaultPrice || 0,
-    assignedTeam: service.bookingSettings[0]?.providers || [],
+    price: service.defaultPrice,
+    duration: service.defaultSessionDuration,
+    description: service.description,
+    assignedTeam: service.providers,
   }
 }
 
-// ✅ GET ALL (WITH RELATIONS)
+// GET ALL
 export async function getAllServices() {
   const services = await prisma.service.findMany({
-    include: {
-      bookingSettings: {
-        include: {
-          providers: true,
-        },
-      },
-    },
+    include: { providers: true },
   })
 
-  // 🔁 Transform for frontend
   return services.map((s) => ({
     id: s.id,
     name: s.name,
     isActive: s.isActive,
-    price: s.bookingSettings[0]?.defaultPrice || 0,
-    assignedTeam: s.bookingSettings[0]?.providers || [],
+    price: s.defaultPrice,
+    duration: s.defaultSessionDuration,
+    description: s.description,
+    assignedTeam: s.providers,
   }))
 }
 
+// UPDATE
 export async function updateService(
   id: string,
   data: {
@@ -69,54 +59,38 @@ export async function updateService(
     price: number
     isActive: boolean
     assignedTeamIds: string[]
+    duration: number
+    description: string
   }
 ) {
-  // 1️⃣ Update basic service
-  await prisma.service.update({
+  const updated = await prisma.service.update({
     where: { id },
     data: {
       name: data.name,
       isActive: data.isActive,
-    },
-  })
-
-  // 2️⃣ Get bookingSettings ID
-  const settings = await prisma.bookingSettings.findFirst({
-    where: { serviceId: id },
-  })
-
-  if (!settings) throw new Error("BookingSettings not found")
-
-  // 3️⃣ Update bookingSettings
-  const updated = await prisma.bookingSettings.update({
-    where: { id: settings.id },
-    data: {
       defaultPrice: data.price,
-
+      defaultSessionDuration: data.duration,
+      description: data.description,
       providers: {
         set: data.assignedTeamIds.map((id) => ({ id })),
       },
     },
-    include: {
-      providers: true,
-    },
+    include: { providers: true },
   })
 
   return {
-    id,
-    name: data.name,
-    isActive: data.isActive,
+    id: updated.id,
+    name: updated.name,
+    isActive: updated.isActive,
     price: updated.defaultPrice,
+    duration: updated.defaultSessionDuration,
+    description: updated.description,
     assignedTeam: updated.providers,
   }
 }
 
+// DELETE
 export async function deleteService(id: string) {
-  // delete settings first (avoid relation issues)
-  await prisma.bookingSettings.deleteMany({
-    where: { serviceId: id },
-  })
-
   return prisma.service.delete({
     where: { id },
   })

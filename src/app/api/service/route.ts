@@ -39,12 +39,13 @@ import { createService, deleteService, getAllServices, updateService } from "@/a
   
   // DELETE
   export async function DELETE(req: NextRequest) {
+    const id = req.nextUrl.searchParams.get('id')
   
-    const body = await req.json()
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+    }
   
-    const { id } = body
+    await deleteService(id)
   
-    const data = await deleteService(id)
-  
-    return NextResponse.json(data)
+    return NextResponse.json({ success: true })
   }

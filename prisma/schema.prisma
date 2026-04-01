@@ -33,8 +33,9 @@ model Provider {
   userId          String?            @unique
   user            User?              @relation(fields: [userId], references: [id])
   bookings        Booking[]
-  bookingSettings BookingSettings[]  @relation("BookingSettingsProviders")
-  rating          Float?             @default(0)
+  services  Service[]
+  // bookingSettings BookingSettings[]  @relation("BookingSettingsProviders")
+  // rating          Float?             @default(0)
   totalReviews    Int?               @default(0)
   role            ProviderRole       @default(TRAINER)
   isAvailable     Boolean            @default(true)
@@ -47,7 +48,10 @@ model Service {
   name            String
   description     String?
   bookings        Booking[]
-  bookingSettings BookingSettings[]
+  // bookingSettings BookingSettings[]
+  providers       Provider[]
+  defaultSessionDuration Int         @default(60)
+  defaultPrice           Float       @default(650.00)
   isActive        Boolean            @default(true)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
@@ -83,18 +87,18 @@ model OperatingHours {
   @@unique([dayOfWeek])
 }
 
-model BookingSettings {
-  id                     String      @id @default(uuid())
-  serviceId              String
-  service                Service     @relation(fields: [serviceId], references: [id])
-  providers              Provider[]  @relation("BookingSettingsProviders")
-  defaultSessionDuration Int         @default(60)
-  defaultPrice           Float       @default(650.00)
-  createdAt              DateTime    @default(now())
-  updatedAt              DateTime    @updatedAt
+// model BookingSettings {
+//   id                     String      @id @default(uuid())
+//   serviceId              String
+//   service                Service     @relation(fields: [serviceId], references: [id])
+//   providers              Provider[]  @relation("BookingSettingsProviders")
+//   defaultSessionDuration Int         @default(60)
+//   defaultPrice           Float       @default(650.00)
+//   createdAt              DateTime    @default(now())
+//   updatedAt              DateTime    @updatedAt
 
-  @@unique([serviceId, id])
-}
+//   @@unique([serviceId, id])
+// }
 model HeroSection {
   id            String   @id @default(uuid())
 
