@@ -18,11 +18,12 @@ type Team={ id: string
 function Bookingmain({data }:any) {
    
     const [selected,setSelected]=useState(0)
+    const [selectedDuration,setSelectedDuration]=useState<number>(0)
     const [bookingdata,setbookingdata]=useState<{id: string;team: string;dates: BookedDay[];}>({id: '',team: '',dates: []})
     const service=data
     const [assignedTeam,setAssignedTeam]=useState<Team[]>([])
-    // const assignedTeam = data.map((e: any) => e.assignedTeam).flat();
-  
+    
+
     const panel=()=>{
     switch (selected) {
         case 0:
@@ -32,6 +33,7 @@ function Bookingmain({data }:any) {
             selectService={setbookingdata}
             bookingdata={bookingdata}
             service={service}
+            setduration={setSelectedDuration}
             setAssignedTeam={setAssignedTeam}
             />
         case 1:
@@ -52,6 +54,7 @@ function Bookingmain({data }:any) {
         case 3:
             return <Time
             step={setSelected}
+            service={selectedDuration}
             currentStep={selected}
             bookingdata={bookingdata}
             selectedDate={setbookingdata}
@@ -70,6 +73,7 @@ function Bookingmain({data }:any) {
             selectService={setbookingdata}
             bookingdata={bookingdata}
             service={service}
+            setduration={setSelectedDuration}
             setAssignedTeam={setAssignedTeam}
             />
     }

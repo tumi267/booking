@@ -23,6 +23,7 @@ type service = {
   name: string
   isActive: boolean
   price: number
+  duration:number
   assignedTeam: Team[]
 }
 
@@ -31,6 +32,7 @@ interface Props {
   step: (newStep: number) => void
   selectService: (value: { id: string; team: string; dates: BookedDay[] }) => void
   setAssignedTeam: React.Dispatch<React.SetStateAction<Team[]>>
+  setduration:(value: number) => void
   bookingdata: { id: string; team: string; dates: BookedDay[] }
   service: service[]
 }
@@ -40,6 +42,7 @@ function Service({
   step,
   selectService,
   setAssignedTeam,
+  setduration,
   service,
   bookingdata
 }: Props) {
@@ -48,6 +51,7 @@ function Service({
 
   const handleSelect = (e: service) => {
     selectService({ id: e.id, team: '', dates: [] })
+    setduration(e.duration)
     setAssignedTeam(e.assignedTeam || [])
     step(currentStep + 1)
   }

@@ -31,6 +31,7 @@ async function fetchServices(): Promise<Service[]> {
     name: s.name,
     price: s.price,
     isActive: s.isActive,
+    duration:s.duration,
     assignedTeam: s.assignedTeam.map((t: any) => ({
       id: t.id,
       firstName: t.firstName,
