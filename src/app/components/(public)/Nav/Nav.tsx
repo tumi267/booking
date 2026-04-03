@@ -6,10 +6,10 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
-  SignUpButton,
-  UserButton
+  UserButton,
+  useAuth
 } from '@clerk/nextjs'
-import SignInHandler from '../../SignInHandler/SignInHandler'
+
 
 function Nav() {
   const links = [
@@ -17,7 +17,7 @@ function Nav() {
     { tag: 'Booking', href: '/booking' },
     { tag: 'Contact', href: '/contact' },
   ]
-
+  const { userId } = useAuth();
   return (
     <div className="flex justify-between items-center p-4">
       
@@ -25,7 +25,7 @@ function Nav() {
       <span>
         <Link href="/">logo</Link>
       </span>
-
+      
       {/* Links + Auth */}
       <div className="flex gap-4 items-center">
         {links.map((e, i) => (
@@ -34,14 +34,16 @@ function Nav() {
           </span>
         ))}
 
-        {/* 🔐 Logged OUT */}
+        {/* Logged OUT */}
         <SignedOut>
-        <SignInButton mode="modal">
-          <button>Sign In / Sign Up</button>
-        </SignInButton>
-        <SignInHandler/>
+          <SignInButton mode="modal" fallbackRedirectUrl="/booking">
+            <button>Sign In / Sign Up</button>
+          </SignInButton>
+
+
         </SignedOut>
-        {/* 🔓 Logged IN */}
+        <Link href={`/user/${userId}`}>profile</Link>
+        {/* Logged IN */}
         <SignedIn>
           <UserButton />
         </SignedIn>

@@ -4,7 +4,8 @@ import History from '@/app/components/(public)/about/history/History'
 import Offer from '@/app/components/(public)/about/offers/Offer'
 import Team from '@/app/components/(public)/about/team/Team'
 import Features from '@/app/components/(public)/features/Features'
-import React from 'react'
+import Loading from '@/app/components/Loading/Loading'
+import React, { Suspense } from 'react'
 
 function About() {
     const teamMember=[
@@ -32,31 +33,34 @@ bio:'4'
   return (
     <div>
         <h2>About</h2>
+        <Suspense fallback={<Loading/>}>
+      {/* @ts-expect-error Async Server Component */}
         <Hero
         location='1'
         sectionNum='0'
         />
-                {/* <History
-        description='lorem'
-        image='/images/buddy-an-BVyzjR1AcOI-unsplash.jpg'
-        />
-        <Team
-        teamMember={teamMember}
-        />
-        <Offer
-        service={teamMember}/> */}
+        </Suspense>
+      <Suspense fallback={<Loading/>}>
+      {/* @ts-expect-error Async Server Component */}
         <HowItWorks
         location='1'
         sectionNum='0'
         />
+      </Suspense>
+      <Suspense fallback={<Loading/>}>
+      {/* @ts-expect-error Async Server Component */}
         <Team
         location='1'
         sectionNum='0'
         />
+      </Suspense>
+      <Suspense fallback={<Loading/>}>
+      {/* @ts-expect-error Async Server Component */}
         <Features
         location='1'
         sectionNum='0'
         />
+      </Suspense>
     </div>
   )
 }

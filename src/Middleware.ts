@@ -1,14 +1,16 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-const protectedRoutes = createRouteMatcher(['/user/:id', '/admin/:path*']);
+const protectedRoutes = createRouteMatcher([ '/user(.*)', 
+'/admin(.*)', 
+'/booking(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
   const { userId, redirectToSignIn } = await auth();
 
   // Block unauthorized users at server-edge
   if (protectedRoutes(req) && !userId) {
-    const signInUrl = new URL('/user', req.url)
+    const signInUrl = new URL('/singin', req.url)
    
     signInUrl.searchParams.set('redirectTo', req.nextUrl.pathname)
     return NextResponse.redirect(signInUrl)
@@ -18,5 +20,6 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  matcher: ['/user/:path*'],
+  matcher: ['/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+  '/(api|trpc)(.*)',],
 };

@@ -21,8 +21,8 @@ export default function RootLayout({
      
       <body className={inter.className}> 
       <ClerkProvider  
-          afterSignInUrl="/booking"
-          afterSignUpUrl="/booking">
+
+        >
           {children}
       </ClerkProvider>
       </body>
