@@ -6,20 +6,7 @@ import Features from '../components/(public)/features/Features'
 
 export default function Home() {
 
-  const clients = [
-    {
-      image: '/images/IMG-20260119-WA0006.jpg',
-      text: 'Booking my trainer takes less than a minute.'
-    },
-    {
-      image: '/images/IMG-20260119-WA0006.jpg',
-      text: 'Super smooth experience and great providers.'
-    },
-    {
-      image: '/images/IMG-20260119-WA0006.jpg',
-      text: 'I love how easy everything is.'
-    }
-  ]
+
   return (
     <main >
       <div>

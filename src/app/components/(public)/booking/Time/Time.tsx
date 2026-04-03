@@ -181,12 +181,12 @@ function Time({
   // =========================
   // UI
   // =========================
-
+if(loading) return <Loading/>
   return (
     <div className={`p-4 space-y-6 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
 
       {/* LOADING OVERLAY (no flicker) */}
-      {loading && <Loading />}
+      
 
       {/* DATE SELECT */}
       <div>

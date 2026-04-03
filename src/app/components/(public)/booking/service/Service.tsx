@@ -33,6 +33,7 @@ interface Props {
   selectService: (value: { id: string; team: string; dates: BookedDay[] }) => void
   setAssignedTeam: React.Dispatch<React.SetStateAction<Team[]>>
   setduration:(value: number) => void
+  setselectedService:(value:service) => void
   bookingdata: { id: string; team: string; dates: BookedDay[] }
   service: service[]
 }
@@ -43,6 +44,7 @@ function Service({
   selectService,
   setAssignedTeam,
   setduration,
+  setselectedService,
   service,
   bookingdata
 }: Props) {
@@ -52,6 +54,7 @@ function Service({
   const handleSelect = (e: service) => {
     selectService({ id: e.id, team: '', dates: [] })
     setduration(e.duration)
+    setselectedService(e)
     setAssignedTeam(e.assignedTeam || [])
     step(currentStep + 1)
   }

@@ -15,10 +15,19 @@ type Team={ id: string
     imageurl?: string
     isAvailable?: boolean
     bookedDates: BookedDay[]}
+type service = {
+        id: string
+        name: string
+        isActive: boolean
+        price: number
+        duration:number
+        assignedTeam: Team[]
+      }
 function Bookingmain({data }:any) {
    
     const [selected,setSelected]=useState(0)
     const [selectedDuration,setSelectedDuration]=useState<number>(0)
+    const [selectedservice,setselectedService]=useState<service>()
     const [bookingdata,setbookingdata]=useState<{id: string;team: string;dates: BookedDay[];}>({id: '',team: '',dates: []})
     const service=data
     const [assignedTeam,setAssignedTeam]=useState<Team[]>([])
@@ -35,6 +44,7 @@ function Bookingmain({data }:any) {
             service={service}
             setduration={setSelectedDuration}
             setAssignedTeam={setAssignedTeam}
+            setselectedService={setselectedService}
             />
         case 1:
             return <Team
@@ -60,10 +70,12 @@ function Bookingmain({data }:any) {
             selectedDate={setbookingdata}
             />
         case 4:
+            if(!selectedservice)return
             return <Summery
             step={setSelected}
             currentStep={selected}
             bookingdata={bookingdata}
+            selectedservice={selectedservice}
             />
 
         default:
@@ -75,6 +87,7 @@ function Bookingmain({data }:any) {
             service={service}
             setduration={setSelectedDuration}
             setAssignedTeam={setAssignedTeam}
+            setselectedService={setselectedService}
             />
     }
     }
