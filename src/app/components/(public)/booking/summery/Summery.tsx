@@ -42,6 +42,40 @@ const grandTotal = dailyTotals.reduce((acc, curr) => acc + curr, 0);
 const isBookingValid = 
   bookingdata.dates.length > 0 && 
   bookingdata.dates.every((day) => day.times.length > 0);
+
+  const handleSubmit = async () => {
+    try {
+      const res = await fetch('/api/booking', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ bookingdata })
+      });
+  
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+  
+      // Create a dynamic form to POST to PayFast
+      const form = document.createElement('form');
+      form.method = 'POST';
+      // Use https://sandbox.payfast.co.za/eng/process for testing
+      // use https://www.payfast.co.za/eng/process for live
+      form.action = 'https://sandbox.payfast.co.za/eng/process'; 
+  
+      Object.keys(data).forEach(key => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = data[key];
+        form.appendChild(input);
+      });
+  
+      document.body.appendChild(form);
+      form.submit(); // Redirects user to PayFast
+    } catch (error) {
+      console.error("Payment initiation failed:", error);
+    }
+  };
+  
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md space-y-6">
       <h2 className="text-2xl font-semibold text-center">Booking Summary</h2>
@@ -94,7 +128,7 @@ const isBookingValid =
           // Button is disabled if any day has 0 times selected
           disabled={!isBookingValid}
           onClick={() => {
-            console.log('Booking confirmed!', { ...bookingdata, grandTotal });
+            handleSubmit()
           }}
           className={`px-6 py-2 text-white rounded-md transition ${
             isBookingValid 
