@@ -36,13 +36,13 @@ function Nav() {
 
         {/* Logged OUT */}
         <SignedOut>
-          <SignInButton mode="modal" fallbackRedirectUrl="/booking">
+          <SignInButton mode="modal" forceRedirectUrl="/booking">
             <button>Sign In / Sign Up</button>
           </SignInButton>
 
 
         </SignedOut>
-        <Link href={`/user/${userId}`}>profile</Link>
+        {userId&&<Link href={`/user/${userId}`}>profile</Link>}
         {/* Logged IN */}
         <SignedIn>
           <UserButton />

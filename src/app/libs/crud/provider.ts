@@ -32,13 +32,15 @@ export async function getProvider(id: string) {
     where: { id },
     include: {
       bookings: true,
-      bookingSettings: true,
+      // bookingSettings: true,
       user: true,
     },
   })
 }
 
-
+export async function getProviderByClerkId(id:string) {
+  return prisma.provider.findUnique({where:{clerkId:id}})
+}
 
 //  GET ALL (normalized for frontend)
 export async function getAllProviders() {
