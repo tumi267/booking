@@ -1,5 +1,6 @@
 'use client'
 
+import { useAuth } from '@clerk/nextjs'
 import React from 'react'
 
 type BookedDay = {
@@ -15,7 +16,7 @@ type Team={ id: string
   isAvailable?: boolean
   bookedDates: BookedDay[]}
 type service={
-  id: string
+  serviceId: string
   name: string
   isActive: boolean
   price: number
@@ -25,12 +26,13 @@ type service={
 interface Props {
   currentStep: number
   step: (newStep: number) => void
-  bookingdata: { id: string; team: string; dates: BookedDay[] }
+  bookingdata: { serviceId: string; providerId: string; team: string; dates: BookedDay[] }
   selectedservice:service
 }
 
 function Summary({ step, currentStep, bookingdata,selectedservice }: Props) {
- // 1. Calculate individual totals per day
+  const { userId } = useAuth();
+  // 1. Calculate individual totals per day
  const dailyTotals: number[] = bookingdata.dates.map(
   (day) => day.times.length * selectedservice.price
 );
@@ -46,37 +48,39 @@ const isBookingValid =
   const handleSubmit = async () => {
     try {
       // Send the total along with the booking data
+      console.log(bookingdata)
       const res = await fetch('/api/booking', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ 
           bookingdata: {
             ...bookingdata,
-            total: grandTotal // <--- Add this!
+            total: grandTotal,
+            clientId:userId
           } 
         })
       });
   
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      // if (!res.ok) throw new Error(data.error);
+ 
+      // // ... dynamic form logic remains the same
+      // const form = document.createElement('form');
+      // form.method = 'POST';
+      // form.action = 'https://sandbox.payfast.co.za/eng/process'; 
   
-      // ... dynamic form logic remains the same
-      const form = document.createElement('form');
-      form.method = 'POST';
-      form.action = 'https://sandbox.payfast.co.za/eng/process'; 
+      // Object.keys(data).forEach(key => {
+      //   if (data[key]) { // Ensure we don't append empty values
+      //     const input = document.createElement('input');
+      //     input.type = 'hidden';
+      //     input.name = key;
+      //     input.value = data[key];
+      //     form.appendChild(input);
+      //   }
+      // });
   
-      Object.keys(data).forEach(key => {
-        if (data[key]) { // Ensure we don't append empty values
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = data[key];
-          form.appendChild(input);
-        }
-      });
-  
-      document.body.appendChild(form);
-      form.submit();
+      // document.body.appendChild(form);
+      // form.submit();
     } catch (error) {
       console.error("Payment initiation failed:", error);
     }

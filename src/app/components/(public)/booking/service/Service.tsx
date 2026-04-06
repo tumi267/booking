@@ -8,7 +8,7 @@ type BookedDay = {
 }
 
 type Team = { 
-  id: string
+  ProviderId: string
   firstName: string
   lastName: string
   role: string
@@ -19,22 +19,28 @@ type Team = {
 }
 
 type service = {
-  id: string
+  serviceId: string
   name: string
   isActive: boolean
   price: number
   duration:number
   assignedTeam: Team[]
 }
-
+type BookingData = {
+  serviceId: string
+  providerId: string
+  team: string
+  dates: BookedDay[]
+}
 interface Props {
   currentStep: number
   step: (newStep: number) => void
-  selectService: (value: { id: string; team: string; dates: BookedDay[] }) => void
+  selectService: React.Dispatch<React.SetStateAction<BookingData>>
   setAssignedTeam: React.Dispatch<React.SetStateAction<Team[]>>
   setduration:(value: number) => void
   setselectedService:(value:service) => void
-  bookingdata: { id: string; team: string; dates: BookedDay[] }
+  bookingdata: { serviceId: string
+    providerId: string; team: string; dates: BookedDay[] }
   service: service[]
 }
 
@@ -52,7 +58,13 @@ function Service({
   const activeService = service.filter(e => e.isActive)
 
   const handleSelect = (e: service) => {
-    selectService({ id: e.id, team: '', dates: [] })
+    selectService(prev => ({
+      ...prev,
+      serviceId: e.serviceId,
+      providerId: '',
+      team: '',
+      dates: []
+    }))
     setduration(e.duration)
     setselectedService(e)
     setAssignedTeam(e.assignedTeam || [])
@@ -67,12 +79,12 @@ function Service({
       >
         {activeService.map((e) => (
           <div
-            key={e.id}
+            key={e.serviceId}
             onClick={() => handleSelect(e)}
             className={`
               p-6 shadow-md cursor-pointer transition-all 
               hover:shadow-xl hover:scale-105
-              ${bookingdata.id === e.id ? 'border-2 border-black bg-gray-100' : 'border border-gray-300 bg-white'}
+              ${bookingdata.serviceId  === e.serviceId ? 'border-2 border-black bg-gray-100' : 'border border-gray-300 bg-white'}
             `}
           >
             <h3 className="text-xl font-semibold mb-2">{e.name}</h3>

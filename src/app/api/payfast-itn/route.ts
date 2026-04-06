@@ -23,14 +23,15 @@ export async function POST(req: Request) {
       return new Response('Signature Mismatch', { status: 400 });
     }
 
+    /*update booking */
     // --- THE CONSOLE LOGS (Your "ORM" placeholder) ---
-    console.log('------------------------------------------');
-    console.log('🚀 PAYFAST ITN RECEIVED!');
-    console.log(`Booking ID: ${data.item_name}`);
-    console.log(`Payment Status: ${data.payment_status}`);
-    console.log(`Amount: R${data.amount_gross}`);
-    console.log(`Customer Email: ${data.email_address || 'Not provided'}`);
-    console.log('------------------------------------------');
+    // console.log('------------------------------------------');
+    // console.log('🚀 PAYFAST ITN RECEIVED!');
+    // console.log(`Booking ID: ${data.item_name}`);
+    // console.log(`Payment Status: ${data.payment_status}`);
+    // console.log(`Amount: R${data.amount_gross}`);
+    // console.log(`Customer Email: ${data.email_address || 'Not provided'}`);
+    // console.log('------------------------------------------');
 
     if (data.payment_status === 'COMPLETE') {
       console.log('✅ DATABASE ACTION: Set booking to PAID');

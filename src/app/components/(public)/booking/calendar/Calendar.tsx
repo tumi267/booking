@@ -5,12 +5,17 @@ import { findmemberdata } from '@/app/libs/db/team'
 import Loading from '@/app/components/Loading/Loading'
 
 type BookedDay = { date: string; times: string[]; dayOfWeek: number }
-
+type BookingData = {
+  serviceId: string
+  providerId: string
+  team: string
+  dates: BookedDay[]
+}
 interface Props {
   currentStep: number
   step: (newStep: number) => void
-  bookingdata: { id: string; team: string; dates: BookedDay[] }
-  selectedDate: (value: { id: string; team: string; dates: BookedDay[] }) => void
+  bookingdata: { serviceId: string; providerId: string; team: string; dates: BookedDay[] }
+  selectedDate: React.Dispatch<React.SetStateAction<BookingData>>
 }
 
 function CustomCalendar({ step, currentStep, selectedDate, bookingdata }: Props) {
@@ -44,7 +49,7 @@ function CustomCalendar({ step, currentStep, selectedDate, bookingdata }: Props)
   // FETCH DISABLED DAYS
   // =========================
   useEffect(() => {
-    const member = findmemberdata(bookingdata.id)
+    const member = findmemberdata(bookingdata.serviceId)
 
     const fetchData = async () => {
       setLoading(true)
@@ -89,7 +94,7 @@ function CustomCalendar({ step, currentStep, selectedDate, bookingdata }: Props)
     }
 
     fetchData()
-  }, [month, year, bookingdata.id])
+  }, [month, year, bookingdata.serviceId])
 
   // =========================
   // HELPERS

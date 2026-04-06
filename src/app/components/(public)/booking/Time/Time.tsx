@@ -14,17 +14,18 @@ type Hours = {
   startTime: string
   endTime: string
 }
-
+type BookingData = {
+  serviceId: string
+  providerId: string
+  team: string
+  dates: BookedDay[]
+}
 interface Props {
   currentStep: number
   step: (newStep: number) => void
-  selectedDate: (value: {
-    id: string
-    team: string
-    dates: BookedDay[]
-  }) => void
+  selectedDate: React.Dispatch<React.SetStateAction<BookingData>>
   bookingdata: {
-    id: string
+    serviceId: string; providerId: string;
     team: string
     dates: BookedDay[]
   }

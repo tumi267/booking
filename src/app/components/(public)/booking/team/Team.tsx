@@ -1,5 +1,5 @@
 'use client'
-import React from 'react'
+import React, { SetStateAction } from 'react'
 
 type BookedDay = {
   date: string
@@ -8,7 +8,7 @@ type BookedDay = {
 }
 
 type TeamMember = {
-  id: string
+  ProviderId: string 
   firstName: string
   lastName: string
   bio?: string
@@ -17,12 +17,19 @@ type TeamMember = {
   isAvailable?: boolean
   bookedDates: BookedDay[]
 }
-
+type BookingData = {
+  serviceId: string
+  providerId: string
+  team: string
+  dates: BookedDay[]
+}
 interface Props {
   currentStep: number
   step: (newStep: number) => void
-  selectMember: (value: { id: string; team: string; dates: BookedDay[] }) => void
-  bookingdata: { id: string; team: string; dates: BookedDay[] }
+  selectMember: React.Dispatch<React.SetStateAction<BookingData>>
+  bookingdata: {  serviceId: string
+    providerId: string
+    team: string; dates: BookedDay[] }
   team: TeamMember[]
 }
 
@@ -33,7 +40,12 @@ function Team({ currentStep, step, selectMember, team, bookingdata }: Props) {
   const availableTeam = team.filter(member => member.isAvailable)
 
   const handleMemberClick = (member: TeamMember) => {
-    selectMember({ id: member.id, team: `${member.firstName} ${member.lastName}`, dates: [] })
+ 
+    selectMember(prev => ({
+      ...prev, 
+      providerId: member.ProviderId,
+      team: `${member.firstName} ${member.lastName}`
+    }))
   }
   const getPlaceholderImage = (firstName: string, lastName: string) => 
   `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=cccccc&color=ffffff`
@@ -45,10 +57,10 @@ function Team({ currentStep, step, selectMember, team, bookingdata }: Props) {
                       grid-cols-[repeat(auto-fit,minmax(200px,1fr))] 
                       max-w-5xl w-full">
         {availableTeam.map((member) => {
-          const isSelected = bookingdata.team === `${member.firstName} ${member.lastName}`
+          const isSelected = bookingdata.providerId === member.ProviderId
           return (
             <div
-              key={member.id}
+              key={member.ProviderId}
               onClick={() => handleMemberClick(member)}
               className={`
                 p-4 cursor-pointer shadow-md rounded-xl text-center transition-all

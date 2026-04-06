@@ -7,7 +7,7 @@ import Summery from '../summery/Summery';
 import Time from '../Time/Time';
 import Service from '../service/Service';
 type BookedDay = { date: string; times: string[];dayOfWeek:number; }
-type Team={ id: string
+type Team={ ProviderId: string
     firstName: string
     lastName: string
     role: string
@@ -16,19 +16,26 @@ type Team={ id: string
     isAvailable?: boolean
     bookedDates: BookedDay[]}
 type service = {
-        id: string
+        serviceId: string
         name: string
         isActive: boolean
         price: number
         duration:number
         assignedTeam: Team[]
       }
+type BookingData = {
+        serviceId: string
+        providerId: string
+        team: string
+        dates: BookedDay[]
+      }
 function Bookingmain({data }:any) {
    
     const [selected,setSelected]=useState(0)
     const [selectedDuration,setSelectedDuration]=useState<number>(0)
     const [selectedservice,setselectedService]=useState<service>()
-    const [bookingdata,setbookingdata]=useState<{id: string;team: string;dates: BookedDay[];}>({id: '',team: '',dates: []})
+    const [bookingdata,setbookingdata]=useState<BookingData>({serviceId: '',
+        providerId: '',team: '',dates: []})
     const service=data
     const [assignedTeam,setAssignedTeam]=useState<Team[]>([])
     
