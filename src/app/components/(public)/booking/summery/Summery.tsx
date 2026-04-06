@@ -45,36 +45,43 @@ const isBookingValid =
 
   const handleSubmit = async () => {
     try {
+      // Send the total along with the booking data
       const res = await fetch('/api/booking', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ bookingdata })
+        body: JSON.stringify({ 
+          bookingdata: {
+            ...bookingdata,
+            total: grandTotal // <--- Add this!
+          } 
+        })
       });
   
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
   
-      // Create a dynamic form to POST to PayFast
+      // ... dynamic form logic remains the same
       const form = document.createElement('form');
       form.method = 'POST';
-      // Use https://sandbox.payfast.co.za/eng/process for testing
-      // use https://www.payfast.co.za/eng/process for live
       form.action = 'https://sandbox.payfast.co.za/eng/process'; 
   
       Object.keys(data).forEach(key => {
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = data[key];
-        form.appendChild(input);
+        if (data[key]) { // Ensure we don't append empty values
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = data[key];
+          form.appendChild(input);
+        }
       });
   
       document.body.appendChild(form);
-      form.submit(); // Redirects user to PayFast
+      form.submit();
     } catch (error) {
       console.error("Payment initiation failed:", error);
     }
   };
+  
   
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md space-y-6">
