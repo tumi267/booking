@@ -19,7 +19,7 @@ type Team = {
 }
 
 type service = {
-  serviceId: string
+  id: string
   name: string
   isActive: boolean
   price: number
@@ -60,7 +60,7 @@ function Service({
   const handleSelect = (e: service) => {
     selectService(prev => ({
       ...prev,
-      serviceId: e.serviceId,
+      serviceId: e.id,
       providerId: '',
       team: '',
       dates: []
@@ -77,14 +77,14 @@ function Service({
                       grid-cols-[repeat(auto-fit,minmax(200px,1fr))] 
                       max-w-6xl w-full"
       >
-        {activeService.map((e) => (
+        {activeService.map((e,i) => (
           <div
-            key={e.serviceId}
+            key={e.id}
             onClick={() => handleSelect(e)}
             className={`
               p-6 shadow-md cursor-pointer transition-all 
               hover:shadow-xl hover:scale-105
-              ${bookingdata.serviceId  === e.serviceId ? 'border-2 border-black bg-gray-100' : 'border border-gray-300 bg-white'}
+              ${bookingdata.serviceId  === e.id ? 'border-2 border-black bg-gray-100' : 'border border-gray-300 bg-white'}
             `}
           >
             <h3 className="text-xl font-semibold mb-2">{e.name}</h3>

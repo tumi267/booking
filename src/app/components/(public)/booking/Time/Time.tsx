@@ -112,10 +112,10 @@ function Time({
       }
     })
 
-    selectedDate({
-      ...bookingdata,
+    selectedDate(prev => ({
+      ...prev,
       dates: newDates
-    })
+    }))
   }
 
   const handleTimeChange = (time: string) => {

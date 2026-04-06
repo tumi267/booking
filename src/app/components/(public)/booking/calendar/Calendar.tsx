@@ -49,7 +49,7 @@ function CustomCalendar({ step, currentStep, selectedDate, bookingdata }: Props)
   // FETCH DISABLED DAYS
   // =========================
   useEffect(() => {
-    const member = findmemberdata(bookingdata.serviceId)
+    const member = findmemberdata(bookingdata.providerId)
 
     const fetchData = async () => {
       setLoading(true)
@@ -140,15 +140,16 @@ function CustomCalendar({ step, currentStep, selectedDate, bookingdata }: Props)
     // Start new selection
     if (!selectedRange.from || selectedRange.to) {
       setSelectedRange({ from: date, to: undefined })
-
-      selectedDate({
-        ...bookingdata,
+    
+      selectedDate(prev => ({
+        ...prev,
         dates: [{
           date: formatDate(date),
           times: [],
           dayOfWeek: date.getDay()
         }]
-      })
+      }))
+    
       return
     }
 
