@@ -69,6 +69,7 @@ model Booking {
   sessionDuration Int
   date            DateTime
   time            String
+  groupId         String
   status          BookingStatus  @default(PENDING)
   specialRequests String?
   createdAt       DateTime       @default(now())

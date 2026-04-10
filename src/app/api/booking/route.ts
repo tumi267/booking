@@ -1,62 +1,62 @@
-import { NextResponse } from 'next/server';
-import crypto from 'crypto';
-
-// Define the shape of your incoming booking data
-interface BookingData {
-  id: string | number;
-  total: string | number;
-}
+import { NextResponse } from "next/server";
+import crypto from "crypto";
+import { createPayfastPayload } from "@/app/libs/payfast/createPayfastPayload";
+import { createBookings, checkConflicts } from "@/app/libs/crud/booking";
+import { getUserByClerkId } from "@/app/libs/crud/user";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const bookingdata: BookingData = body.bookingdata;
-console.log(bookingdata)
-    // 1. Define fields in the EXACT order Payfast requires
-    const payfastData: Record<string, string> = {
-      merchant_id: (process.env.PAYFAST_MERCHANT_ID || '').trim(),
-      merchant_key: (process.env.PAYFAST_MERCHANT_KEY || '').trim(),
+    const bookingdata = body.bookingdata;
+
+    const groupId = crypto.randomUUID();
+
+    const client = await getUserByClerkId(bookingdata.clientId);
+    if (!client) throw new Error("User not found");
+
+    const flatBookings = bookingdata.dates.flatMap((day: any) =>
+      day.times.map((time: string) => ({
+        serviceId: bookingdata.serviceId,
+        providerId: bookingdata.providerId,
+        clientId: client.id,
+        date: new Date(day.date),
+        time,
+        groupId,
+        price: bookingdata.total,
+        sessionDuration: bookingdata.sessionDuration,
+        status: "PENDING" as const
+      }))
+    );
+
+    const conflicts = await checkConflicts(bookingdata.providerId, flatBookings);
+
+    if (conflicts.length > 0) {
+      return NextResponse.json(
+        { error: "Some time slots are already booked" },
+        { status: 409 }
+      );
+    }
+
+    await createBookings(flatBookings);
+
+    const payfast = createPayfastPayload({
+      merchant_id: process.env.PAYFAST_MERCHANT_ID!,
+      merchant_key: process.env.PAYFAST_MERCHANT_KEY!,
       return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
       notify_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payfast-itn`,
-      amount: parseFloat(bookingdata.total.toString()).toFixed(2),
-      item_name: `Booking #${bookingdata.id}`,
-    };
-
-    // 2. Generate Signature
-    const passphrase = (process.env.PAYFAST_PASSPHRASE || '').trim();
-    
-    // Build string based on the specific keys in order
-    const keys = [
-      'merchant_id',
-      'merchant_key',
-      'return_url',
-      'cancel_url',
-      'notify_url',
-      'amount',
-      'item_name'
-    ];
-
-    let signatureString = '';
-    keys.forEach((key) => {
-      const value = payfastData[key];
-      if (value !== undefined && value !== "") {
-        // We use encodeURIComponent then replace specific characters to match Payfast's RFC 1738 requirement
-        signatureString += `${key}=${encodeURIComponent(value).replace(/%20/g, "+")}&`;
-      }
+      amount: bookingdata.total.toString(),
+      item_name: bookingdata.servicename,
+      custom_str1: groupId,
+      passphrase: process.env.PAYFAST_PASSPHRASE!
     });
 
-    // Add passphrase without the trailing '&' from the loop
-    const finalString = signatureString + `passphrase=${encodeURIComponent(passphrase).replace(/%20/g, "+")}`;
-    
-    const signature = crypto.createHash('md5').update(finalString).digest('hex');
-
-    console.log("Constructed String:", finalString);
-    console.log("Generated Signature:", signature);
-
-    return NextResponse.json({ ...payfastData, signature });
+    return NextResponse.json(payfast);
 
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
 }

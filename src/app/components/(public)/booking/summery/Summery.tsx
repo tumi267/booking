@@ -48,7 +48,7 @@ const isBookingValid =
   const handleSubmit = async () => {
     try {
       // Send the total along with the booking data
-      console.log(bookingdata)
+      console.log(selectedservice)
       const res = await fetch('/api/booking', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -56,31 +56,33 @@ const isBookingValid =
           bookingdata: {
             ...bookingdata,
             total: grandTotal,
-            clientId:userId
+            clientId:userId,
+            sessionDuration:selectedservice.duration,
+            servicename:selectedservice.name
           } 
         })
       });
   
       const data = await res.json();
-      // if (!res.ok) throw new Error(data.error);
+      if (!res.ok) throw new Error(data.error);
  
-      // // ... dynamic form logic remains the same
-      // const form = document.createElement('form');
-      // form.method = 'POST';
-      // form.action = 'https://sandbox.payfast.co.za/eng/process'; 
+      // ... dynamic form logic remains the same
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = 'https://sandbox.payfast.co.za/eng/process'; 
   
-      // Object.keys(data).forEach(key => {
-      //   if (data[key]) { // Ensure we don't append empty values
-      //     const input = document.createElement('input');
-      //     input.type = 'hidden';
-      //     input.name = key;
-      //     input.value = data[key];
-      //     form.appendChild(input);
-      //   }
-      // });
+      Object.keys(data).forEach(key => {
+        if (data[key]) { // Ensure we don't append empty values
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = data[key];
+          form.appendChild(input);
+        }
+      });
   
-      // document.body.appendChild(form);
-      // form.submit();
+      document.body.appendChild(form);
+      form.submit();
     } catch (error) {
       console.error("Payment initiation failed:", error);
     }
