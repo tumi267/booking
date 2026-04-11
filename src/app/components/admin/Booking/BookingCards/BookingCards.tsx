@@ -1,26 +1,23 @@
 import React from 'react'
 import OpenBookingInfo from './OpenBookingInfo/OpenBookingInfo'
 
-// Matching your Prisma Schema Enums
-type BookingStatus = 'PENDING' | 'PARTIAL' | 'PAID' | 'CANCELLED' | 'COMPLETED';
-
-type Booking = {
-    id: string | number
-    providerName: string
-    date: Date
-    time: string
-    serviceName: string
-    amount: number
-    status: BookingStatus
-    url: string
-}
-interface props{
-    bookingData:Booking[]
+type GroupedBooking = {
+    groupId: string;
+    items: any[]; 
+    totalOrderPrice: number; // Updated to match server logic
+    todaySessions: number;   // Updated to match server logic
+    time: string;
+    status: string;
+    clientName: string;
 }
 
-function BookingCards({bookingData}:props) {
+interface props {
+    bookingData: GroupedBooking[]
+}
 
-    const getStatusStyle = (status: BookingStatus) => {
+function BookingCards({ bookingData }: props) {
+
+    const getStatusStyle = (status: string) => {
         switch (status) {
             case 'PAID': return 'bg-green-100 text-green-700';
             case 'PENDING': return 'bg-amber-100 text-amber-700';
@@ -29,34 +26,51 @@ function BookingCards({bookingData}:props) {
             default: return 'bg-gray-100 text-gray-700';
         }
     }
-
+  
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
-            {bookingData.map((booking,i) => (
-                <div key={i} className="border rounded-xl p-5 shadow-sm bg-white hover:shadow-md transition">
-                    <div className="flex justify-between items-start mb-4">
-                        <span className="text-xs font-mono text-gray-400">#{booking.id}</span>
-                        <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase ${getStatusStyle(booking.status)}`}>
-                            {booking.status.replace('_', ' ')}
-                        </span>
-                    </div>
-                    
-                    <div className="space-y-2 mb-6">
-                        <h3 className="font-bold text-lg leading-tight">{booking.serviceName}</h3>
-                        <p className="text-sm text-gray-600">👤 Provider: <span className="font-medium text-gray-900">{booking.providerName}</span></p>
+            {bookingData.map((group) => {
+                // Access first item safely
+                const firstItem = group.items[0];
+                
+                return (
+                    <div key={group.groupId} className="border rounded-xl p-5 shadow-sm bg-white hover:shadow-md transition">
+                        <div className="flex justify-between items-start mb-4">
+                            <span className="text-xs font-mono text-gray-400">
+                                {group.todaySessions} {group.todaySessions > 1 ? 'Sessions' : 'Session'}
+                            </span>
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase ${getStatusStyle(group.status)}`}>
+                                {group.status}
+                            </span>
+                        </div>
                         
-                        <div className="flex gap-4 text-xs text-gray-500 bg-gray-50 p-2 rounded">
-                            <span>📅 {booking.date.toLocaleDateString()}</span>
-                            <span>⏰ {booking.time}</span>
+                        <div className="space-y-2 mb-6">
+                            <h3 className="font-bold text-lg leading-tight">
+                                {firstItem?.services?.name || "Service"}
+                            </h3>
+                            <p className="text-sm text-gray-600">👤 Client: <span className="font-medium text-gray-900">{group.clientName}</span></p>
+                            
+                            <div className="flex gap-4 text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                                <span>📅 {firstItem ? new Date(firstItem.date).toLocaleDateString() : 'N/A'}</span>
+                                <span>⏰ {group.items.map((e,i)=>{return <li key={i}>{e.time}</li>})}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-4 border-t">
+                        <div className="flex flex-col">
+                                <span className="font-bold text-blue-600 text-lg">R{group.items.map(()=>{}).length*firstItem.services.defaultPrice}</span>
+                                <span className="text-[10px] text-gray-400 font-medium">day Order Total</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-bold text-blue-600 text-lg">R{group.totalOrderPrice}</span>
+                                <span className="text-[10px] text-gray-400 font-medium">Full Order Total</span>
+                            </div>
+                            {/* Updated to use group.groupId directly */}
+                            <OpenBookingInfo url={`/admin/BookingInfo/${group.groupId}`} />
                         </div>
                     </div>
-
-                    <div className="flex justify-between items-center pt-4 border-t">
-                        <span className="font-bold text-blue-600 text-lg">R{booking.amount}</span>
-                        <OpenBookingInfo url={`/admin/BookingInfo${booking.url}`} />
-                    </div>
-                </div>
-            ))}
+                )
+            })}
         </div>
     )
 }

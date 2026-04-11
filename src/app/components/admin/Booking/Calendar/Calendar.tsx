@@ -1,13 +1,19 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styles from './Calendar.module.css'
 import Link from 'next/link'
-
+import Loading from '@/app/components/Loading/Loading'
+type CalendarBooking = {
+    day: number
+    month: number
+    count: number
+  }
 function Calendar() {
     const today = new Date()
     const [month, setMonth] = useState(today.getMonth()) // 0-indexed: Jan=0, Mar=2, May=4
     const [year, setYear] = useState(today.getFullYear())
-
+    const [Bookings,setBookings]=useState<CalendarBooking[]>([])
+    const [isloading,setIsLoading]=useState(true)
     // Helper: Get total days in current month and the starting weekday
     const daysInMonth = new Date(year, month + 1, 0).getDate()
     const firstDayOfMonth = new Date(year, month, 1).getDay()
@@ -19,14 +25,19 @@ function Calendar() {
     /**
      * UPDATED DUMMY DATA:
      * We add a 'month' property so bookings only show in specific months.
-     * March is 2, April is 3, May is 4.
      */
-    const mockBookings = [
-        { day: 16, month: 2, count: 5, status: 'urgent' }, // March 16
-        { day: 20, month: 2, count: 2, status: 'normal' }, // March 20
-        { day: 5,  month: 3, count: 1, status: 'normal' }, // April 5
-        // Note: No bookings for month 4 (May)
-    ]
+ 
+    useEffect(()=>{
+        async function getdata() {
+        const res = await fetch(
+            `/api/adminCal?&month=${month}&year=${year}`
+          )
+          const data = await res.json()
+          setBookings(data)
+          setIsLoading(false)
+        }
+        getdata()
+    },[month,year])
 
     const changeMonth = (offset: number) => {
         const newDate = new Date(year, month + offset, 1)
@@ -38,7 +49,7 @@ function Calendar() {
         'January', 'February', 'March', 'April', 'May', 'June', 
         'July', 'August', 'September', 'October', 'November', 'December'
     ]
-
+    if(isloading)return <Loading/>
     return (
         <div className={styles.wrapper}>
             <div className={styles.selector}>
@@ -68,10 +79,11 @@ function Calendar() {
                      * We search for a booking that matches the DAY AND THE MONTH.
                      * This ensures May stays empty if no bookings are defined for month 4.
                      */
-                    const hasBooking = mockBookings.find(b => b.day === day && b.month === month)
+                   
+                    const hasBooking = Bookings.find(b => b.day === day && b.month === month)
 
                     return (
-                        <Link href={`/admin/Booking/${day}-${month}-${year}`} key={day} ><div 
+                        <Link href={`/admin/Booking/${day}-${month+1}-${year}`} key={day} ><div 
                             
                             className={`${styles.day_cell} ${isToday ? styles.currentday : ''}`}
                         >

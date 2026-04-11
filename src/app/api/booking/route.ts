@@ -15,17 +15,23 @@ export async function POST(req: Request) {
     if (!client) throw new Error("User not found");
 
     const flatBookings = bookingdata.dates.flatMap((day: any) =>
-      day.times.map((time: string) => ({
-        serviceId: bookingdata.serviceId,
-        providerId: bookingdata.providerId,
-        clientId: client.id,
-        date: new Date(day.date),
-        time,
-        groupId,
-        price: bookingdata.total,
-        sessionDuration: bookingdata.sessionDuration,
-        status: "PENDING" as const
-      }))
+    day.times.map((time: string) => {
+    // FIX: Normalize date to UTC Midnight
+    const dateObj = new Date(day.date);
+    dateObj.setUTCHours(0, 0, 0, 0);
+
+    return {
+      serviceId: bookingdata.serviceId,
+      providerId: bookingdata.providerId,
+      clientId: client.id,
+      date: dateObj, // Now securely UTC midnight
+      time,
+      groupId,
+      price: bookingdata.total,
+      sessionDuration: bookingdata.sessionDuration,
+      status: "PENDING" as const
+      };
+      })
     );
 
     const conflicts = await checkConflicts(bookingdata.providerId, flatBookings);
