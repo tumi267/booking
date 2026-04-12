@@ -41,7 +41,6 @@ function BookingForm({
     date: new Date(items[0].date).toISOString().split('T')[0],
     slots: items.sort((a, b) => a.time.localeCompare(b.time))
   })
-
   return (
     <form className="space-y-6 p-6 border rounded-xl bg-white shadow-sm">
       {/* ... Header stays the same ... */}
@@ -105,8 +104,7 @@ function BookingForm({
             serviceId={serviceId}             // From Props
             sessionDuration={sestionDuration}
             date={formState.date}             // Reactive: re-fetches if date changes
-            daystart="08:00"                  // Hardcoded or from OperatingHours prop
-            dayend="17:00"                    // Hardcoded or from OperatingHours prop
+            groupId={groupId}                 // Hardcoded or from OperatingHours prop
             onChange={(newSlots) => setFormState({ ...formState, slots: newSlots })} 
           />
 
