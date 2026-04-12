@@ -1,132 +1,130 @@
 'use client'
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
+import Timeslots from './Timeslots';
 
-// Updated Interface to match Schema IDs
-interface Props {
-  id: string
-  clientName: string      // From User.firstName + lastName
-  contact: string         // From User.phone
-  providerId: string      // FK to Provider
-  serviceId: string       // FK to Service
-  startTime: string       // ISO string from DateTime
-  duration: number
-  status: string          // Enum: PENDING, CONFIRMED, etc.
-  price: number
+interface BookingItem {
+  id: string;
+  time: string;
+  date: Date | string;
 }
 
-function BookingForm({ id, clientName, contact, providerId, serviceId, startTime, duration, status, price }: Props) {
-  
-  // Dummy Data (In a real app, these come from your DB via props or fetch)
-  const providers = [
-    { id: 'p1', name: 'John Trainer' },
-    { id: 'p2', name: 'Sarah Specialist' }
-  ]
-  const services = [
-    { id: 's1', name: 'Personal Training', price: 650 },
-    { id: 's2', name: 'Nutritional Consultation', price: 450 }
-  ]
+// Updated to include the list of providers from the DB
+interface Props {
+  groupId: string;
+  clientName: string;
+  contact: string;
+  providerId: string; // Changed from 'provider' string to 'providerId'
+  serviceId: string;
+  sestionDuration:number;
+  status: string;
+  totalPrice: number;
+  items: BookingItem[];
+  availableProviders: { id: string, firstName: string, lastName: string }[];
+}
 
-  const [selectedOptions, setSelectedOptions] = useState({
-    id,
-    providerId,
-    serviceId,
-    date: new Date(startTime).toISOString().split('T')[0],
-    time: new Date(startTime).toTimeString().slice(0, 5),
-    duration,
+function BookingForm({ 
+  groupId, 
+  clientName, 
+  contact, 
+  providerId, 
+  serviceId, 
+  status, 
+  totalPrice, 
+  items,
+  sestionDuration,
+  availableProviders 
+}: Props) {
+  
+  const [formState, setFormState] = useState({
+    providerId, // Track the ID for the database update
     status,
-    currentPrice: price
+    date: new Date(items[0].date).toISOString().split('T')[0],
+    slots: items.sort((a, b) => a.time.localeCompare(b.time))
   })
 
-  // Update price automatically when service changes
-  const handleServiceChange = (id: string) => {
-    const service = services.find(s => s.id === id)
-    setSelectedOptions(prev => ({ 
-      ...prev, 
-      serviceId: id, 
-      currentPrice: service ? service.price : prev.currentPrice 
-    }))
-  }
-
   return (
-    <form className="space-y-4 p-4 border rounded-lg">
+    <form className="space-y-6 p-6 border rounded-xl bg-white shadow-sm">
+      {/* ... Header stays the same ... */}
+      <div className="grid grid-cols-2 gap-4 border-b pb-4">
+        <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase">Client</label>
+          <p className="font-semibold text-lg">{clientName}</p>
+        </div>
+        <div>
+          <label className="block text-xs font-bold text-gray-400 uppercase">Contact</label>
+          <p className="font-semibold">{contact}</p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-bold">Client</label>
-          <input type="text" value={clientName} readOnly className="bg-gray-100 p-2 w-full" />
+          <label className="block text-sm font-bold mb-1">Provider</label>
+          {/* CHANGED: Input replaced with Selector */}
+          <select 
+            value={formState.providerId}
+            onChange={(e) => setFormState({...formState, providerId: e.target.value})}
+            className="border p-2 w-full rounded bg-white"
+          >
+            {availableProviders.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.firstName} {p.lastName}
+              </option>
+            ))}
+          </select>
         </div>
+        
         <div>
-          <label className="block text-sm font-bold">Contact</label>
-          <input type="text" value={contact} readOnly className="bg-gray-100 p-2 w-full" />
+          <label className="block text-sm font-bold mb-1">Status</label>
+          <select 
+            value={formState.status}
+            onChange={(e) => setFormState({...formState, status: e.target.value})}
+            className="border p-2 w-full rounded"
+          >
+            <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-bold">Provider</label>
-        <select 
-          value={selectedOptions.providerId}
-          onChange={(e) => setSelectedOptions({...selectedOptions, providerId: e.target.value})}
-          className="border p-2 w-full"
-        >
-          {providers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
-      </div>
-
-      <div className="flex gap-4">
-        <div className="flex-1">
-          <label className="block text-sm font-bold">Date</label>
+      {/* ... Rest of the form (Slots and Price) stays the same ... */}
+      <div className="space-y-4">
+        <label className="block text-sm font-bold">Reschedule Slots</label>
+        <div className="bg-gray-50 p-4 rounded-lg">
           <input 
             type="date" 
-            value={selectedOptions.date} 
-            onChange={(e) => setSelectedOptions({...selectedOptions, date: e.target.value})}
-            className="border p-2 w-full"
+            value={formState.date} 
+            onChange={(e) => setFormState({...formState, date: e.target.value})}
+            className="mb-4 p-2 border rounded w-full"
           />
-        </div>
-        <div className="flex-1">
-          <label className="block text-sm font-bold">Time</label>
-          <input 
-            type="time" 
-            value={selectedOptions.time} 
-            onChange={(e) => setSelectedOptions({...selectedOptions, time: e.target.value})}
-            className="border p-2 w-full"
+          
+          <div className="w-full">
+          <Timeslots 
+            slots={formState.slots} 
+            providerId={formState.providerId} // Reactive: re-fetches if provider changes
+            serviceId={serviceId}             // From Props
+            sessionDuration={sestionDuration}
+            date={formState.date}             // Reactive: re-fetches if date changes
+            daystart="08:00"                  // Hardcoded or from OperatingHours prop
+            dayend="17:00"                    // Hardcoded or from OperatingHours prop
+            onChange={(newSlots) => setFormState({ ...formState, slots: newSlots })} 
           />
+
+          </div>
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-bold">Service</label>
-        <select 
-          value={selectedOptions.serviceId}
-          onChange={(e) => handleServiceChange(e.target.value)}
-          className="border p-2 w-full"
-        >
-          {services.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+      <div className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
+        <div>
+          <p className="text-xs text-blue-600 font-bold uppercase">Total Order</p>
+          <p className="text-xl font-bold text-blue-900">R{totalPrice}</p>
+        </div>
+        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-blue-700 transition">
+          Update Group
+        </button>
       </div>
-
-      <div className="p-3 bg-blue-50 rounded">
-        <p className="text-sm font-bold text-blue-800">
-          Estimated Price: R{selectedOptions.currentPrice}
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-bold">Status</label>
-        <select 
-          value={selectedOptions.status}
-          onChange={(e) => setSelectedOptions({...selectedOptions, status: e.target.value})}
-          className="border p-2 w-full"
-        >
-          <option value="PENDING">Pending</option>
-          <option value="CONFIRMED">Confirmed</option>
-          <option value="CANCELLED">Cancelled</option>
-        </select>
-      </div>
-
-      <button type="submit" className="bg-black text-white px-4 py-2 rounded">
-        Update Booking
-      </button>
     </form>
   )
 }
 
-export default BookingForm
+export default BookingForm;

@@ -66,7 +66,7 @@ function BookingCards({ bookingData }: props) {
                                 <span className="text-[10px] text-gray-400 font-medium">Full Order Total</span>
                             </div>
                             {/* Updated to use group.groupId directly */}
-                            <OpenBookingInfo url={`/admin/BookingInfo/${group.groupId}`} />
+                            <OpenBookingInfo url={`/admin/BookingInfo/${group.groupId}/${firstItem.date}`} />
                         </div>
                     </div>
                 )

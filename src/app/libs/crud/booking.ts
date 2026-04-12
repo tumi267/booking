@@ -181,3 +181,29 @@ export async function getCalendarBookings(month: number, year: number) {
     count: groupSet.size
   }));
 }
+
+export async function getBookingByGroupIdAndDate(groupId: string, date: Date) {
+  const start = new Date(date);
+  start.setUTCHours(0, 0, 0, 0);
+
+  const end = new Date(date);
+  end.setUTCHours(23, 59, 59, 999);
+
+  return await prisma.booking.findMany({
+    where: {
+      groupId,
+      date: {
+        gte: start,
+        lte: end
+      }
+    },
+    include: {
+      client: true,   
+      services: true,
+      provider: true,
+    },
+    orderBy: {
+      time: "asc"
+    }
+  });
+}
