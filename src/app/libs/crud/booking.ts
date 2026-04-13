@@ -9,6 +9,7 @@ type FlatBooking = {
   groupId: string
   sessionDuration: number
   price:number
+  
 }
 
 //
@@ -207,3 +208,25 @@ export async function getBookingByGroupIdAndDate(groupId: string, date: Date) {
     }
   });
 }
+
+export async function updatebookingbyday(
+  groupId: string, 
+  slots: any, // The new slots from formState
+  date:Date,
+  status: any, // Matches BookingStatus enum
+  providerId: string,
+) {
+
+  
+  const bookingtoupdate=await prisma.booking.findMany({
+    where: {
+      date: date,
+      groupId:groupId
+    }}
+  )
+  const {clientId,serviceId,price,sessionDuration}=bookingtoupdate[0]
+  const newproviderId=slots.providerId
+  const newstatus=slots.status
+  const newdate=slots.date
+  console.log({clientId,serviceId,price,sessionDuration,providerId:newproviderId,status:newstatus,date:newdate})
+  };

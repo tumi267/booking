@@ -2,7 +2,7 @@ import crypto from "crypto";
 
 type PayfastInput = {
   merchant_id: string;
-  merchant_key: string; // ONLY for signing
+  merchant_key: string; 
   return_url: string;
   cancel_url: string;
   notify_url: string;

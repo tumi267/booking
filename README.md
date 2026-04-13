@@ -35,3 +35,9 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
 # booking
+
+
+testing done using 
+1. k6 → simulate traffic
+2. Jest/Vitest → test logic correctness
+3. real staging environment → verify flows

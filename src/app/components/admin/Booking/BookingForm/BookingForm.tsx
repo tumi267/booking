@@ -1,6 +1,7 @@
 'use client'
-import React, { useState } from 'react'
+import React, { FormEvent, useState } from 'react'
 import Timeslots from './Timeslots';
+import { updateBooking } from '@/app/libs/booking/updatebooking';
 
 interface BookingItem {
   id: string;
@@ -17,6 +18,7 @@ interface Props {
   serviceId: string;
   sestionDuration:number;
   status: string;
+  date:Date;
   totalPrice: number;
   items: BookingItem[];
   availableProviders: { id: string, firstName: string, lastName: string }[];
@@ -29,7 +31,8 @@ function BookingForm({
   providerId, 
   serviceId, 
   status, 
-  totalPrice, 
+  totalPrice,
+  date,
   items,
   sestionDuration,
   availableProviders 
@@ -41,8 +44,15 @@ function BookingForm({
     date: new Date(items[0].date).toISOString().split('T')[0],
     slots: items.sort((a, b) => a.time.localeCompare(b.time))
   })
+  const handleSubmit=async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    
+    
+ 
+    updateBooking(groupId,formState,date,providerId,status)
+  }
   return (
-    <form className="space-y-6 p-6 border rounded-xl bg-white shadow-sm">
+    <form className="space-y-6 p-6 border rounded-xl bg-white shadow-sm" onSubmit={handleSubmit}>
       {/* ... Header stays the same ... */}
       <div className="grid grid-cols-2 gap-4 border-b pb-4">
         <div>

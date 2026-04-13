@@ -39,6 +39,7 @@ async function BookingInfo({ params }: { params: { id: string, date: string } })
         availableProviders={allProviders} 
         providerId={firstItem.provider.id}
         serviceId={firstItem.serviceId}
+        date={firstItem.date}
         sestionDuration={firstItem.services.defaultSessionDuration}
         status={firstItem.status}
         totalPrice={firstItem.price} // This is your stored group total
