@@ -227,6 +227,20 @@ export async function updatebookingbyday(
   const {clientId,serviceId,price,sessionDuration}=bookingtoupdate[0]
   const newproviderId=slots.providerId
   const newstatus=slots.status
-  const newdate=slots.date
-  console.log({clientId,serviceId,price,sessionDuration,providerId:newproviderId,status:newstatus,date:newdate})
+  const newdate=new Date(slots.date)
+  
+  const normaliseslots=slots.slots.map((e:any) => {
+    return{clientId,serviceId,price,sessionDuration,providerId:newproviderId,status:newstatus,date:newdate,groupId,time:e.time}
+  });
+  // delete old booking
+  await prisma.booking.deleteMany({
+    where: {
+      groupId,
+      date:date,
+    },
+  })
+  // create new booking
+  return await prisma.booking.createMany({
+    data: normaliseslots,
+  })
   };
