@@ -244,3 +244,12 @@ export async function updatebookingbyday(
     data: normaliseslots,
   })
   };
+// 
+// GET BOOKING BYT CLIENT ID
+// 
+export function getBookingByClientId(id:string){
+  return prisma.booking.findMany({where:{
+    client:{id:id}
+  }
+})
+}

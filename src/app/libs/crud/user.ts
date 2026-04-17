@@ -17,7 +17,9 @@ export async function getUserById(id: string) {
     include: { provider: true, bookings: true },
   })
 }
-
+export async function getAllUsers(){
+  return prisma.user.findMany({include: {bookings: true }})
+}
 export async function getUserByClerkId(clerkId: string) {
   return prisma.user.findUnique({
     where: { clerkId },
