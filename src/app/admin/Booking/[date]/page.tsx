@@ -1,24 +1,14 @@
 import BookingCards from '@/app/components/admin/Booking/BookingCards/BookingCards'
 import { getBookingsByDate } from '@/app/libs/crud/booking'
-import React from 'react'
+import { parseBookingDate } from '@/app/libs/dates/parseBookingDate'
 
-export default async function Page({ params }: { params: { date: string } }) {
-
-    const [day, month, year] = params.date.split("-")
-
-    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`
-
-    const d = new Date(formattedDate)
-
-    const bookings = await getBookingsByDate(d)
-
-
-
-    return (
-        <div>
-            <h2>{d.toLocaleDateString()}</h2>
-
-            <BookingCards bookingData={bookings} />
-        </div>
-    )
+export default async function Page({params,}: {params: { date: string }}) {
+  const { date, iso } = parseBookingDate(params.date)
+  const bookings = await getBookingsByDate(date)
+  return (
+    <div>
+      <h2>{date.toLocaleDateString()}</h2>
+      <BookingCards bookingData={bookings} />
+    </div>
+  )
 }

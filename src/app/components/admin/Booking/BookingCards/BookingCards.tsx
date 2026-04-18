@@ -16,7 +16,6 @@ interface props {
 }
 
 function BookingCards({ bookingData }: props) {
-
     const getStatusStyle = (status: string) => {
         switch (status) {
             case 'PAID': return 'bg-green-100 text-green-700';
@@ -26,7 +25,6 @@ function BookingCards({ bookingData }: props) {
             default: return 'bg-gray-100 text-gray-700';
         }
     }
-  
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             {bookingData.map((group) => {
@@ -43,7 +41,9 @@ function BookingCards({ bookingData }: props) {
                                 {group.status}
                             </span>
                         </div>
-                        
+                        <div>
+                            <h4 className='text-sm text-gray-600'><span className='font-bold'>booking id:</span> {firstItem.groupId}</h4>
+                        </div>
                         <div className="space-y-2 mb-6">
                             <h3 className="font-bold text-lg leading-tight">
                                 {firstItem?.services?.name || "Service"}
@@ -74,5 +74,4 @@ function BookingCards({ bookingData }: props) {
         </div>
     )
 }
-
 export default BookingCards

@@ -87,7 +87,13 @@ model OperatingHours {
 
   @@unique([dayOfWeek])
 }
-
+model DayOverride {
+  id         String   @id @default(uuid())
+  date       DateTime @unique
+  isBlocked  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
 // model BookingSettings {
 //   id                     String      @id @default(uuid())
 //   serviceId              String

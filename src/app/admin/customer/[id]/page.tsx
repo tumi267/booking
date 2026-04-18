@@ -1,3 +1,4 @@
+import BookingCards from '@/app/components/admin/Booking/BookingCards/BookingCards';
 import { getBookingByClientId } from '@/app/libs/crud/booking'
 import React from 'react'
 
@@ -7,21 +8,16 @@ interface PageProps {
 }
 
 async function Page({ params }: PageProps) {
-  // In Next.js 15+, params must be awaited
   const { id } = await params;
-  
   // Fetch the data using your CRUD helper
   const data = await getBookingByClientId(id);
   
-  // Log to your terminal (not browser) to verify the data
-  console.log(data);
-
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Client Bookings</h1>
-      <pre className="bg-gray-100 p-4 rounded">
-        {JSON.stringify(data, null, 2)}
-      </pre>
+      <BookingCards 
+      bookingData={data}
+      />
     </div>
   )
 }

@@ -1,3 +1,4 @@
+import { groupBookingsByDate } from "../groupbydate/groupByDate"
 import prisma from "../prisma"
 
 type FlatBooking = {
@@ -36,55 +37,39 @@ export async function getBookings(providerId?: string) {
 export async function getBookingsByDate(dateInput: Date | string) {
   const date = typeof dateInput === "string" ? new Date(dateInput) : dateInput;
 
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const dateString = `${year}-${month}-${day}`;
+  const startOfDay = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    0, 0, 0
+  ));
 
+  const endOfDay = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    23, 59, 59
+  ));
 
-  // console.log("Querying Range:", startOfDay.toISOString(), "to", endOfDay.toISOString());
   const bookings = await prisma.booking.findMany({
     where: {
       date: {
-        gte: new Date(Date.UTC(year, date.getUTCMonth(), date.getUTCDate(), 0, 0, 0)),
-        lte: new Date(Date.UTC(year, date.getUTCMonth(), date.getUTCDate(), 23, 59, 59)),
+        gte: startOfDay,
+        lte: endOfDay,
       }
     },
     include: {
-      client: true,   // Include relations if needed for the UI
+      client: true,
       services: true,
+      provider: true, // keep consistent with your type
     },
     orderBy: {
       time: "asc"
     }
   });
-// console.log(bookings)
-  // 3. Group by groupId
-  const grouped = new Map<string, typeof bookings>();
 
-  bookings.forEach((b) => {
-    if (!grouped.has(b.groupId)) {
-      grouped.set(b.groupId, []);
-    }
-    grouped.get(b.groupId)!.push(b);
-  });
-
-  // 4. Map to the final format with correct pricing logic
-  return Array.from(grouped.entries()).map(([groupId, items]) => {
-    const totalOrderPrice = items[0]?.price || 0; 
-    const sessionCount = items.length;
-    const pricePerSession = totalOrderPrice / sessionCount; // If sessions are equal value
-  
-    return {
-      groupId,
-      items,
-      totalOrderPrice, 
-      todaySessions: items.length, // Sessions specific to this date
-      time: items[0].time,
-      status: items[0]?.status,
-      clientName: items[0]?.client?.firstName || "Guest"
-    };
-  });
+  // ✅ THIS replaces all your manual grouping
+  return groupBookingsByDate(bookings);
 }
 //
 // READ: booking group (multi-slot booking)
@@ -247,9 +232,19 @@ export async function updatebookingbyday(
 // 
 // GET BOOKING BYT CLIENT ID
 // 
-export function getBookingByClientId(id:string){
-  return prisma.booking.findMany({where:{
-    client:{id:id}
-  }
-})
+export async function getBookingByClientId(id: string) {
+  const bookings = await prisma.booking.findMany({
+    where: {
+      client: { id: id }
+    },
+    include: {
+      client: true,
+      services: true,
+      provider: true,
+    },
+    orderBy: {
+      date: "asc", // optional but nice
+    }
+  });
+  return groupBookingsByDate(bookings);
 }
