@@ -9,16 +9,16 @@ import Booking from '../Booking/Booking'
 import Pagelayout from '../Pagelayout/Pagelayout'
 
 function Dash() {
-    const [selected, setSelected] = useState<'bookings' | 'team' | 'services' | 'customers' | 'operations' | 'pagelayout'>('bookings')
+    const [selected, setSelected] = useState<'Bookings' | 'Team' | 'Services' | 'Customers' | 'Operations' | 'pagelayout'>('Bookings')
   return (
     <div>
         <Nav selected={selected} setSelected={setSelected} />
         <div>
-        {selected === 'bookings' && <Booking />}
-        {selected === 'team' && <Team />}
-        {selected === 'services' && <Services />}
-        {selected === 'customers' && <Customers />}
-        {selected === 'operations' && <Operations />}
+        {selected === 'Bookings' && <Booking />}
+        {selected === 'Team' && <Team />}
+        {selected === 'Services' && <Services />}
+        {selected === 'Customers' && <Customers />}
+        {selected === 'Operations' && <Operations />}
         {selected === 'pagelayout' && <Pagelayout />}
       </div>
     </div>

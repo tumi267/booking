@@ -1,12 +1,12 @@
 import React from 'react'
 
 interface NavProps {
-  selected: 'bookings' | 'team' | 'services' | 'customers' | 'operations'|'pagelayout'
+  selected: 'Bookings' | 'Team' | 'Services' | 'Customers' | 'Operations'|'pagelayout'
   setSelected: React.Dispatch<React.SetStateAction<'bookings' | 'team' | 'services' | 'customers' | 'operations' |'pagelayout'>>
 }
 
 function Nav({ selected, setSelected }: NavProps) {
-  const links: NavProps['selected'][] = ['bookings', 'team', 'services', 'customers', 'operations','pagelayout']
+  const links: NavProps['selected'][] = ['Bookings', 'Team', 'Services', 'Customers', 'Operations','pagelayout']
 
   return (
     <div>
