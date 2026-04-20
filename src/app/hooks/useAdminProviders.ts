@@ -1,139 +1,146 @@
-// src/app/libs/providers/useProviders.ts
-
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
-  fetchProviders,
-  createProvider,
-  updateProvider,
-  deleteProvider,
-  Provider,
-} from './service'
-import { ProviderRole } from '@prisma/client'
+  Banner,
+  TeamMember,
+} from '@/app/libs/team/service'
+import {
+  createEmptyProvider,
+  findMember,
+  removeMemberFromList,
+  replaceMember,
+  updateMemberField,
+} from '@/app/libs/team/logic'
+import {
+  deleteProviderAction,
+  loadProvidersAction,
+  saveProviderAction,
+} from '@/app/libs/team/action'
 
-type Banner = {
-  type: 'success' | 'error'
-  message: string
-}
-
-export function useProviders() {
-  const [team, setTeam] = useState<Provider[]>([])
+export function useAdminProviders() {
+  const [team, setTeam] = useState<TeamMember[]>([])
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [showEditor, setShowEditor] = useState(false)
   const [loading, setLoading] = useState(false)
   const [banner, setBanner] = useState<Banner | null>(null)
 
-  // -----------------------
-  // LOAD
-  // -----------------------
   useEffect(() => {
-    load()
+    loadProviders()
   }, [])
 
-  async function load() {
+  const selectedMember = useMemo(
+    () => findMember(team, selectedId),
+    [team, selectedId]
+  )
+
+  async function loadProviders() {
     try {
       setLoading(true)
-      const data = await fetchProviders()
+      const data = await loadProvidersAction()
       setTeam(data)
     } catch {
-      setBanner({ type: 'error', message: 'Failed to load team' })
+      setBanner({
+        type: 'error',
+        message: 'Failed to load team members.',
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  // -----------------------
-  // UPDATE LOCAL FIELD
-  // -----------------------
-  function updateLocal<T extends keyof Provider>(
+  function addMember() {
+    const member = createEmptyProvider()
+
+    setTeam((prev) => [...prev, member])
+    setSelectedId(member.tempId)
+    setShowEditor(true)
+  }
+
+  function updateMember<K extends keyof TeamMember>(
     id: string,
-    key: T,
-    value: Provider[T]
+    key: K,
+    value: TeamMember[K]
   ) {
-    setTeam(prev =>
-      prev.map(m => (m.id === id ? { ...m, [key]: value } : m))
+    setTeam((prev) =>
+      updateMemberField(prev, id, key, value)
     )
   }
 
-  // -----------------------
-  // CREATE OR UPDATE
-  // -----------------------
-  async function save(member: Provider & { tempId?: string }) {
+  async function saveMember(id: string) {
+    const member = findMember(team, id)
+
+    if (!member) return
+
     try {
       setLoading(true)
 
-      let result: Provider
+      const saved = await saveProviderAction(member)
 
-      if (!member.id) {
-        result = await createProvider({
-          firstName: member.firstName,
-          lastName: member.lastName,
-          email: member.email,
-          role: member.role,
-          isAvailable: member.isAvailable,
-        })
-      } else {
-        result = await updateProvider(member)
-      }
-
-      setTeam(prev =>
-        prev.map(m =>
-          m.id === member.id || m.id === member.tempId ? result : m
-        )
+      setTeam((prev) =>
+        replaceMember(prev, id, saved)
       )
 
-      setBanner({ type: 'success', message: 'Saved successfully' })
+      setSelectedId(null)
+      setShowEditor(false)
+
+      setBanner({
+        type: 'success',
+        message: 'Member saved successfully.',
+      })
     } catch {
-      setBanner({ type: 'error', message: 'Save failed' })
+      setBanner({
+        type: 'error',
+        message: 'Failed to save member.',
+      })
     } finally {
       setLoading(false)
     }
   }
 
-  // -----------------------
-  // DELETE
-  // -----------------------
-  async function remove(id: string) {
+  async function removeMember(id: string) {
+    const member = findMember(team, id)
+
+    if (!member) return
+
     try {
       setLoading(true)
-      await deleteProvider(id)
 
-      setTeam(prev => prev.filter(m => m.id !== id))
-      setBanner({ type: 'success', message: 'Deleted successfully' })
+      await deleteProviderAction(member)
+
+      setTeam((prev) =>
+        removeMemberFromList(prev, member)
+      )
+
+      setSelectedId(null)
+      setShowEditor(false)
+
+      setBanner({
+        type: 'success',
+        message: 'Member removed successfully.',
+      })
     } catch {
-      setBanner({ type: 'error', message: 'Delete failed' })
+      setBanner({
+        type: 'error',
+        message: 'Failed to remove member.',
+      })
     } finally {
       setLoading(false)
     }
-  }
-
-  // -----------------------
-  // ADD TEMP MEMBER
-  // -----------------------
-  function addTempMember() {
-    const tempId = crypto.randomUUID()
-
-    const newMember: Provider & { tempId: string } = {
-      id: '',
-      tempId,
-      firstName: 'New',
-      lastName: 'Member',
-      email: '',
-      role: ProviderRole.TRAINER,
-      isAvailable: true,
-    }
-
-    setTeam(prev => [...prev, newMember])
-    return newMember
   }
 
   return {
     team,
+    selectedId,
+    setSelectedId,
+    selectedMember,
+    showEditor,
+    setShowEditor,
     loading,
     banner,
-    load,
-    updateLocal,
-    save,
-    remove,
-    addTempMember,
+    addMember,
+    updateMember,
+    saveMember,
+    removeMember,
   }
 }
