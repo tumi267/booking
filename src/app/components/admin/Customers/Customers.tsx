@@ -1,36 +1,10 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+
 import Loading from '../../Loading/Loading'
 import Link from 'next/link';
-
-
-type Customer = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  sessionCount:number;
-};
-
+import { useAdminCustomer } from '@/app/hooks/useAdminCustomer';
 export default function CustomerList() {
-  const [customers,setCustomer] = useState<Customer[]>([])
-  const [isloading,setLoading]=useState(true)
-useEffect(()=>{
-  const getUser = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/getUser');
-      if (!response.ok) throw new Error('Network response was not ok');
-      const data = await response.json();
-      setCustomer(data.data); 
-      setLoading(false)
-    } catch (error) {
-      console.error('Fetch error:', error);
-    }
-  }
-  getUser()
-},[])
+const {isloading,customers}=useAdminCustomer()
 if(isloading)return<Loading/>
   return (
     <div className="p-6 bg-white rounded-xl shadow-sm border">
