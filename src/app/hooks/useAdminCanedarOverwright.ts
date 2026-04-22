@@ -12,7 +12,9 @@ useEffect(() => {
         try {
           setLoading(true)
           const data = await getOverRideAction(month, year)
-          setBlockedDays(data.res)
+          setBlockedDays( data.res.map((item: any) =>
+          new Date(item.date).toISOString().split("T")[0]
+        ))
         } catch (err) {
           console.error(err)
         } finally {

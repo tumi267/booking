@@ -8,8 +8,14 @@ export async function getOverRideDates(month:number,year:number){
     })
     return res.json()
 }
-export async function createDayOverride() {
-    const res = await fetch("/api/createOverwrightenDates")
+export async function toggleOverRide(date:Date) {
+    const res = await fetch("/api/createOverwrightenDates",{
+        method:'POST',
+        headers:{
+            'content-type':'application/json'
+        },
+        body:JSON.stringify({date})
+    })
     return res.json()
 }
 

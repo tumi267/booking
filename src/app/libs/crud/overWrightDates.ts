@@ -1,22 +1,34 @@
 import prisma from '../prisma'
 
-export async function createDayOverride(
-  date: Date,
-  isBlocked?: boolean
-) {
-  const override = await prisma.dayOverride.create({
+export async function toggleDayOverride(date: Date) {
+  const existing = await prisma.dayOverride.findUnique({
+    where: { date },
+  })
+
+  // IF EXISTS → DELETE
+  if (existing) {
+    await prisma.dayOverride.delete({
+      where: { date },
+    })
+
+    return {
+      action: "deleted",
+      id: existing.id,
+    }
+  }
+
+  // IF NOT EXISTS → CREATE
+  const created = await prisma.dayOverride.create({
     data: {
-      date: date,
-      isBlocked: isBlocked ?? true,
+      date,
+      isBlocked: true,
     },
   })
 
   return {
-    id: override.id,
-    date: override.date,
-    isBlocked: override.isBlocked,
-    createdAt: override.createdAt,
-    updatedAt: override.updatedAt,
+    action: "created",
+    id: created.id,
+    date: created.date,
   }
 }
 
@@ -39,9 +51,9 @@ export async function getDayOverridesByMonthAndYear(
   month: number, // 1-12
   year: number
 ) {
-  const startDate = new Date(year, month - 1, 1)
-  const endDate = new Date(year, month, 1)
-
+  const startDate = new Date(Date.UTC(year, month, 1))
+  const endDate = new Date(Date.UTC(year, month+1, 1))
+ 
   const overrides = await prisma.dayOverride.findMany({
     where: {
       date: {

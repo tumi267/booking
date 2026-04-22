@@ -1,5 +1,6 @@
 'use client'
 import { useState } from "react"
+import { toggleOverRideAction } from "../libs/overWrightDate/action"
 export function useCalendar() {
   const today = new Date()
   const [month, setMonth] = useState(today.getMonth())
@@ -7,11 +8,13 @@ export function useCalendar() {
   const [blockedDays, setBlockedDays] = useState<string[]>([])
   // TOGGLE BLOCKED DAY
   function toggleBlockedDay(date: string) {
+    const parsedDate = new Date(date)
     setBlockedDays(prev =>
       prev.includes(date)
         ? prev.filter(d => d !== date)
         : [...prev, date]
     )
+    toggleOverRideAction(parsedDate)
   }
   // NAVIGATION
   function prevMonth() {
