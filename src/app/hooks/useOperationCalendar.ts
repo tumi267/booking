@@ -43,6 +43,7 @@ export function useCalendar() {
     month,
     year,
     blockedDays,
+    setBlockedDays,
     firstDay,
     daysInMonth,
     monthNames,
