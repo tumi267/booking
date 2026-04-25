@@ -113,7 +113,7 @@ model HeroSection {
   sectionNum    String
 
   text          String?
-
+  breakpoints   Json
   textStyle     Json?
   textContain   Json?
   heroContainer Json?

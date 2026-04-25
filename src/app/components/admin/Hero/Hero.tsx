@@ -1,98 +1,29 @@
 'use client'
 
-import React, { CSSProperties, useEffect, useState } from 'react'
+import React, { CSSProperties, useState } from 'react'
 import Loading from '../../Loading/Loading'
-interface props{
-  location:string
-  sectionNum:string
-}
-function Hero({location,sectionNum}:props) {
+import { useHeroEditor } from '@/app/hooks/useHeroEditor'
+import drag from '@/app/hooks/drag'
 
+function Hero({ location, sectionNum ,viewport}: any) {
+  const {url,setUrl,toggleSection,text,setText,openSections,current,update,showEditor,setShowEditor,isLoading,handleSave} = useHeroEditor(location, sectionNum,viewport)
+  const{dragPosition,handleMouseDown,handleMouseMove,handleMouseUp}=drag()
+  if (isLoading) return <Loading />
 
-  const [url, setUrl] = useState('/images/buddy-an-BVyzjR1AcOI-unsplash.jpg')
-  const [text, setText] = useState('')
-  const [isLoading,setLoading]=useState(true)
-
-  const [textStyle, setTextStyle] = useState<CSSProperties>({
-    color: '',
-    fontSize: '',
-    fontWeight: '',
-    textAlign: 'center',
-    lineHeight: '',
-    width: '',
-  })
-
-  const [textContain, setTextContain] = useState<CSSProperties>({
-    position: 'absolute',
-    top: 50,
-    left: 50,
-    transform: 'translate(-50%, -50%)',
-  })
-
-  const [heroContainer, setHeroContainer] = useState<CSSProperties>({
-    width: '100%',
-    maxWidth: '100%',
-    height: '650px',
-    margin: '0px auto',
-    position: 'relative',
-    borderRadius: '0px',
-    overflow: 'hidden',
-  })
-
-  const heroImage: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    objectFit: 'fill',
-    display: 'block',
-    borderRadius: heroContainer.borderRadius,
-  }
-
-  const [showEditor, setShowEditor] = useState(false)
-
-  // Draggable editor
-  const [dragPosition, setDragPosition] = useState({ x: 50, y: 50 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    // Stop drag if clicking input/select
-    if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'SELECT') return
-    setIsDragging(true)
-    setDragOffset({ x: e.clientX - dragPosition.x, y: e.clientY - dragPosition.y })
-  }
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging) return
-    setDragPosition({
-      x: e.clientX - dragOffset.x,
-      y: e.clientY - dragOffset.y,
-    })
-  }
-
-  const handleMouseUp = () => setIsDragging(false)
-
-  // Accordion state
-  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
-    text: true,
-    position: true,
-    container: true,
-    image: true,
-  })
-  const toggleSection = (section: string) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }))
-  }
-
-  const editButtonStyle: CSSProperties = {
-    position: 'absolute',
-    top: '10px',
-    right: '10px',
-    padding: '8px 12px',
-    background: 'rgba(0,0,0,0.6)',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
+  const sectionHeaderStyle: CSSProperties = {
+    fontWeight: 600,
+    padding: '8px',
+    background: '#f3f3f3',
     cursor: 'pointer',
-    zIndex: 10,
+    borderRadius: '6px',
+    marginBottom: '6px',
+  }
+
+  const sectionContentStyle: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '10px',
+    marginBottom: '12px',
   }
 
   const editorStyle: CSSProperties = {
@@ -101,107 +32,61 @@ function Hero({location,sectionNum}:props) {
     left: dragPosition.x,
     background: 'white',
     padding: '15px',
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    cursor: isDragging ? 'grabbing' : 'grab',
+    width: '360px',
+    borderRadius: '10px',
+    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+    cursor: 'grab',
     zIndex: 1000,
-    width: '350px',
     maxHeight: '80vh',
     overflowY: 'auto',
-    boxShadow: '0 5px 15px rgba(0,0,0,0.2)',
   }
-  const saveButtonStyle: CSSProperties = {
-    padding: '8px 12px',
+
+  const heroImage: CSSProperties = {
+    width: '100%',
+    height: '100%',
+    objectFit: 'fill',
+  }
+
+  const editButtonStyle: CSSProperties = {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    padding: '6px 10px',
     background: 'rgba(0,0,0,0.6)',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '6px',
     cursor: 'pointer',
-    zIndex: 10,
-  }
-  const sectionHeaderStyle: CSSProperties = {
-    fontWeight: 600,
-    marginBottom: '8px',
-    cursor: 'pointer',
-    background: '#f0f0f0',
-    padding: '6px 8px',
-    borderRadius: '4px',
   }
 
-  const sectionContentStyle: CSSProperties = {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px',
-    marginBottom: '12px',
-  }
-
-  useEffect(()=>{
-    const getdata=async()=>{
-      const res= await fetch('/api/hero/get', {
-        method: 'POST',
-        body: JSON.stringify({location,sectionNum}),
-      })
-      const herodata=await res.json()
-      if (!herodata) {
-        setLoading(false)
-        return
-      }
-      const {heroContainer,heroImage,text,textContain,textStyle}=herodata
-      setHeroContainer(heroContainer)
-      setText(text)
-      setTextContain(textContain)
-      setTextStyle(textStyle)
-      setLoading(false)
-    }
-    getdata()
-  },[])
-
-  //save setting
-  const handelSave=async()=>{
-    const data = {
-      text,
-      textStyle,
-      textContain,
-      heroContainer,
-      heroImage,
-    }
-  
-   const res= await fetch('/api/hero/upsert', {
-    method: 'POST',
-    body: JSON.stringify({location,sectionNum,data}),
-  })
-  const newdata=await res.json()
-  console.log(newdata)
-  // loading state
-    setShowEditor(!showEditor)
-  }
-  if(isLoading)return <Loading/>
   return (
     <div>
-      {/* Hero */}
-      <div style={heroContainer}>
-        <img src={url} alt="hero" style={heroImage} />
+      {/* HERO */}
+      <div style={{ ...current.heroContainer, position: 'relative' }}>
+        <img src={url} style={heroImage} />
 
-        {/* Edit button top-left */}
-        <button style={editButtonStyle} onClick={() => setShowEditor(!showEditor)}>
-          {showEditor ? 'Close Editor' : 'Edit'}
+        <button
+          style={editButtonStyle}
+          onClick={() => setShowEditor(!showEditor)}
+        >
+          {showEditor ? 'Close' : 'Edit'}
         </button>
 
         <div
           style={{
             position: 'absolute',
-            top: `${textContain.top}%`,
-            left: `${textContain.left}%`,
+            top: `${current.textContain.top}%`,
+            left: `${current.textContain.left}%`,
             transform: 'translate(-50%, -50%)',
-            width: textStyle.width,
-            textAlign: textStyle.textAlign as any,
+            width: current.textStyle.width,
+            textAlign: current.textStyle.textAlign as any,
           }}
         >
-          <h1 style={textStyle}>{text}</h1>
+          <h1 style={current.textStyle}>{text}</h1>
         </div>
       </div>
 
-      {/* Draggable Editor */}
+      {/* EDITOR */}
       {showEditor && (
         <div
           style={editorStyle}
@@ -210,180 +95,249 @@ function Hero({location,sectionNum}:props) {
           onMouseUp={handleMouseUp}
         >
           <strong>Hero Editor</strong>
-          <hr style={{ margin: '8px 0' }} />
-          <button style={editButtonStyle} onClick={() => setShowEditor(!showEditor)}>
-          {showEditor ? 'Close Editor' : 'Edit'}
+
+          <button
+          style={editButtonStyle}
+          onClick={() => setShowEditor(!showEditor)}
+        >
+          {showEditor ? 'Close' : 'Edit'}
         </button>
-          {/* Text Section */}
+
+          {/* TEXT SECTION */}
           <div>
-            <div style={sectionHeaderStyle} onClick={() => toggleSection('text')}>
+            <div
+              style={sectionHeaderStyle}
+              onClick={() => toggleSection('text')}
+            >
               Text Settings {openSections.text ? '▼' : '►'}
             </div>
+
             {openSections.text && (
               <div style={sectionContentStyle}>
-                <label>Text:</label>
+                <label>Text</label>
                 <input
-                  type="text"
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                  style={{ padding: 6, border: '1px solid #ccc' }}
                 />
 
-                <label>Font Size:</label>
+                <label>Font Size</label>
                 <input
                   type="range"
-                  min={20}
-                  max={320}
-                  value={parseInt(textStyle.fontSize as string) || 50}
-                  onChange={(e) => setTextStyle({ ...textStyle, fontSize: `${e.target.value}px` })}
-                  style={{ width: '100%' }}
+                  min={10}
+                  max={300}
+                  value={parseInt(current.textStyle.fontSize as string) || 50}
+                  onChange={(e) =>
+                    update('textStyle', {
+                      fontSize: `${e.target.value}px`,
+                    })
+                  }
                 />
-                <label>Line Height:</label>
+
+                <label>Line Height</label>
                 <input
                   type="range"
-                  min={0}
-                  max={20}
+                  min={0.5}
+                  max={3}
                   step={0.1}
-                  value={parseFloat(textStyle.lineHeight as string) || 1.2}
-                  onChange={(e) => setTextStyle({ ...textStyle, lineHeight: e.target.value })}
-                  style={{ width: '100%' }}
+                  value={parseFloat(current.textStyle.lineHeight as string) || 1.2}
+                  onChange={(e) =>
+                    update('textStyle', {
+                      lineHeight: e.target.value,
+                    })
+                  }
                 />
-                <label>Font Weight:</label>
+
+                <label>Font Weight</label>
                 <select
-                  value={textStyle.fontWeight as string}
-                  onChange={(e) => setTextStyle({ ...textStyle, fontWeight: e.target.value })}
-                  style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                  value={current.textStyle.fontWeight as string}
+                  onChange={(e) =>
+                    update('textStyle', {
+                      fontWeight: e.target.value,
+                    })
+                  }
                 >
-                  {Array.from({ length: 9 }, (_, i) => (i + 1) * 100).map((w) => (
+                  {[100,200,300,400,500,600,700,800,900].map((w) => (
                     <option key={w} value={w}>{w}</option>
                   ))}
                 </select>
 
-                <label>Text Color:</label>
+                <label>Color</label>
                 <input
                   type="color"
-                  value={textStyle.color as string}
-                  onChange={(e) => setTextStyle({ ...textStyle, color: e.target.value })}
-                  style={{ width: '50px', height: '30px', border: 'none', padding: 0 }}
+                  value={(current.textStyle.color as string) || '#000'}
+                  onChange={(e) =>
+                    update('textStyle', { color: e.target.value })
+                  }
                 />
 
-                <label>Text Align:</label>
-                <select value={textStyle.textAlign as string || 'center'}
+                <label>Align</label>
+                <select
+                  value={(current.textStyle.textAlign as string) || 'center'}
                   onChange={(e) =>
-                  setTextStyle({ ...textStyle, textAlign: e.target.value as CSSProperties['textAlign'] })
+                    update('textStyle', {
+                      textAlign: e.target.value as CSSProperties['textAlign'],
+                    })
                   }
-                style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #ccc' }}>
+                >
                   <option value="left">Left</option>
                   <option value="center">Center</option>
                   <option value="right">Right</option>
                 </select>
-                <label>Text Width (%):</label>
+
+                <label>Width %</label>
                 <input
                   type="range"
                   min={20}
                   max={100}
-                  value={parseInt(textStyle.width as string) || 100}
-                  onChange={(e) => setTextStyle({ ...textStyle, width: `${e.target.value}%` })}
-                  style={{ width: '100%' }}
+                  value={parseInt(current.textStyle.width as string) || 100}
+                  onChange={(e) =>
+                    update('textStyle', {
+                      width: `${e.target.value}%`,
+                    })
+                  }
                 />
               </div>
             )}
           </div>
 
-          {/* Position Section */}
+          {/* POSITION */}
           <div>
-            <div style={sectionHeaderStyle} onClick={() => toggleSection('position')}>
-              Text Position {openSections.position ? '▼' : '►'}
+            <div
+              style={sectionHeaderStyle}
+              onClick={() => toggleSection('position')}
+            >
+              Position {openSections.position ? '▼' : '►'}
             </div>
+
             {openSections.position && (
               <div style={sectionContentStyle}>
-                <label>Top (%):</label>
+                <label>Top</label>
                 <input
                   type="range"
                   min={0}
                   max={100}
-                  value={textContain.top}
-                  onChange={(e) => setTextContain({ ...textContain, top: parseInt(e.target.value) })}
-                  style={{ width: '100%' }}
+                  value={current.textContain.top}
+                  onChange={(e) =>
+                    update('textContain', {
+                      top: +e.target.value,
+                    })
+                  }
                 />
-                <label>Left (%):</label>
+
+                <label>Left</label>
                 <input
                   type="range"
                   min={0}
                   max={100}
-                  value={textContain.left}
-                  onChange={(e) => setTextContain({ ...textContain, left: parseInt(e.target.value) })}
-                  style={{ width: '100%' }}
+                  value={current.textContain.left}
+                  onChange={(e) =>
+                    update('textContain', {
+                      left: +e.target.value,
+                    })
+                  }
                 />
               </div>
             )}
           </div>
 
-          {/* Container Section */}
+          {/* CONTAINER */}
           <div>
-            <div style={sectionHeaderStyle} onClick={() => toggleSection('container')}>
-              Container Settings {openSections.container ? '▼' : '►'}
+            <div
+              style={sectionHeaderStyle}
+              onClick={() => toggleSection('container')}
+            >
+              Container {openSections.container ? '▼' : '►'}
             </div>
+
             {openSections.container && (
               <div style={sectionContentStyle}>
-                <label>Width (%):</label>
+                <label>Width</label>
                 <input
                   type="range"
                   min={50}
                   max={100}
-                  value={parseInt(heroContainer.width as string) || 100}
-                  onChange={(e) => setHeroContainer({ ...heroContainer, width: `${e.target.value}%` })}
-                  style={{ width: '100%' }}
+                  value={parseInt(current.heroContainer.width as string) || 100}
+                  onChange={(e) =>
+                    update('heroContainer', {
+                      width: `${e.target.value}%`,
+                    })
+                  }
                 />
-                <label>Max Width (%):</label>
+
+                <label>Max Width</label>
                 <input
                   type="range"
                   min={50}
                   max={100}
-                  value={parseInt(heroContainer.maxWidth as string) || 100}
-                  onChange={(e) => setHeroContainer({ ...heroContainer, maxWidth: `${e.target.value}%` })}
-                  style={{ width: '100%' }}
+                  value={parseInt(current.heroContainer.maxWidth as string) || 100}
+                  onChange={(e) =>
+                    update('heroContainer', {
+                      maxWidth: `${e.target.value}%`,
+                    })
+                  }
                 />
-                <label>Height (px):</label>
+
+                <label>Height</label>
                 <input
                   type="number"
-                  value={parseInt(heroContainer.height as string) || 650}
-                  onChange={(e) => setHeroContainer({ ...heroContainer, height: `${e.target.value}px` })}
-                  style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                  value={parseInt(current.heroContainer.height as string) || 650}
+                  onChange={(e) =>
+                    update('heroContainer', {
+                      height: `${e.target.value}px`,
+                    })
+                  }
                 />
-                <label>Border Radius (px):</label>
+
+                <label>Border Radius</label>
                 <input
                   type="number"
-                  value={parseInt(heroContainer.borderRadius as string) || 8}
-                  onChange={(e) => setHeroContainer({ ...heroContainer, borderRadius: `${e.target.value}px` })}
-                  style={{ padding: '6px 8px', borderRadius: '6px', border: '1px solid #ccc' }}
+                  value={parseInt(current.heroContainer.borderRadius as string) || 0}
+                  onChange={(e) =>
+                    update('heroContainer', {
+                      borderRadius: `${e.target.value}px`,
+                    })
+                  }
                 />
               </div>
             )}
           </div>
 
-          {/* Image Section */}
+          {/* IMAGE */}
           <div>
-            <div style={sectionHeaderStyle} onClick={() => toggleSection('image')}>
-              Hero Image {openSections.image ? '▼' : '►'}
+            <div
+              style={sectionHeaderStyle}
+              onClick={() => toggleSection('image')}
+            >
+              Image {openSections.image ? '▼' : '►'}
             </div>
+
             {openSections.image && (
               <div style={sectionContentStyle}>
                 <input
                   type="file"
                   onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
+                    if (e.target.files?.[0]) {
                       setUrl(URL.createObjectURL(e.target.files[0]))
                     }
                   }}
-                  style={{ borderRadius: '6px', border: '1px solid #ccc', padding: '6px' }}
                 />
               </div>
             )}
           </div>
-          <button style={saveButtonStyle} onClick={() =>{ handelSave()}}>
-          save
-        </button>
+
+          <button
+            onClick={handleSave}
+            style={{
+              width: '100%',
+              padding: 10,
+              marginTop: 10,
+              background: '#000',
+              color: '#fff',
+            }}
+          >
+            Save
+          </button>
         </div>
       )}
     </div>
