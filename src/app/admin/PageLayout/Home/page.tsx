@@ -30,6 +30,7 @@ function page() {
       <HowItWorks
       location='0'
       sectionNum='0'
+      viewport={viewport}
       />
       <Hero
       location='0'
@@ -39,6 +40,7 @@ function page() {
       <HowItWorks
       location='0'
       sectionNum='1'
+      viewport={viewport}
       />
       <Hero
       location='0'

@@ -114,10 +114,10 @@ model HeroSection {
 
   text          String?
   breakpoints   Json
-  textStyle     Json?
-  textContain   Json?
-  heroContainer Json?
-  heroImage     Json?
+  // textStyle     Json?
+  // textContain   Json?
+  // heroContainer Json?
+  // heroImage     Json?
 
   imageUrl      String?
 
@@ -166,13 +166,13 @@ model HowItWorksSection {
   id             String   @id @default(uuid())
   location       String
   sectionNum     String
-
+  breakpoints    Json
   text           String?
-  textStyle      Json?
+  // textStyle      Json?
   imageUrl       String?
-  imageHeight    String?
-  containerStyle Json?
-  mainContain    Json?
+  // imageHeight    String?
+  // containerStyle Json?
+  // mainContain    Json?
 
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
