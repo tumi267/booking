@@ -34,28 +34,28 @@ bio:'4'
     <div>
         <h2>About</h2>
         <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+      
         <Hero
         location='1'
         sectionNum='0'
         />
         </Suspense>
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+      
         <HowItWorks
         location='1'
         sectionNum='0'
         />
       </Suspense>
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+      
         <Team
         location='1'
         sectionNum='0'
         />
       </Suspense>
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+      
         <Features
         location='1'
         sectionNum='0'

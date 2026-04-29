@@ -14,27 +14,9 @@ function HowItWorks({
   sectionNum: string
   viewport: 'desktop' | 'tablet' | 'mobile'
 }) {
-  const {
-    text,
-    setText,
-    imageUrl,
-    setImageUrl,
-    current,
-    update,
-    showEditor,
-    setShowEditor,
-    open,
-    toggle,
-    isLoading,
-    handleSave,
-  } = useHowItWorksEditor(location, sectionNum, viewport)
+  const {text,setText,imageUrl,setImageUrl,current,update,showEditor,setShowEditor,open,toggle,isLoading,handleSave,} = useHowItWorksEditor(location, sectionNum, viewport)
 
-  const {
-    dragPosition,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-  } = drag()
+  const {dragPosition,handleMouseDown,handleMouseMove,handleMouseUp,} = drag()
 
   const header: CSSProperties = {
     background: '#eee',

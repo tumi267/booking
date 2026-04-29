@@ -50,6 +50,7 @@ function page() {
       <Features
       location='0'
       sectionNum='0'
+      viewport={viewport}
       />
 
     </div>

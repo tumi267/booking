@@ -57,8 +57,7 @@ export function useHeroEditor(
     image: false,
   })
 
-  const [currentBreakpoint, setCurrentBreakpoint] =
-    useState<Breakpoint>(viewport || 'desktop')
+  const [currentBreakpoint, setCurrentBreakpoint] =useState<Breakpoint>(viewport || 'desktop')
 
   // ---------------- DATA ----------------
   const [data, setData] = useState<HeroData>({
@@ -98,8 +97,7 @@ export function useHeroEditor(
     setCurrentBreakpoint(viewport)
   }, [viewport])
   // ---------------- SAFE CURRENT ----------------
-  const current =
-    data.breakpoints[currentBreakpoint] || data.breakpoints.desktop
+  const current =data.breakpoints[currentBreakpoint] || data.breakpoints.desktop
 
   // ---------------- SAFE UPDATE ----------------
   const update = (
