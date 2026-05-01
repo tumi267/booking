@@ -1,6 +1,6 @@
 'use client'
 import React, { CSSProperties, useEffect, useState } from 'react'
-import { getFeat } from '../libs/Feat/Feat'
+import { getFeat, updateFeat } from '../libs/Feat/Feat'
 
 type Feature = {
   id: string
@@ -121,7 +121,7 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
 
   const sectionStyle = current.section
 
-  const selected = features.find((f) => f.id === selectedId)
+  const selected = features?.find((f) => f.id === selectedId)
 
   // -----------------------
   // BREAKPOINT SYNC
@@ -169,26 +169,25 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
       ),
     }))
   }
-  const updateBreakpoint = <
-  K extends SectionKey
->(
-  section: K,
-  value: Partial<typeof data.breakpoints.desktop[K]>
-) => {
-  setData((prev) => ({
-    ...prev,
-    breakpoints: {
-      ...prev.breakpoints,
-      [currentBreakpoint]: {
-        ...prev.breakpoints[currentBreakpoint],
-        [section]: {
-          ...(prev.breakpoints[currentBreakpoint][section] as object),
-          ...value,
+  const updateBreakpoint = (section: SectionKey, value: any) => {
+    setData(prev => {
+      const bp = prev.breakpoints[currentBreakpoint]
+  
+      return {
+        ...prev,
+        breakpoints: {
+          ...prev.breakpoints,
+          [currentBreakpoint]: {
+            ...bp,
+            [section]: {
+              ...bp[section],
+              ...value,
+            },
+          },
         },
-      },
-    },
-  }))
-}
+      }
+    })
+  }
 
   const removeFeature = (id: string) => {
     setData((prev) => ({
@@ -210,10 +209,10 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
         return
       }
 
-      const featuredata = await res.json()
+      const featuredata = await res
 
       // later you'll map this into data
-      console.log(featuredata)
+      setData(featuredata)
 
       setLoading(false)
     }
@@ -225,14 +224,12 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
   // SAVE
   // -----------------------
   const handleSave = async () => {
-    const payload = {
-      location,
-      sectionNum,
-      data,
-    }
+   const newdata= await updateFeat(location,sectionNum,data)
+   if (newdata) {
+    setData(newdata) // or hydrate state properly
+  }
+  setShowEditor(false)
 
-    console.log('SAVE:', payload)
-    setShowEditor(false)
   }
 
   return {

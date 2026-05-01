@@ -130,14 +130,15 @@ model FeaturesSection {
   id            String        @id @default(uuid())
   location      String
   sectionNum    String
-
-  sectionStyle  Json?
-  gridStyle     Json?
-  columns       Int?
-  cardStyle     Json?
-  cardWidth     Int?
-  textStyle     Json?
-  imageStyle    Json?
+  breakpoints   Json
+  style       Json?
+  // sectionStyle  Json?
+  // gridStyle     Json?
+  // columns       Int?
+  // cardStyle     Json?
+  // cardWidth     Int?
+  // textStyle     Json?
+  // imageStyle    Json?
 
   features      FeatureItem[]
 
