@@ -1,5 +1,9 @@
 'use client'
+
 import React, { CSSProperties, useEffect, useState } from 'react'
+
+type Breakpoint = 'desktop' | 'tablet' | 'mobile'
+type SectionKey = 'grid' | 'card' | 'text' | 'image' | 'intro'
 
 type TeamMember = {
   id: string
@@ -13,40 +17,46 @@ type TeamMember = {
   imageRadius?: string
 }
 
-type Breakpoint = 'desktop' | 'tablet' | 'mobile'
-
-type SectionKey =
-  | 'grid'
-  | 'card'
-  | 'intro'
-
-const defaultBp = () => ({
-  intro: {
-    fontSize: '24px',
-    color: '#000',
-    textAlign: 'center',
-  } as CSSProperties,
-
+// ----------------------
+// DEFAULT BREAKPOINT
+// ----------------------
+const defaultTeamBp = () => ({
   grid: {
-    display: 'flex',
+    display: 'grid',
     flexWrap: 'wrap',
     gap: 20,
     justifyContent: 'center',
-    maxWidth: '1200px',
-    margin: '0 auto',
-  } as CSSProperties,
+    alignItems: 'stretch',
+    columns: 4,
+  },
 
   card: {
-    background: '#fff',
-    borderRadius: '8px',
-    padding: '10px',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    background: '#ffffff',
+    padding: 10,
+    radius: 8,
+    width: 100,
     overflow: 'hidden',
-    width: '300px',
-  } as CSSProperties,
+    textAlign: 'center' as CSSProperties['textAlign'],
+    flexDirection: 'column' as CSSProperties['flexDirection'],
+  },
+
+  text: {
+    fontSize: 24,
+    color: '#000',
+    textAlign: 'center' as CSSProperties['textAlign'],
+  },
+
+  image: {
+    width: '100%',
+    height: 160,
+    objectFit: 'fill' as CSSProperties['objectFit'],
+  },
+
+  intro: {
+    textAlign: 'center' as CSSProperties['textAlign'],
+    fontSize: 24,
+    color: '#000',
+  },
 })
 
 function useAdminTeam(
@@ -54,59 +64,49 @@ function useAdminTeam(
   sectionNum: string,
   viewport: Breakpoint
 ) {
-  // -------------------------
-  // UI STATE
-  // -------------------------
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [showEditor, setShowEditor] = useState(false)
   const [isLoading, setLoading] = useState(true)
 
-  const [openSections, setOpenSections] = useState({
-    intro: false,
-    grid: false,
-    card: false,
-    selected: false,
-  })
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [showEditor, setShowEditor] = useState(false)
 
-  // -------------------------
-  // MAIN DATA STRUCTURE
-  // -------------------------
   const [data, setData] = useState<{
-    intro: string
     members: TeamMember[]
-    columns: number
-    breakpoints: Record<Breakpoint, ReturnType<typeof defaultBp>>
+    intro: string
+    breakpoints: Record<Breakpoint, ReturnType<typeof defaultTeamBp>>
   }>({
-    intro: '',
     members: [
-     
+      {
+        id: crypto.randomUUID(),
+        name: 'Name',
+        role: 'Role',
+        image: '/next.svg',
+        fontSize: '16px',
+        fontColor: '#000000',
+        imageWidth: '100%',
+        imageHeight: '160px',
+        imageRadius: '0px',
+      },
     ],
-    columns: 4,
+    intro: '',
     breakpoints: {
-      desktop: defaultBp(),
-      tablet: defaultBp(),
-      mobile: defaultBp(),
+      desktop: defaultTeamBp(),
+      tablet: defaultTeamBp(),
+      mobile: defaultTeamBp(),
     },
   })
-
-  // -------------------------
+  const setintro=(el:string)=>{setData({...data,intro:el})}
+  // ----------------------
   // CURRENT BREAKPOINT DATA
-  // -------------------------
-  const current =data.breakpoints[viewport] || data.breakpoints.desktop
-
-  const intro = data.intro
+  // ----------------------
+  const current = data.breakpoints[viewport]
   const members = data.members
-  const columns = data.columns
-
+  const intro = data.intro
   const selected = members.find((m) => m.id === selectedId)
 
-  // -------------------------
-  // BREAKPOINT UPDATE (CORE)
-  // -------------------------
-  const updateBreakpoint = (
-    section: SectionKey,
-    value: any
-  ) => {
+  // ----------------------
+  // BREAKPOINT UPDATE (CLEAN & SIMPLE)
+  // ----------------------
+  const updateBreakpoint = (section: SectionKey, value: any) => {
     setData((prev) => {
       const bp = prev.breakpoints[viewport]
 
@@ -126,26 +126,25 @@ function useAdminTeam(
     })
   }
 
-  // -------------------------
+  // ----------------------
   // MEMBER ACTIONS
-  // -------------------------
+  // ----------------------
   const addMember = () => {
+    const newMember: TeamMember = {
+      id: crypto.randomUUID(),
+      name: 'Name',
+      role: 'Role',
+      image: '/next.svg',
+      fontSize: '16px',
+      fontColor: '#000',
+      imageWidth: '100%',
+      imageHeight: '160px',
+      imageRadius: '0px',
+    }
+
     setData((prev) => ({
       ...prev,
-      members: [
-        ...prev.members,
-        {
-          id: crypto.randomUUID(),
-          name: 'Name',
-          role: 'Role',
-          image: '/next.svg',
-          fontSize: '16px',
-          fontColor: '#000',
-          imageWidth: '100%',
-          imageHeight: '160px',
-          imageRadius: '0px',
-        },
-      ],
+      members: [...prev.members, newMember],
     }))
   }
 
@@ -170,19 +169,9 @@ function useAdminTeam(
     }))
   }
 
-  // -------------------------
-  // TOGGLES
-  // -------------------------
-  const toggleSection = (key: keyof typeof openSections) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }))
-  }
-
-  // -------------------------
-  // LOAD (API)
-  // -------------------------
+  // ----------------------
+  // LOAD
+  // ----------------------
   useEffect(() => {
     const getdata = async () => {
       const res = await fetch('/api/aboutteam/get', {
@@ -204,9 +193,9 @@ function useAdminTeam(
     getdata()
   }, [location, sectionNum])
 
-  // -------------------------
+  // ----------------------
   // SAVE
-  // -------------------------
+  // ----------------------
   const handleSave = async () => {
     const res = await fetch('/api/aboutteam/upsert', {
       method: 'POST',
@@ -219,31 +208,23 @@ function useAdminTeam(
 
     const newdata = await res.json()
 
-    if (newdata) {
-      setData(newdata)
-    }
+    if (newdata) setData(newdata)
 
     setShowEditor(false)
   }
 
   return {
-    // derived
     current,
-    intro,
     members,
-    columns,
+    intro,
     selected,
 
-    // ui
     selectedId,
     setSelectedId,
     showEditor,
     setShowEditor,
     isLoading,
-    openSections,
-    toggleSection,
-
-    // actions
+    setintro,
     addMember,
     removeMember,
     updateMember,

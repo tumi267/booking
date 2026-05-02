@@ -1,5 +1,6 @@
 import React from 'react'
 import { getTeam } from '@/app/libs/crud/sections/teamAbout'
+import TeamClient from './TeamClient'
 
 type TeamMember = {
   id: string
@@ -19,11 +20,10 @@ interface Props {
 }
 
 export default async function TeamAbout({ location, sectionNum }: Props) {
-  // fetch data from server
   const data = await getTeam(location, sectionNum)
 
   if (!data) return null
-
+console.log(data)
   const members: TeamMember[] = data.members.map((m: any) => ({
     id: m.id,
     name: m.name,
@@ -36,68 +36,11 @@ export default async function TeamAbout({ location, sectionNum }: Props) {
     imageRadius: m.imageRadius ?? '0px',
   }))
 
-  const gridStyle: React.CSSProperties = data.gridStyle || {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '20px',
-    justifyContent: 'center',
-    maxWidth: '1200px',
-    margin: '0 auto',
-  }
-
-  const cardStyle: React.CSSProperties = data.cardStyle || {
-    background: '#ffffff',
-    borderRadius: '8px',
-    padding: '10px',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    width: '300px',
-    overflow: 'hidden',
-  }
-
-  const introStyle: React.CSSProperties = data.introStyle || {
-    fontSize: '24px',
-    color: '#000',
-    textAlign: 'center',
-    marginBottom: '20px',
-  }
-
   return (
-    <div>
-      {data.intro && <h3 style={introStyle}>{data.intro}</h3>}
-
-      <div style={gridStyle}>
-        {members.map((m) => (
-          <div
-            key={m.id}
-            style={{
-              ...cardStyle,
-            
-            }}
-          >
-            <img
-              src={m.image}
-              style={{
-                width: m.imageWidth,
-                height: m.imageHeight,
-                borderRadius: m.imageRadius,
-                objectFit: 'fill',
-              }}
-            />
-            <div
-              style={{
-                fontSize: m.fontSize,
-                color: m.fontColor,
-              }}
-            >
-              <h4>{m.name}</h4>
-              <p>{m.role}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <TeamClient
+      intro={data.intro}
+      members={members}
+      breakpoints={data.breakpoints}
+    />
   )
 }

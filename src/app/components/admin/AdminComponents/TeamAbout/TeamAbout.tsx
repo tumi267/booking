@@ -1,145 +1,63 @@
 'use client'
+
 import Loading from '@/app/components/Loading/Loading'
-import React, { CSSProperties, useEffect, useState } from 'react'
-
-type TeamMember = {
-  id: string
-  name: string
-  image: string
-  role: string
-  fontSize?: string
-  fontColor?: string
-  imageWidth?: string
-  imageHeight?: string
-  imageRadius?: string
-}
-
-function TeamAbout({location,sectionNum,}:{location: string
-  sectionNum: string}) {
-  const [intro, setIntro] = useState<string>('')
-  const [isLoading,setLoading]=useState(true)
-  const [members, setMembers] = useState<TeamMember[]>([
-    {
-      id: crypto.randomUUID(),
-      name: 'Name',
-      role: 'Role',
-      image: '/next.svg',
-      fontSize: '16px',
-      fontColor: '#000000',
-      imageWidth: '100%',
-      imageHeight: '160px',
-      imageRadius: '0px',
-    },
-  ])
-
-  const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [showEditor, setShowEditor] = useState(false)
-
-  const [columns, setColumns] = useState(4)
-
-  const [gridStyle, setGridStyle] = useState<CSSProperties>({
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '20px',
-    justifyContent: 'center',
-    maxWidth: '1200px',
-    margin: '0 auto',
-  })
-
-  const [cardStyle, setCardStyle] = useState<CSSProperties>({
-    background: '#ffff',
-    borderRadius: '8px',
-    padding: '10px',
-    textAlign: 'center',
-    display:'flex',
-    flexDirection:'column',
-    alignItems:'center',
-    width:'850px',
-    overflow:'hidden'
-  })
-
-  const [cardWidth, setCardWidth] = useState<number | null>(null)
-
-  const [introStyle, setIntroStyle] = useState<CSSProperties>({
-    fontSize: '24px',
-    color: '#000',
-    textAlign: 'center',
-  })
-
+import drag from '@/app/hooks/drag'
+import useAdminTeam from '@/app/hooks/useAdminTeam'
+import React, { CSSProperties } from 'react'
+import { ProviderRole } from '@prisma/client'
+function TeamAbout({
+  location,
+  sectionNum,
+  viewport,
+}: {
+  location: string
+  sectionNum: string
+  viewport: 'desktop' | 'tablet' | 'mobile'
+}) {
+  // -------------------
   // DRAG
+  // -------------------
+  const {
+    dragPosition,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+  } = drag()
 
-  const [dragPosition, setDragPosition] = useState({ x: 50, y: 50 })
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  // -------------------
+  // DATA LAYER (CLEAN)
+  // -------------------
+  const {
+    current,
+    members,
+    intro,
+    selected,
+    selectedId,
+    setSelectedId,
+    showEditor,
+    setShowEditor,
+    setintro,
+    isLoading,
+    addMember,
+    removeMember,
+    updateMember,
+    updateBreakpoint,
+    handleSave,
+  } = useAdminTeam(location, sectionNum, viewport)
+  const roles=Object.values(ProviderRole)
+  if (isLoading) return <Loading />
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (
-      (e.target as HTMLElement).tagName === 'INPUT' ||
-      (e.target as HTMLElement).tagName === 'TEXTAREA' ||
-      (e.target as HTMLElement).tagName === 'SELECT'
-    )
-      return
+  // -------------------
+  // DERIVED BREAKPOINT DATA
+  // -------------------
+  const gridStyle = current.grid
+  const cardStyle = current.card
+  const introStyle = current.text
+  const imageStyle = current.image
 
-    setIsDragging(true)
-
-    setDragOffset({
-      x: e.clientX - dragPosition.x,
-      y: e.clientY - dragPosition.y,
-    })
-  }
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging) return
-
-    setDragPosition({
-      x: e.clientX - dragOffset.x,
-      y: e.clientY - dragOffset.y,
-    })
-  }
-
-  const handleMouseUp = () => setIsDragging(false)
-
-  // CRUD
-
-  const addMember = () => {
-    setMembers((p) => [
-      ...p,
-      {
-        id: crypto.randomUUID(),
-        name: 'Name',
-        role: 'Role',
-        image: '/next.svg',
-        fontSize: '16px',
-        fontColor: '#000',
-        imageWidth: '100%',
-        imageHeight: '160px',
-        imageRadius: '0px',
-      },
-    ])
-  }
-
-  const removeMember = (id: string) => {
-    setMembers((p) => p.filter((m) => m.id !== id))
-    setSelectedId(null)
-  }
-
-  const updateMember = (
-    id: string,
-    key: keyof TeamMember,
-    value: string
-  ) => {
-    setMembers((prev) =>
-      prev.map((m) =>
-        m.id === id ? { ...m, [key]: value } : m
-      )
-    )
-  }
-
-  const selected = members.find((m) => m.id === selectedId)
-
-  const computedWidth =
-    cardWidth !== null ? cardWidth : 100 / columns
-
+  // -------------------
+  // EDITOR UI STYLES
+  // -------------------
   const editorBox: CSSProperties = {
     position: 'fixed',
     top: dragPosition.y,
@@ -152,7 +70,6 @@ function TeamAbout({location,sectionNum,}:{location: string
     border: '1px solid #ccc',
     borderRadius: 8,
     zIndex: 999,
-    cursor: isDragging ? 'grabbing' : 'grab',
   }
 
   const label: CSSProperties = {
@@ -166,7 +83,9 @@ function TeamAbout({location,sectionNum,}:{location: string
     padding: 4,
     marginBottom: 4,
   }
-  const editBtn: CSSProperties = {    position: 'absolute',
+
+  const editBtn: CSSProperties = {
+    position: 'absolute',
     top: 10,
     right: 10,
     background: 'rgba(0,0,0,0.6)',
@@ -175,84 +94,40 @@ function TeamAbout({location,sectionNum,}:{location: string
     padding: '6px 10px',
     borderRadius: '4px',
     cursor: 'pointer',
-    zIndex: 5,}
-
-    useEffect(()=>{
-      const getdata=async()=>{
-        const res= await fetch('/api/aboutteam/get', {
-          method: 'POST',
-          body: JSON.stringify({location,sectionNum}),
-        })
-        const teamdata=await res.json()
-       console.log(teamdata)
-        if (!teamdata) {
-          setLoading(false)
-          return
-        }
-        const {cardStyle,columns,gridStyle,intro,introStyle,members}=teamdata
-        setColumns(columns)
-        setCardStyle(cardStyle)
-        setGridStyle(gridStyle)
-        setIntro(intro)
-        setIntroStyle(introStyle)
-        setMembers(members)
-        setLoading(false)
-      }
-      getdata()
-    },[])
-  const handleSave = async() => {
-    const data = {
-      location,
-      sectionNum,
-      intro,
-      members,
-      columns,
-      gridStyle,
-      cardStyle,
-      introStyle,
-    }
-  
-    const res= await fetch('/api/aboutteam/upsert', {
-      method: 'POST',
-      body: JSON.stringify({location,sectionNum,data}),
-    })
-    const newdata=await res.json()
-    console.log(newdata)
-  
-    setShowEditor(false)
+    zIndex: 5,
   }
-  if(isLoading)return <Loading/>
+// console.log(current.intro.value)
+  // -------------------
+  // RENDER
+  // -------------------
   return (
     <div>
-
       <button onClick={() => setShowEditor(!showEditor)}>
         {showEditor ? 'Close' : 'Edit'}
       </button>
 
-
-
+      {/* INTRO */}
       <h3 style={introStyle}>{intro}</h3>
 
       {/* GRID */}
-
-      <div style={gridStyle}>
+      <div style={{display:'grid',
+      gap:`${gridStyle.gap}px`,
+      gridTemplateColumns:`repeat(${gridStyle.columns}, 1fr)`,
+      justifyContent:`${gridStyle.justifyContent}`}}>
         {members.map((m) => (
           <div
             key={m.id}
             style={{
-              ...cardStyle,
              
               cursor: showEditor ? 'pointer' : 'default',
             }}
-            onClick={() =>
-              showEditor && setSelectedId(m.id)
-            }
+            onClick={() => showEditor && setSelectedId(m.id)}
           >
             <img
               src={m.image}
               style={{
-                width: m.imageWidth,
-                height: m.imageHeight,
+                width: m.imageWidth || imageStyle.width,
+                height: m.imageHeight || imageStyle.height,
                 borderRadius: m.imageRadius,
                 objectFit: 'fill',
               }}
@@ -262,6 +137,7 @@ function TeamAbout({location,sectionNum,}:{location: string
               style={{
                 fontSize: m.fontSize,
                 color: m.fontColor,
+                textAlign: introStyle.textAlign,
               }}
             >
               <h4>{m.name}</h4>
@@ -272,7 +148,6 @@ function TeamAbout({location,sectionNum,}:{location: string
       </div>
 
       {/* EDITOR */}
-
       {showEditor && (
         <div
           style={editorBox}
@@ -280,186 +155,106 @@ function TeamAbout({location,sectionNum,}:{location: string
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
         >
-
           <b>Team Editor</b>
-          <button style={editBtn} onClick={() => setShowEditor(!showEditor)}>
-        {showEditor ? 'Close' : 'Edit'}
-      </button>
-      <div>
-      <button onClick={addMember}>
-          Add Member
-        </button>
-      </div>
-          <label style={label}>Intro</label>
 
+          <button style={editBtn} onClick={() => setShowEditor(false)}>
+            Close
+          </button>
+
+          <button onClick={addMember}>Add Member</button>
+
+          {/* INTRO */}
+          <label style={label}>Intro</label>
           <input
             style={input}
             value={intro}
             onChange={(e) =>
-              setIntro(e.target.value)
+              setintro(e.target.value)
             }
           />
 
+          {/* COLUMNS */}
           <label style={label}>Columns</label>
-
           <input
             style={input}
             type="number"
-            value={columns}
+            value={current.grid.columns}
             onChange={(e) =>
-              setColumns(parseInt(e.target.value))
+              updateBreakpoint('grid', {
+                columns: Number(e.target.value),
+              })
             }
           />
 
-<label style={label}>Radius</label>
-<input
-  style={input}
-  type="number"
-  value={parseInt(cardStyle.borderRadius as string) || 0}
-  onChange={(e) =>
-    setCardStyle({
-      ...cardStyle,
-      borderRadius: e.target.value + 'px',
-    })
-  }
-/>
+          {/* CARD STYLE (clean grouped updates) */}
+          <label style={label}>Card Radius</label>
+          <input
+            style={input}
+            type="number"
+            value={current.card.radius}
+            onChange={(e) =>
+              updateBreakpoint('card', {
+                radius: Number(e.target.value),
+              })
+            }
+          />
 
-<label style={label}>Padding</label>
-<input
-  style={input}
-  type="number"
-  value={parseInt(cardStyle.padding as string) || 0}
-  onChange={(e) =>
-    setCardStyle({
-      ...cardStyle,
-      padding: e.target.value + 'px',
-    })
-  }
-/>
+          <label style={label}>Padding</label>
+          <input
+            style={input}
+            type="number"
+            value={current.card.padding}
+            onChange={(e) =>
+              updateBreakpoint('card', {
+                padding: Number(e.target.value),
+              })
+            }
+          />
 
-<label style={label}>Text align</label>
-<select
-  style={input}
-  value={cardStyle.textAlign as string}
-  onChange={(e) =>
-    setCardStyle({
-      ...cardStyle,
-      textAlign: e.target.value as any,
-    })
-  }
->
-  <option value="left">left</option>
-  <option value="center">center</option>
-  <option value="right">right</option>
-</select>
+          <label style={label}>Background</label>
+          <input
+            type="color"
+            value={current.card.background}
+            onChange={(e) =>
+              updateBreakpoint('card', {
+                background: e.target.value,
+              })
+            }
+          />
 
-<label style={label}>Flex direction</label>
-<select
-  style={input}
-  value={cardStyle.flexDirection as 'row' | 'row-reverse' | 'column' | 'column-reverse'}
-  onChange={(e) =>
-    setCardStyle({
-      ...cardStyle,
-      display: 'flex',
-      flexDirection: e.target.value as 'row' | 'row-reverse' | 'column' | 'column-reverse',
-    })
-  }
->
-  <option value="column">column</option>
-  <option value="column-reverse">column-reverse</option>
-  <option value="row">row</option>
-  <option value="row-reverse">row-reverse</option>
-</select>
-
-<label style={label}>Align items</label>
-<select
-  style={input}
-  value={cardStyle.alignItems as string}
-  onChange={(e) =>
-    setCardStyle({
-      ...cardStyle,
-      display: 'flex',
-      alignItems: e.target.value,
-    })
-  }
->
-  <option value="flex-start">start</option>
-  <option value="center">center</option>
-  <option value="flex-end">end</option>
-  <option value="stretch">stretch</option>
-</select>
-
-<label style={label}>Card width px</label>
-<input
-  style={input}
-  type="number"
-  onChange={(e) =>
-    setCardStyle({
-      ...cardStyle,
-      width: e.target.value + 'px',
-    })
-  }
-/>
-
-<label style={label}>Overflow</label>
-<select
-  style={input}
-  value={cardStyle.overflow as string}
-  onChange={(e) =>
-    setCardStyle({
-      ...cardStyle,
-      overflow: e.target.value,
-    })
-  }
->
-  <option value="hidden">hidden</option>
-  <option value="visible">visible</option>
-  <option value="scroll">scroll</option>
-</select>
-        <label style={label}>background colour</label>
-
-        <input
-        type='color'
-        value={cardStyle.background}
-        onChange={(e)=>{setCardStyle({...cardStyle,background:e.target.value})}}
-        />
+          {/* SELECTED MEMBER */}
           {selected && (
             <>
               <hr />
 
               <label style={label}>Name</label>
-
               <input
                 style={input}
                 value={selected.name}
                 onChange={(e) =>
-                  updateMember(
-                    selected.id,
-                    'name',
-                    e.target.value
-                  )
+                  updateMember(selected.id, 'name', e.target.value)
                 }
               />
 
               <label style={label}>Role</label>
+              <select
+              style={input}
+              value={selected.role}
+              onChange={(e) =>
+              updateMember(selected.id, 'role', e.target.value)
+              }
+              >
+              {roles.map((r) => (
+              <option key={r} value={r}>
+                {r}
+            </option>
+            ))}
+            </select>
 
+              <label style={label}>Font Size</label>
               <input
                 style={input}
-                value={selected.role}
-                onChange={(e) =>
-                  updateMember(
-                    selected.id,
-                    'role',
-                    e.target.value
-                  )
-                }
-              />
-
-              <label style={label}>Font size</label>
-
-              <input
-                style={input}
-                type="number"
+                type ='range' 
                 onChange={(e) =>
                   updateMember(
                     selected.id,
@@ -469,8 +264,7 @@ function TeamAbout({location,sectionNum,}:{location: string
                 }
               />
 
-              <label style={label}>Font color</label>
-
+              <label style={label}>Font Color</label>
               <input
                 style={input}
                 type="color"
@@ -483,86 +277,28 @@ function TeamAbout({location,sectionNum,}:{location: string
                 }
               />
 
-              <label style={label}>Image width</label>
-
-              <input
-                style={input}
-                type="number"
-                onChange={(e) =>
-                  updateMember(
-                    selected.id,
-                    'imageWidth',
-                    e.target.value + '%'
-                  )
-                }
-              />
-
-              <label style={label}>Image height</label>
-
-              <input
-                style={input}
-                type="number"
-                onChange={(e) =>
-                  updateMember(
-                    selected.id,
-                    'imageHeight',
-                    e.target.value + 'px'
-                  )
-                }
-              />
-
-              {/* ✅ NEW */}
-
-              <label style={label}>Image radius</label>
-
-              <input
-                style={input}
-                type="number"
-                onChange={(e) =>
-                  updateMember(
-                    selected.id,
-                    'imageRadius',
-                    e.target.value + 'px'
-                  )
-                }
-              />
-
-<label style={label}>Image</label>
-
-<input
-  style={input}
-  type="file"
-  onChange={(e) =>
-console.log('image logic')  }
-/>
-
-              <button
-                onClick={() =>
-                  removeMember(selected.id)
-                }
-              >
-                Remove
+              <label style={label}>Remove</label>
+              <button onClick={() => removeMember(selected.id)}>
+                Delete Member
               </button>
             </>
           )}
-          <div>
-           <button
-  style={{
-    marginTop: 10,
-    padding: "8px",
-    background: "black",
-    color: "white",
-    border: "none",
-    cursor: "pointer",
-  }}
-  onClick={handleSave}
->
-  Save
-</button>
-</div>
+
+          {/* SAVE */}
+          <button
+            style={{
+              marginTop: 10,
+              padding: 8,
+              background: 'black',
+              color: 'white',
+              border: 'none',
+            }}
+            onClick={handleSave}
+          >
+            Save
+          </button>
         </div>
       )}
-     
     </div>
   )
 }

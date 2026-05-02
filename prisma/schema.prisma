@@ -186,11 +186,7 @@ model TeamAboutSection {
   sectionNum String
 
   intro      String?
-  introStyle Json?
-  columns    Int?
-
-  cardStyle  Json?
-  gridStyle  Json?
+  breakpoints   Json
 
   members    Json?       // array of TeamMember objects:
                           // [{ id, name, role, image, fontSize, fontColor, imageWidth, imageHeight, imageRadius }]

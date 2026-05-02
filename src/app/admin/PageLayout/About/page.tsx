@@ -36,7 +36,7 @@ function page() {
       <TeamAbout
         location='1'
         sectionNum='0'
-        // viewport={viewport}
+        viewport={viewport}
       />
       <Features
             location='1'
