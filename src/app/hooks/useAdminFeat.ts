@@ -1,87 +1,110 @@
 'use client'
 import React, { CSSProperties, useEffect, useState } from 'react'
+import { getFeat, updateFeat } from '../libs/Feat/Feat'
 
-type TeamMember = {
+type Feature = {
   id: string
-  name: string
+  title: string
+  text: string
   image: string
-  role: string
   fontSize?: string
   fontColor?: string
   imageWidth?: string
   imageHeight?: string
-  imageRadius?: string
 }
-
+type SectionKey = 'section' | 'grid' | 'card' | 'text' | 'image' | 'textContain'
 type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 
-type SectionKey =
-  | 'grid'
-  | 'card'
-  | 'intro'
-
-const defaultBp = () => ({
-  intro: {
-    fontSize: '24px',
-    color: '#000',
+const defaultBp = (): {
+    text: CSSProperties
+    textContain: { top: number; left: number }
+    section: CSSProperties
+    grid: {
+      columns: number
+      gap: number
+      justifyContent: CSSProperties['justifyContent']
+      alignItems: CSSProperties['alignItems']
+    }
+    card: {
+      width: number
+      radius: number
+      background: string
+      padding: number
+    }
+    image: {
+      width: string
+      height: number
+      objectFit: CSSProperties['objectFit']
+    }
+  } => ({
+  text: {
+    color: '#000000',
+    fontSize: 16,
+    fontWeight: 400,
     textAlign: 'center',
-  } as CSSProperties,
+    lineHeight: 1.4,
+    width: '100%',
+  },
+
+  textContain: {
+    top: 50,
+    left: 50,
+  },
+
+  section: {
+    marginTop: 40,
+    marginBottom: 40,
+    height: 650,
+    maxWidth: '100%',
+    width: '100%',
+    backgroundColor: '#ffffff',
+    borderRadius: 0,
+    overflow: 'hidden',
+    position: 'relative',
+  },
 
   grid: {
-    display: 'flex',
-    flexWrap: 'wrap',
+    columns: 4,
     gap: 20,
     justifyContent: 'center',
-    maxWidth: '1200px',
-    margin: '0 auto',
-  } as CSSProperties,
+    alignItems: 'stretch',
+  },
 
   card: {
-    background: '#fff',
-    borderRadius: '8px',
-    padding: '10px',
-    textAlign: 'center',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    overflow: 'hidden',
-    width: '300px',
-  } as CSSProperties,
+    width: 100,
+    radius: 8,
+    background: '#ffffff',
+    padding: 10,
+  },
+
+  image: {
+    width: '100%',
+    height: 160,
+    objectFit: 'cover',
+  },
 })
 
-function useAdminTeam(
-  location: string,
-  sectionNum: string,
-  viewport: Breakpoint
-) {
-  // -------------------------
-  // UI STATE
-  // -------------------------
+function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint) {
+
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
   const [isLoading, setLoading] = useState(true)
 
   const [openSections, setOpenSections] = useState({
-    intro: false,
+    section: false,
     grid: false,
     card: false,
     selected: false,
   })
 
-  // -------------------------
-  // MAIN DATA STRUCTURE
-  // -------------------------
+  const [currentBreakpoint, setCurrentBreakpoint] =
+    useState<Breakpoint>(viewport || 'desktop')
+
   const [data, setData] = useState<{
-    intro: string
-    members: TeamMember[]
-    columns: number
+    features: Feature[]
     breakpoints: Record<Breakpoint, ReturnType<typeof defaultBp>>
   }>({
-    intro: '',
-    members: [
-     
-    ],
-    columns: 4,
+    features: [],
     breakpoints: {
       desktop: defaultBp(),
       tablet: defaultBp(),
@@ -89,32 +112,72 @@ function useAdminTeam(
     },
   })
 
-  // -------------------------
-  // CURRENT BREAKPOINT DATA
-  // -------------------------
-  const current =data.breakpoints[viewport] || data.breakpoints.desktop
+  // -----------------------
+  // CURRENT DERIVED STATE
+  // -----------------------
+  const current = data.breakpoints[currentBreakpoint] || data.breakpoints.desktop
 
-  const intro = data.intro
-  const members = data.members
-  const columns = data.columns
+  const features = data.features
 
-  const selected = members.find((m) => m.id === selectedId)
+  const sectionStyle = current.section
 
-  // -------------------------
-  // BREAKPOINT UPDATE (CORE)
-  // -------------------------
-  const updateBreakpoint = (
-    section: SectionKey,
-    value: any
-  ) => {
-    setData((prev) => {
-      const bp = prev.breakpoints[viewport]
+  const selected = features?.find((f) => f.id === selectedId)
 
+  // -----------------------
+  // BREAKPOINT SYNC
+  // -----------------------
+  useEffect(() => {
+    setCurrentBreakpoint(viewport)
+  }, [viewport])
+
+  // -----------------------
+  // TOGGLES
+  // -----------------------
+  const toggleSection = (key: keyof typeof openSections) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }))
+  }
+
+  // -----------------------
+  // FEATURE ACTIONS
+  // -----------------------
+  const addFeature = () => {
+    const newFeature: Feature = {
+      id: crypto.randomUUID(),
+      title: 'title',
+      text: 'text',
+      image: '/next.svg',
+      fontSize: '16px',
+      fontColor: '#000000',
+      imageWidth: '100%',
+      imageHeight: '160px',
+    }
+
+    setData((prev) => ({
+      ...prev,
+      features: [...prev.features, newFeature],
+    }))
+  }
+
+  const updateFeature = (id: string, key: keyof Feature, value: string) => {
+    setData((prev) => ({
+      ...prev,
+      features: prev.features.map((f) =>
+        f.id === id ? { ...f, [key]: value } : f
+      ),
+    }))
+  }
+  const updateBreakpoint = (section: SectionKey, value: any) => {
+    setData(prev => {
+      const bp = prev.breakpoints[currentBreakpoint]
+  
       return {
         ...prev,
         breakpoints: {
           ...prev.breakpoints,
-          [viewport]: {
+          [currentBreakpoint]: {
             ...bp,
             [section]: {
               ...bp[section],
@@ -126,130 +189,78 @@ function useAdminTeam(
     })
   }
 
-  // -------------------------
-  // MEMBER ACTIONS
-  // -------------------------
-  const addMember = () => {
+  const removeFeature = (id: string) => {
     setData((prev) => ({
       ...prev,
-      members: [
-        ...prev.members,
-        {
-          id: crypto.randomUUID(),
-          name: 'Name',
-          role: 'Role',
-          image: '/next.svg',
-          fontSize: '16px',
-          fontColor: '#000',
-          imageWidth: '100%',
-          imageHeight: '160px',
-          imageRadius: '0px',
-        },
-      ],
-    }))
-  }
-
-  const removeMember = (id: string) => {
-    setData((prev) => ({
-      ...prev,
-      members: prev.members.filter((m) => m.id !== id),
+      features: prev.features.filter((f) => f.id !== id),
     }))
     setSelectedId(null)
   }
 
-  const updateMember = (
-    id: string,
-    key: keyof TeamMember,
-    value: string
-  ) => {
-    setData((prev) => ({
-      ...prev,
-      members: prev.members.map((m) =>
-        m.id === id ? { ...m, [key]: value } : m
-      ),
-    }))
-  }
-
-  // -------------------------
-  // TOGGLES
-  // -------------------------
-  const toggleSection = (key: keyof typeof openSections) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }))
-  }
-
-  // -------------------------
-  // LOAD (API)
-  // -------------------------
+  // -----------------------
+  // LOAD
+  // -----------------------
   useEffect(() => {
     const getdata = async () => {
-      const res = await fetch('/api/aboutteam/get', {
-        method: 'POST',
-        body: JSON.stringify({ location, sectionNum }),
-      })
+      const res = await getFeat(location, sectionNum)
 
-      const teamdata = await res.json()
-
-      if (!teamdata) {
+      if (!res) {
         setLoading(false)
         return
       }
 
-      setData(teamdata)
+      const featuredata = await res
+
+      // later you'll map this into data
+      setData(featuredata)
+
       setLoading(false)
     }
 
     getdata()
   }, [location, sectionNum])
 
-  // -------------------------
+  // -----------------------
   // SAVE
-  // -------------------------
+  // -----------------------
   const handleSave = async () => {
-    const res = await fetch('/api/aboutteam/upsert', {
-      method: 'POST',
-      body: JSON.stringify({
-        location,
-        sectionNum,
-        data,
-      }),
-    })
+   const newdata= await updateFeat(location,sectionNum,data)
+   if (newdata) {
+    setData(newdata) // or hydrate state properly
+  }
+  setShowEditor(false)
 
-    const newdata = await res.json()
-
-    if (newdata) {
-      setData(newdata)
-    }
-
-    setShowEditor(false)
   }
 
   return {
-    // derived
+    // DATA
     current,
-    intro,
-    members,
-    columns,
-    selected,
+    features,
+    sectionStyle,
 
-    // ui
-    selectedId,
+    // SETTERS (only what is needed externally)
+    setData,
     setSelectedId,
+
+    // FEATURE ACTIONS
+    addFeature,
+    updateFeature,
+    removeFeature,
+    selected,
+    updateBreakpoint,
+    // UI STATE
+    selectedId,
     showEditor,
     setShowEditor,
     isLoading,
+
+    // TOGGLES
     openSections,
     toggleSection,
 
-    // actions
-    addMember,
-    removeMember,
-    updateMember,
-    updateBreakpoint,
+    // SAVE
     handleSave,
   }
 }
 
-export default useAdminTeam
+export default useAdminFeat
