@@ -2,6 +2,7 @@
 
 import { useEffect, useState, CSSProperties } from 'react'
 import { getHero } from '../libs/hero/service'
+import { uploadToimage } from '../libs/uploadImage/uploadImage'
 
 type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 type Section = 'textStyle' | 'textContain' | 'heroContainer'
@@ -45,7 +46,8 @@ export function useHeroEditor(
   viewport: Breakpoint
 ) {
   // ---------------- UI ----------------
-  const [url, setUrl] = useState('')
+  const [url, setUrl] = useState(null)
+  const [preview,setpreview]=useState(null)
   const [text, setText] = useState('')
   const [showEditor, setShowEditor] = useState(false)
   const [isLoading, setLoading] = useState(true)
@@ -85,7 +87,7 @@ export function useHeroEditor(
       if (hero) {
         setData(hero)
         setText(hero.text ?? '')
-        setUrl(hero.imageUrl ?? '/images/buddy-an-BVyzjR1AcOI-unsplash.jpg')
+        setpreview(hero.imageUrl ?? '/images/buddy-an-BVyzjR1AcOI-unsplash.jpg')
       }
 
       setLoading(false)
@@ -93,13 +95,13 @@ export function useHeroEditor(
 
     load()
   }, [location, sectionNum])
-  useEffect(() => {
-    setCurrentBreakpoint(viewport)
-  }, [viewport])
+
+  useEffect(() => {setCurrentBreakpoint(viewport)}, [viewport])
   // ---------------- SAFE CURRENT ----------------
   const current =data.breakpoints[currentBreakpoint] || data.breakpoints.desktop
 
   // ---------------- SAFE UPDATE ----------------
+
   const update = (
     section: Section,
     value: Partial<BreakpointData[Section]>
@@ -121,6 +123,11 @@ export function useHeroEditor(
 
   // ---------------- SAVE ----------------
   const handleSave = async () => {
+    let uploadedUrl = data.imageUrl
+    if (url!==null) {
+    const res = await uploadToimage(url)
+    uploadedUrl = res.Key
+    }
     await fetch('/api/hero/upsert', {
       method: 'POST',
       body: JSON.stringify({
@@ -129,16 +136,18 @@ export function useHeroEditor(
         data: {
           ...data,
           text,
-          imageUrl: url,
+          imageUrl: uploadedUrl
         },
       }),
     })
-
+    console.log(uploadedUrl)
     setShowEditor(false)
   }
 
 
   return {
+    preview,
+    setpreview,
     url,
     setUrl,
     text,

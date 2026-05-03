@@ -102,7 +102,7 @@ function FeaturesSection({
   if (isLoading) return <Loading />
 
   return (
-    <div style={current.section}>
+    <div style={{...current.section,position:'relative'}}>
       <button style={editBtn} onClick={() => setShowEditor(!showEditor)}>
         {showEditor ? 'Close' : 'Edit'}
       </button>
@@ -160,7 +160,7 @@ function FeaturesSection({
               <input
                 style={inputStyle}
                 type="number"
-                value={current.section.marginTop}
+                value={current?.section?.marginTop}
                 onChange={(e) =>
                   updateBreakpoint('section', {
                     marginTop: Number(e.target.value),
@@ -172,7 +172,7 @@ function FeaturesSection({
               <input
                 style={inputStyle}
                 type="number"
-                value={current.section.marginBottom}
+                value={current?.section?.marginBottom}
                 onChange={(e) =>
                   updateBreakpoint('section', {
                     marginBottom: Number(e.target.value),

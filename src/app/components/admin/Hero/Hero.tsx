@@ -1,12 +1,11 @@
 'use client'
-
 import React, { CSSProperties, useState } from 'react'
 import Loading from '../../Loading/Loading'
 import { useHeroEditor } from '@/app/hooks/useHeroEditor'
 import drag from '@/app/hooks/drag'
 
 function Hero({ location, sectionNum ,viewport}: any) {
-  const {url,setUrl,toggleSection,text,setText,openSections,current,update,showEditor,setShowEditor,isLoading,handleSave} = useHeroEditor(location, sectionNum,viewport)
+  const {url,setUrl,preview,setpreview,toggleSection,text,setText,openSections,current,update,showEditor,setShowEditor,isLoading,handleSave} = useHeroEditor(location, sectionNum,viewport)
   const{dragPosition,handleMouseDown,handleMouseMove,handleMouseUp}=drag()
   if (isLoading) return <Loading />
 
@@ -57,13 +56,14 @@ function Hero({ location, sectionNum ,viewport}: any) {
     border: 'none',
     borderRadius: '6px',
     cursor: 'pointer',
+    zIndex:999
   }
 
   return (
     <div>
       {/* HERO */}
       <div style={{ ...current.heroContainer, position: 'relative' }}>
-        <img src={url} style={heroImage} />
+        <img src={preview} style={heroImage} />
 
         <button
           style={editButtonStyle}
@@ -318,7 +318,8 @@ function Hero({ location, sectionNum ,viewport}: any) {
                   type="file"
                   onChange={(e) => {
                     if (e.target.files?.[0]) {
-                      setUrl(URL.createObjectURL(e.target.files[0]))
+                      setUrl(e.target.files?.[0])
+                      setpreview(window.URL.createObjectURL(e.target.files?.[0]))
                     }
                   }}
                 />

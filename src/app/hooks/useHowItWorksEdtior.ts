@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, CSSProperties } from 'react'
+import { uploadToimage } from '../libs/uploadImage/uploadImage'
 
 type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 
@@ -59,10 +60,10 @@ export function useHowItWorksEditor(
   viewport: Breakpoint
 ) {
   const [text, setText] = useState('')
-  const [imageUrl, setImageUrl] = useState('/next.svg')
+  const [url, setUrl] = useState(null)
   const [isLoading, setLoading] = useState(true)
   const [showEditor, setShowEditor] = useState(false)
-
+  const [preview,setpreview]=useState(null)
   const [open, setOpen] = useState({
     text: true,
     container: true,
@@ -99,7 +100,7 @@ export function useHowItWorksEditor(
       if (result) {
         setData(result)
         setText(result.text ?? '')
-        setImageUrl(result.imageUrl ?? '/next.svg')
+        setpreview(result.imageUrl ?? '/next.svg')
       }
 
       setLoading(false)
@@ -137,6 +138,11 @@ export function useHowItWorksEditor(
   }
 
   const handleSave = async () => {
+    let uploadedUrl = data.imageUrl
+    if (url!==null) {
+    const res = await uploadToimage(url)
+    uploadedUrl = res.Key
+    }
     await fetch('/api/howitworks/upsert', {
       method: 'POST',
       body: JSON.stringify({
@@ -145,7 +151,7 @@ export function useHowItWorksEditor(
         data: {
           ...data,
           text,
-          imageUrl,
+          imageUrl:uploadedUrl,
         },
       }),
     })
@@ -156,8 +162,10 @@ export function useHowItWorksEditor(
   return {
     text,
     setText,
-    imageUrl,
-    setImageUrl,
+    preview,
+    setpreview,
+    url,
+    setUrl,
     current,
     update,
     showEditor,

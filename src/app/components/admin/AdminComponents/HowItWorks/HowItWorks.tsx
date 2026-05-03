@@ -14,7 +14,7 @@ function HowItWorks({
   sectionNum: string
   viewport: 'desktop' | 'tablet' | 'mobile'
 }) {
-  const {text,setText,imageUrl,setImageUrl,current,update,showEditor,setShowEditor,open,toggle,isLoading,handleSave,} = useHowItWorksEditor(location, sectionNum, viewport)
+  const {text,setText,preview,setpreview,url,setUrl,current,update,showEditor,setShowEditor,open,toggle,isLoading,handleSave,} = useHowItWorksEditor(location, sectionNum, viewport)
 
   const {dragPosition,handleMouseDown,handleMouseMove,handleMouseUp,} = drag()
 
@@ -84,7 +84,7 @@ function HowItWorks({
       {/* PREVIEW */}
       <div style={current.containerStyle}>
         <img
-          src={imageUrl}
+          src={preview}
           alt=""
           style={{
             width: '100%',
@@ -243,9 +243,11 @@ function HowItWorks({
     <label>Choose image</label>
     <input
       type="file"
-      onChange={(e) =>
-        e.target.files?.[0] &&
-        setImageUrl(URL.createObjectURL(e.target.files[0]))
+      onChange={(e) =>{
+        const file = e.target.files?.[0]
+        if (!file) return
+        setUrl(file)
+        setpreview(window.URL.createObjectURL(file))}
       }
     />
   </div>
