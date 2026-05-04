@@ -41,6 +41,7 @@ function TeamAbout({
     addMember,
     removeMember,
     updateMember,
+    updateMemberFile,
     updateBreakpoint,
     handleSave,
   } = useAdminTeam(location, sectionNum, viewport)
@@ -124,7 +125,11 @@ function TeamAbout({
             onClick={() => showEditor && setSelectedId(m.id)}
           >
             <img
-              src={m.image}
+              src={
+                m.file
+                  ? URL.createObjectURL(m.file)
+                  : m.image
+              }
               style={{
                 width: m.imageWidth || imageStyle.width,
                 height: m.imageHeight || imageStyle.height,
@@ -276,6 +281,15 @@ function TeamAbout({
                   )
                 }
               />
+              <label style={label}>image</label>
+              <input
+                type="file"
+                onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                updateMemberFile(selected.id, file)
+                }}
+                />
 
               <label style={label}>Remove</label>
               <button onClick={() => removeMember(selected.id)}>

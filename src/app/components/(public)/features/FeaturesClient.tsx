@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Loading from '@/app/components/Loading/Loading'
+import { getImageUrl } from '@/app/utils/supabase/getImageUrl'
 
 type Breakpoint = 'mobile' | 'tablet' | 'desktop'
 
@@ -50,7 +51,7 @@ console.log(current)
             }}
           >
             <img
-              src={f.image}
+              src={getImageUrl(f.image)}
               alt={f.title}
               style={{
                 width: f.imageWidth || current.image.width,

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { CSSProperties, useEffect, useState } from 'react'
+import { uploadToimage } from '../libs/uploadImage/uploadImage'
 
 type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 type SectionKey = 'grid' | 'card' | 'text' | 'image' | 'intro'
@@ -15,6 +16,7 @@ type TeamMember = {
   imageWidth?: string
   imageHeight?: string
   imageRadius?: string
+  file?: File | null
 }
 
 // ----------------------
@@ -155,7 +157,14 @@ function useAdminTeam(
     }))
     setSelectedId(null)
   }
-
+  const updateMemberFile = (id: string, file: File) => {
+    setData((prev) => ({
+      ...prev,
+      members: prev.members.map((m) =>
+        m.id === id ? { ...m, file } : m
+      ),
+    }))
+  }
   const updateMember = (
     id: string,
     key: keyof TeamMember,
@@ -197,19 +206,39 @@ function useAdminTeam(
   // SAVE
   // ----------------------
   const handleSave = async () => {
+    const updatedMembers = await Promise.all(
+      data.members.map(async (member) => {
+        if (member.file) {
+          const res = await uploadToimage(member.file)
+  
+          return {
+            ...member,
+            image: res.Key,
+            file: null,
+          }
+        }
+  
+        return member
+      })
+    )
+  
+    const payload = {
+      ...data,
+      members: updatedMembers,
+    }
+  
     const res = await fetch('/api/aboutteam/upsert', {
       method: 'POST',
       body: JSON.stringify({
         location,
         sectionNum,
-        data,
+        data: payload,
       }),
     })
-
+  
     const newdata = await res.json()
-
     if (newdata) setData(newdata)
-
+  
     setShowEditor(false)
   }
 
@@ -218,7 +247,7 @@ function useAdminTeam(
     members,
     intro,
     selected,
-
+    updateMemberFile,
     selectedId,
     setSelectedId,
     showEditor,

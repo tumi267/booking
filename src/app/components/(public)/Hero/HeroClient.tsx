@@ -1,5 +1,6 @@
 'use client'
 
+import { getImageUrl } from '@/app/utils/supabase/getImageUrl'
 import React, { useEffect, useState } from 'react'
 
 type Breakpoint = 'mobile' | 'tablet' | 'desktop'
@@ -28,12 +29,13 @@ export default function HeroClient({ hero }: any) {
 
   return (
     <div style={data.heroContainer}>
+      <div style={data.heroContainer}>
       <img
-        src={hero.imageUrl ?? '/images/buddy-an-BVyzjR1AcOI-unsplash.jpg'}
+        src={getImageUrl(hero.imageUrl)}
         style={hero.heroImage }
-        className="w-full h-full object-cover"
+        className="w-full h-full object-fill"
       />
-
+    </div>
       <div
         style={{
           position: 'absolute',

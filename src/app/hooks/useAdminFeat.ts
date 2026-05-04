@@ -1,6 +1,7 @@
 'use client'
 import React, { CSSProperties, useEffect, useState } from 'react'
 import { getFeat, updateFeat } from '../libs/Feat/Feat'
+import { uploadToimage } from '../libs/uploadImage/uploadImage'
 
 type Feature = {
   id: string
@@ -11,6 +12,7 @@ type Feature = {
   fontColor?: string
   imageWidth?: string
   imageHeight?: string
+  file?: File | null
 }
 type SectionKey = 'section' | 'grid' | 'card' | 'text' | 'image' | 'textContain'
 type Breakpoint = 'desktop' | 'tablet' | 'mobile'
@@ -80,7 +82,7 @@ const defaultBp = (): {
   image: {
     width: '100%',
     height: 160,
-    objectFit: 'cover',
+    objectFit: 'fill',
   },
 })
 
@@ -89,7 +91,7 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [showEditor, setShowEditor] = useState(false)
   const [isLoading, setLoading] = useState(true)
-
+  
   const [openSections, setOpenSections] = useState({
     section: false,
     grid: false,
@@ -169,6 +171,14 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
       ),
     }))
   }
+  const updateFeatureFile = (id: string, file: File) => {
+    setData(prev => ({
+      ...prev,
+      features: prev.features.map(f =>
+        f.id === id ? { ...f, file } : f
+      )
+    }))
+  }
   const updateBreakpoint = (section: SectionKey, value: any) => {
     setData(prev => {
       const bp = prev.breakpoints[currentBreakpoint]
@@ -223,13 +233,52 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
   // -----------------------
   // SAVE
   // -----------------------
-  const handleSave = async () => {
-   const newdata= await updateFeat(location,sectionNum,data)
-   if (newdata) {
-    setData(newdata) // or hydrate state properly
+  function cleanFeaturesPayload(data: any) {
+    return {
+      breakpoints: data.breakpoints,
+      features: data.features.map((f: Feature) => ({
+        id: f.id,
+        title: f.title,
+        text: f.text,
+        image: f.image,
+        fontSize: f.fontSize ?? null,
+        fontColor: f.fontColor ?? null,
+        imageWidth: f.imageWidth ?? null,
+        imageHeight: f.imageHeight ?? null,
+      })),
+    }
   }
-  setShowEditor(false)
-
+  const handleSave = async () => {
+    const updatedFeatures = await Promise.all(
+      data.features.map(async (feature) => {
+        if (feature.file) {
+          const res = await uploadToimage(feature.file)
+  
+          return {
+            ...feature,
+            image: res.Key,
+            file: null,
+          }
+        }
+        return feature
+      })
+    )
+  
+    const payload = {
+      ...data,
+      features: updatedFeatures,
+    }
+  
+    // ✅ CLEAN IT HERE
+    const cleaned = cleanFeaturesPayload(payload)
+  
+    const newdata = await updateFeat(location, sectionNum, cleaned)
+  
+    if (newdata) {
+      setData(newdata)
+    }
+  
+    setShowEditor(false)
   }
 
   return {
@@ -237,11 +286,11 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
     current,
     features,
     sectionStyle,
-
+    updateFeatureFile,
     // SETTERS (only what is needed externally)
     setData,
     setSelectedId,
-
+   
     // FEATURE ACTIONS
     addFeature,
     updateFeature,

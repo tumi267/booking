@@ -2,6 +2,7 @@
 import Loading from '@/app/components/Loading/Loading'
 import drag from '@/app/hooks/drag'
 import useAdminFeat from '@/app/hooks/useAdminFeat'
+import { getImageUrl } from '@/app/utils/supabase/getImageUrl'
 import React, { CSSProperties } from 'react'
 
 function FeaturesSection({
@@ -28,6 +29,7 @@ function FeaturesSection({
     toggleSection,
     openSections,
     updateBreakpoint,
+    updateFeatureFile,
   } = useAdminFeat(location, sectionNum, viewport)
 
   const {
@@ -116,7 +118,7 @@ function FeaturesSection({
             onClick={() => showEditor && setSelectedId(f.id)}
           >
             <img
-              src={f.image}
+              src={f.file ? URL.createObjectURL(f.file) : getImageUrl(f.image)}
               style={{
                 width: f.imageWidth || '100%',
                 height: f.imageHeight || '160px',
@@ -288,6 +290,18 @@ function FeaturesSection({
 
               {openSections.selected && (
                 <>
+                    <label>Choose image</label>
+                    <input
+                      type="file"
+                      onChange={(e) =>{
+                      const file = e.target.files?.[0]
+                      if (!file) return
+                      updateFeatureFile(selected.id, file)
+                      // setpreview(window.URL.createObjectURL(file))}
+                      }
+                    }
+                    />
+                    
                   <label style={labelStyle}>Title</label>
                   <input
                     style={inputStyle}

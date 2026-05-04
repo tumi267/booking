@@ -19,7 +19,7 @@ function Nav() {
   ]
   const { userId } = useAuth();
   return (
-    <div className="flex justify-between items-center p-4">
+    <div className="sticky top-0 z-[999] flex justify-between items-center p-4 bg-white">
       
       {/* Logo */}
       <span>

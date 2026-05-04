@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import Loading from '@/app/components/Loading/Loading'
+import { getImageUrl } from '@/app/utils/supabase/getImageUrl'
 
 type Breakpoint = 'mobile' | 'tablet' | 'desktop'
 
@@ -31,7 +32,7 @@ export default function HowItWorksClient({ data }: any) {
     <div style={current.mainContain}>
       <div style={current.containerStyle}>
         <img
-          src={data.imageUrl || '/next.svg'}
+          src={getImageUrl(data.imageUrl) }
           alt="how-it-works"
           style={{
             width: '100%',

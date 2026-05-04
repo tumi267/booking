@@ -3,6 +3,7 @@
 import { useEffect, useState, CSSProperties } from 'react'
 import { getHero } from '../libs/hero/service'
 import { uploadToimage } from '../libs/uploadImage/uploadImage'
+import { getImageUrl } from '../utils/supabase/getImageUrl'
 
 type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 type Section = 'textStyle' | 'textContain' | 'heroContainer'
@@ -47,7 +48,7 @@ export function useHeroEditor(
 ) {
   // ---------------- UI ----------------
   const [url, setUrl] = useState(null)
-  const [preview,setpreview]=useState(null)
+  const [preview,setpreview]=useState<string|null>(null)
   const [text, setText] = useState('')
   const [showEditor, setShowEditor] = useState(false)
   const [isLoading, setLoading] = useState(true)
@@ -87,7 +88,7 @@ export function useHeroEditor(
       if (hero) {
         setData(hero)
         setText(hero.text ?? '')
-        setpreview(hero.imageUrl ?? '/images/buddy-an-BVyzjR1AcOI-unsplash.jpg')
+        setpreview(hero.imageUrl  ? getImageUrl(hero.imageUrl) : null)
       }
 
       setLoading(false)

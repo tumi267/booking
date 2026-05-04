@@ -2,6 +2,7 @@
 
 import { useEffect, useState, CSSProperties } from 'react'
 import { uploadToimage } from '../libs/uploadImage/uploadImage'
+import { getImageUrl } from '../utils/supabase/getImageUrl'
 
 type Breakpoint = 'desktop' | 'tablet' | 'mobile'
 
@@ -63,7 +64,7 @@ export function useHowItWorksEditor(
   const [url, setUrl] = useState(null)
   const [isLoading, setLoading] = useState(true)
   const [showEditor, setShowEditor] = useState(false)
-  const [preview,setpreview]=useState(null)
+  const [preview,setpreview]=useState<string | null>(null)
   const [open, setOpen] = useState({
     text: true,
     container: true,
@@ -100,7 +101,7 @@ export function useHowItWorksEditor(
       if (result) {
         setData(result)
         setText(result.text ?? '')
-        setpreview(result.imageUrl ?? '/next.svg')
+        setpreview(result.imageUrl ? getImageUrl(result.imageUrl) : null)
       }
 
       setLoading(false)
