@@ -13,4 +13,5 @@ export type TeamMember = {
   email: string
   role: ProviderRole
   isAvailable: boolean
+  password:string
 }

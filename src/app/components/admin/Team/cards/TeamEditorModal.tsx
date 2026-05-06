@@ -1,5 +1,6 @@
 import { ProviderRole } from '@prisma/client'
 import { TeamMember } from '@/app/libs/team/types'
+import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
   open: boolean
@@ -13,26 +14,18 @@ type Props = {
   ) => void
   onRemove: (id: string) => void
   onSave: (id: string) => void
+  showpass:boolean
+  setShowpass:Dispatch<SetStateAction<boolean>>
 }
 
-export function TeamEditorModal({
-  open,
-  member,
-  roles,
-  onClose,
-  onUpdate,
-  onRemove,
-  onSave,
+export function TeamEditorModal({open,member,roles,onClose,onUpdate,onRemove,onSave,showpass,setShowpass
 }: Props) {
   if (!open || !member) return null
-
   const id = member.id || member.tempId
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
         <h3 className="mb-4 text-lg font-bold">Edit Member</h3>
-
         <div className="space-y-4">
           <input
             className="w-full rounded border px-3 py-2"
@@ -54,7 +47,16 @@ export function TeamEditorModal({
             onChange={(e) => onUpdate(id, 'email', e.target.value)}
             placeholder="Email"
           />
-
+          <input 
+          placeholder="password"
+          type={showpass?'text':'password'}
+          className="w-full rounded border px-3 py-2 pr-16"
+          value={member.password || ''}
+          onChange={(e) =>
+          onUpdate(id, 'password', e.target.value)
+          }
+          />
+          <button onClick={()=>{setShowpass(prev => !prev)}}>{showpass ? 'Hide' : 'Show'}</button>
           <select
             className="w-full rounded border px-3 py-2"
             value={member.role}

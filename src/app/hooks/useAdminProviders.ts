@@ -24,7 +24,7 @@ export function useAdminProviders() {
   const [showEditor, setShowEditor] = useState(false)
   const [loading, setLoading] = useState(false)
   const [banner, setBanner] = useState<Banner | null>(null)
-
+  const [showpass,setShowpass]=useState(false)
   useEffect(() => {
     loadProviders()
   }, [])
@@ -142,5 +142,7 @@ export function useAdminProviders() {
     updateMember,
     saveMember,
     removeMember,
+    showpass,
+    setShowpass
   }
 }

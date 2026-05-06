@@ -8,6 +8,7 @@ export type TeamMember = {
   email: string
   role: ProviderRole
   isAvailable: boolean
+  password:string
 }
 
 export type Banner = {
@@ -37,6 +38,7 @@ export async function createProvider(member: TeamMember): Promise<TeamMember> {
       email: member.email || null,
       role: member.role,
       isAvailable: member.isAvailable,
+      password:member.password
     }),
   })
 
@@ -71,8 +73,12 @@ export async function updateProvider(member: TeamMember): Promise<TeamMember> {
 }
 
 export async function deleteProvider(id: string): Promise<void> {
-  const res = await fetch(`/api/providers/${id}`, {
+  const res = await fetch(`/api/providers/`, {
     method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body:JSON.stringify({id:id})
   })
 
   if (!res.ok) {

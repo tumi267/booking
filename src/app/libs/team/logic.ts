@@ -10,6 +10,7 @@ export function createEmptyProvider(): TeamMember {
     email: '',
     role: ProviderRole.TRAINER,
     isAvailable: true,
+    password:''
   }
 }
 

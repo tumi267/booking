@@ -6,6 +6,7 @@ export async function createProvider(data: {
   email?: string | null
   role?: ProviderRole
   isAvailable?: boolean
+  clerkId:string
 }) {
   const provider = await prisma.provider.create({
     data: {
@@ -14,6 +15,7 @@ export async function createProvider(data: {
       email: data.email || null,
       role: data.role || 'TRAINER',
       isAvailable: data.isAvailable ?? true,
+      clerkId:data.clerkId
     },
   })
 

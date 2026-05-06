@@ -4,6 +4,7 @@ import {
     updateProvider,
     deleteProvider,
   } from "@/app/libs/crud/provider"
+import { clerkClient } from "@clerk/nextjs/server"
   
   import { NextRequest, NextResponse } from "next/server"
   
@@ -21,8 +22,13 @@ import {
   export async function POST(req: NextRequest) {
   
     const body = await req.json()
-  
-    const data = await createProvider(body)
+    const clerkUser = await clerkClient.users.createUser({
+      emailAddress: [body.email],
+      password: body.password,
+      firstName: body.firstName,
+      lastName: body.lastName,
+    })
+    const data = await createProvider({...body,clerkId:clerkUser.id})
   
     return NextResponse.json(data)
   }
