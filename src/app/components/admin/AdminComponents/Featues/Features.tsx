@@ -1,6 +1,6 @@
 'use client'
 import Loading from '@/app/components/Loading/Loading'
-import drag from '@/app/hooks/drag'
+import Drag from '@/app/hooks/drag'
 import useAdminFeat from '@/app/hooks/useAdminFeat'
 import { getImageUrl } from '@/app/utils/supabase/getImageUrl'
 import React, { CSSProperties } from 'react'
@@ -37,7 +37,7 @@ function FeaturesSection({
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
-  } = drag()
+  } = Drag()
 
   const editorBox: CSSProperties = {
     position: 'fixed',

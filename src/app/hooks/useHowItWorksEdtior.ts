@@ -61,7 +61,7 @@ export function useHowItWorksEditor(
   viewport: Breakpoint
 ) {
   const [text, setText] = useState('')
-  const [url, setUrl] = useState(null)
+  const [url, setUrl] = useState<File | null>(null)
   const [isLoading, setLoading] = useState(true)
   const [showEditor, setShowEditor] = useState(false)
   const [preview,setpreview]=useState<string | null>(null)

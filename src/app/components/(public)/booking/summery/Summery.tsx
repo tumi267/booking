@@ -7,7 +7,7 @@ type BookedDay = {
   date: string
   times: string[]
 }
-type Team={ id: string
+type Team={ ProviderId: string
   firstName: string
   lastName: string
   role: string
@@ -16,7 +16,7 @@ type Team={ id: string
   isAvailable?: boolean
   bookedDates: BookedDay[]}
 type service={
-  serviceId: string
+  id: string
   name: string
   isActive: boolean
   price: number

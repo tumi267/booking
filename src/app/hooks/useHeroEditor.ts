@@ -47,7 +47,7 @@ export function useHeroEditor(
   viewport: Breakpoint
 ) {
   // ---------------- UI ----------------
-  const [url, setUrl] = useState(null)
+  const [url, setUrl] = useState<File|null>(null)
   const [preview,setpreview]=useState<string|null>(null)
   const [text, setText] = useState('')
   const [showEditor, setShowEditor] = useState(false)

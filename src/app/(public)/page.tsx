@@ -14,42 +14,42 @@ export default function Home() {
       <div>
       
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+      
       <Hero
       location='0'
       sectionNum='0'
       />
       </Suspense>
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+     
       <HowItWorks
       location='0'
       sectionNum='0'
       />
       </Suspense>
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+    
       <Hero
       location='0'
       sectionNum='1'
       />
       </Suspense>
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+    
       <HowItWorks
       location='0'
       sectionNum='1'
       />
       </Suspense>
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+      
       <Hero
       location='0'
       sectionNum='3'
       />
       </Suspense>
       <Suspense fallback={<Loading/>}>
-      {/* @ts-expect-error Async Server Component */}
+   
       <Features
         location='0'
         sectionNum='0'

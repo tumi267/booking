@@ -14,17 +14,31 @@ type TeamMember = {
   imageRadius?: string
 }
 
+type DbTeamMember = {
+  id: string
+  name: string
+  role: string
+  image: string | null
+  fontSize?: string | null
+  fontColor?: string | null
+  imageWidth?: string | null
+  imageHeight?: string | null
+  imageRadius?: string | null
+}
+
 interface Props {
   location: string
   sectionNum: string
 }
 
+
 export default async function TeamAbout({ location, sectionNum }: Props) {
   const data = await getTeam(location, sectionNum)
 
-  if (!data) return null
-console.log(data)
-  const members: TeamMember[] = data.members.map((m: any) => ({
+  if (!data || !data.members) return null
+  const membersData = data.members as DbTeamMember[]
+
+  const members: TeamMember[] = membersData.map((m) => ({
     id: m.id,
     name: m.name,
     role: m.role,
@@ -38,7 +52,7 @@ console.log(data)
 
   return (
     <TeamClient
-      intro={data.intro}
+      intro={data.intro||''}
       members={members}
       breakpoints={data.breakpoints}
     />

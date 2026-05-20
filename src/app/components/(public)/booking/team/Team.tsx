@@ -8,7 +8,7 @@ type BookedDay = {
 }
 
 type TeamMember = {
-  id: string 
+  ProviderId: string 
   firstName: string
   lastName: string
   bio?: string
@@ -43,7 +43,7 @@ function Team({ currentStep, step, selectMember, team, bookingdata }: Props) {
  
     selectMember(prev => ({
       ...prev, 
-      providerId: member.id,
+      providerId: member.ProviderId,
       team: `${member.firstName} ${member.lastName}`
     }))
   }
@@ -57,10 +57,10 @@ function Team({ currentStep, step, selectMember, team, bookingdata }: Props) {
                       grid-cols-[repeat(auto-fit,minmax(200px,1fr))] 
                       max-w-5xl w-full">
         {availableTeam.map((member) => {
-          const isSelected = bookingdata.providerId === member.id
+          const isSelected = bookingdata.providerId === member.ProviderId
           return (
             <div
-              key={member.id}
+              key={member.ProviderId}
               onClick={() => handleMemberClick(member)}
               className={`
                 p-4 cursor-pointer shadow-md rounded-xl text-center transition-all

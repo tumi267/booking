@@ -1,10 +1,8 @@
 'use client'
-
 import Loading from '@/app/components/Loading/Loading'
-import drag from '@/app/hooks/drag'
+import Drag from '@/app/hooks/drag'
 import { useHowItWorksEditor } from '@/app/hooks/useHowItWorksEdtior'
 import { CSSProperties } from 'react'
-
 function HowItWorks({
   location,
   sectionNum,
@@ -15,9 +13,7 @@ function HowItWorks({
   viewport: 'desktop' | 'tablet' | 'mobile'
 }) {
   const {text,setText,preview,setpreview,url,setUrl,current,update,showEditor,setShowEditor,open,toggle,isLoading,handleSave,} = useHowItWorksEditor(location, sectionNum, viewport)
-
-  const {dragPosition,handleMouseDown,handleMouseMove,handleMouseUp,} = drag()
-
+  const {dragPosition,handleMouseDown,handleMouseMove,handleMouseUp,} = Drag()
   const header: CSSProperties = {
     background: '#eee',
     padding: '6px',
@@ -84,7 +80,7 @@ function HowItWorks({
       {/* PREVIEW */}
       <div style={current.containerStyle}>
         <img
-          src={preview}
+          src={preview?preview:"/next.svg"}
           alt=""
           style={{
             width: '100%',

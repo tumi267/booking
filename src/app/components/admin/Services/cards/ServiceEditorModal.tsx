@@ -14,19 +14,9 @@ type Props = {
   onSave: () => void
 }
 
-export function ServiceEditorModal({
-  open,
-  service,
-  team,
-  onClose,
-  onUpdate,
-  onRemove,
-  onSave,
-}: Props) {
+export function ServiceEditorModal({open,service,team,onClose,onUpdate,onRemove,onSave,}: Props) {
   if (!open || !service) return null
-
   const id = service.id || service.tempId
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">

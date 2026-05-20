@@ -2,7 +2,7 @@ import React from 'react'
 
 interface NavProps {
   selected: 'Bookings' | 'Team' | 'Services' | 'Customers' | 'Operations'|'pagelayout'
-  setSelected: React.Dispatch<React.SetStateAction<'bookings' | 'team' | 'services' | 'customers' | 'operations' |'pagelayout'>>
+  setSelected: React.Dispatch<React.SetStateAction<'Bookings' | 'Team' | 'Services' | 'Customers' | 'Operations' |'pagelayout'>>
 }
 
 function Nav({ selected, setSelected }: NavProps) {

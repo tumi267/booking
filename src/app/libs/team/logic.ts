@@ -1,6 +1,15 @@
 import { ProviderRole } from '@prisma/client'
-import type { TeamMember } from './service'
 
+type TeamMember = {
+  id: string | null
+  tempId?: string
+  firstName: string
+  lastName: string
+  email: string
+  role: ProviderRole
+  isAvailable: boolean
+  password: string
+}
 export function createEmptyProvider(): TeamMember {
   return {
     id: null,

@@ -8,28 +8,7 @@ import Loading from '@/app/components/Loading/Loading'
 import React, { Suspense } from 'react'
 
 function About() {
-    const teamMember=[
-        {name:'1',
-        title:'1',
-        image:'1',
-        bio:'1'
-    },
-    {name:'2',
-    title:'2',
-    image:'2',
-    bio:'2'
-},
-{name:'3',
-title:'3',
-image:'3',
-bio:'3'
-},
-{name:'4',
-title:'4',
-image:'4',
-bio:'4'
-}
-    ]
+
   return (
     <div>
         <h2>About</h2>

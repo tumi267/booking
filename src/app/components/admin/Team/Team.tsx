@@ -26,7 +26,7 @@ export default function TeamManagement() {
         }}
         onRemove={removeMember}
       />
-      <TeamEditorModal
+      {selectedMember&&<TeamEditorModal
         open={showEditor}
         member={selectedMember}
         roles={roles}
@@ -36,7 +36,7 @@ export default function TeamManagement() {
         onSave={saveMember}
         showpass={showpass}
         setShowpass={setShowpass}
-      />
+      />}
     </div>
   )
 }

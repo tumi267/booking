@@ -33,7 +33,7 @@ type GroupedBooking = {
           todaySessions: 0,
           time: booking.time,
           status: booking.status,
-          clientName: `${booking.client?.firstName} ${booking.client?.lastName}` ?? "Unknown",
+          clientName: booking.client?`${booking.client.firstName} ${booking.client.lastName}`:'Unknown'
         });
       }
   

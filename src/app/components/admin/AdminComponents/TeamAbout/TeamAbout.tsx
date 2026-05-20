@@ -1,7 +1,7 @@
 'use client'
 
 import Loading from '@/app/components/Loading/Loading'
-import drag from '@/app/hooks/drag'
+import Drag from '@/app/hooks/drag'
 import useAdminTeam from '@/app/hooks/useAdminTeam'
 import React, { CSSProperties } from 'react'
 import { ProviderRole } from '@prisma/client'
@@ -22,7 +22,7 @@ function TeamAbout({
     handleMouseDown,
     handleMouseMove,
     handleMouseUp,
-  } = drag()
+  } = Drag()
 
   // -------------------
   // DATA LAYER (CLEAN)

@@ -38,7 +38,7 @@ export default function Services() {
         }}
         onRemove={removeService}
       />
-
+      {selectedService&&
       <ServiceEditorModal
         open={showEditor}
         service={selectedService}
@@ -47,7 +47,7 @@ export default function Services() {
         onUpdate={updateService}
         onRemove={removeService}
         onSave={saveService}
-      />
+      />}
     </div>
   )
 }

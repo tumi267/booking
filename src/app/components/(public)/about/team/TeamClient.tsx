@@ -17,7 +17,7 @@ type TeamMember = {
 }
 
 type Props = {
-  intro: string
+  intro: string 
   members: TeamMember[]
   breakpoints: any
 }

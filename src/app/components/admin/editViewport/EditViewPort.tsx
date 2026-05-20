@@ -1,12 +1,12 @@
 'use client'
-import drag from '@/app/hooks/drag'
+import Drag from '@/app/hooks/drag'
 import React from 'react'
 interface Props {
     viewport: 'desktop' | 'tablet' | 'mobile'
     setViewport: (v: 'desktop' | 'tablet' | 'mobile') => void
   }
 function EditViewPort({viewport, setViewport}:Props) {
-const{dragPosition,handleMouseDown,handleMouseMove,handleMouseUp}=drag()
+const{dragPosition,handleMouseDown,handleMouseMove,handleMouseUp}=Drag()
   return (
     <div style={{
         transform: `translate(${dragPosition.x}px, ${dragPosition.y}px)`,

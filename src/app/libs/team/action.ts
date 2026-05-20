@@ -6,7 +6,7 @@ import {
     TeamMember,
   } from './service'
   
-  export async function loadProvidersAction() {
+  export async function loadProvidersAction(): Promise<TeamMember[]> {
     return fetchProviders()
   }
   

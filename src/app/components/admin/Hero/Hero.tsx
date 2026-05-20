@@ -2,11 +2,11 @@
 import React, { CSSProperties, useState } from 'react'
 import Loading from '../../Loading/Loading'
 import { useHeroEditor } from '@/app/hooks/useHeroEditor'
-import drag from '@/app/hooks/drag'
+import Drag from '@/app/hooks/drag'
 
 function Hero({ location, sectionNum ,viewport}: any) {
   const {url,setUrl,preview,setpreview,toggleSection,text,setText,openSections,current,update,showEditor,setShowEditor,isLoading,handleSave} = useHeroEditor(location, sectionNum,viewport)
-  const{dragPosition,handleMouseDown,handleMouseMove,handleMouseUp}=drag()
+  const{dragPosition,handleMouseDown,handleMouseMove,handleMouseUp}=Drag()
   if (isLoading) return <Loading />
 
   const sectionHeaderStyle: CSSProperties = {
@@ -63,7 +63,7 @@ function Hero({ location, sectionNum ,viewport}: any) {
     <div>
       {/* HERO */}
       <div style={{ ...current.heroContainer, position: 'relative' }}>
-        <img src={preview} style={heroImage} />
+        <img src={preview?preview:'/next.svg'} style={heroImage} />
 
         <button
           style={editButtonStyle}

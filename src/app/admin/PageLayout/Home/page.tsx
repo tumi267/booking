@@ -5,7 +5,7 @@ import Hero from '@/app/components/admin/Hero/Hero'
 import EditViewPort from '@/app/components/admin/editViewport/EditViewPort'
 import React, { useState } from 'react'
 
-function page() {
+function Page() {
   const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
   const sizes = {
     desktop: '100%',
@@ -57,4 +57,4 @@ function page() {
   )
 }
 
-export default page
+export default Page

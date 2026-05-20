@@ -22,7 +22,16 @@ export async function createBookings(flatBookings: FlatBooking[]) {
     skipDuplicates: true
   })
 }
-
+export async function confirmBookingGroup(groupId: string) {
+  return await prisma.booking.updateMany({
+    where: {
+      groupId,
+    },
+    data: {
+      status: 'CONFIRMED', // must match your enum
+    },
+  });
+}
 //
 // READ: all bookings (filtered optional)
 //

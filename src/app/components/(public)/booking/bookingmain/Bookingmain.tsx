@@ -16,7 +16,7 @@ type Team={ ProviderId: string
     isAvailable?: boolean
     bookedDates: BookedDay[]}
 type service = {
-        serviceId: string
+        id: string
         name: string
         isActive: boolean
         price: number

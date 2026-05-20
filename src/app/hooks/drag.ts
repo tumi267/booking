@@ -1,6 +1,6 @@
   'use client'
   import React, { useState } from 'react'
-  function drag() {
+  function Drag() {
       // ---------------- DRAG ----------------
     const [dragPosition, setDragPosition] = useState({ x: 50, y: 50 })
     const [isDragging, setIsDragging] = useState(false)
@@ -39,5 +39,5 @@
     }
   }
   
-  export default drag
+  export default Drag
   
