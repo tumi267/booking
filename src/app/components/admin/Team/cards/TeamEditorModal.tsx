@@ -4,7 +4,7 @@ import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
   open: boolean
-  member?: TeamMember
+  member: TeamMember
   roles: ProviderRole[]
   onClose: () => void
   onUpdate: <K extends keyof TeamMember>(
@@ -22,6 +22,7 @@ export function TeamEditorModal({open,member,roles,onClose,onUpdate,onRemove,onS
 }: Props) {
   if (!open || !member) return null
   const id = member.id || member.tempId
+  if (!id) {return null}
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">

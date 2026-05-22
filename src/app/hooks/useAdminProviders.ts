@@ -1,22 +1,9 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import {
-  Banner,
-  TeamMember,
-} from '@/app/libs/team/service'
-import {
-  createEmptyProvider,
-  findMember,
-  removeMemberFromList,
-  replaceMember,
-  updateMemberField,
-} from '@/app/libs/team/logic'
-import {
-  deleteProviderAction,
-  loadProvidersAction,
-  saveProviderAction,
-} from '@/app/libs/team/action'
+import {Banner,TeamMember,} from '@/app/libs/team/types'
+import {createEmptyProvider,findMember,removeMemberFromList,replaceMember,updateMemberField,} from '@/app/libs/team/logic'
+import {deleteProviderAction,loadProvidersAction,saveProviderAction,} from '@/app/libs/team/action'
 
 export function useAdminProviders() {
   const [team, setTeam] = useState<TeamMember[]>([])
@@ -51,9 +38,8 @@ export function useAdminProviders() {
 
   function addMember() {
     const member = createEmptyProvider()
-
     setTeam((prev) => [...prev, member])
-    setSelectedId(member.tempId)
+    setSelectedId(member.tempId ?? null)
     setShowEditor(true)
   }
 
@@ -105,9 +91,7 @@ export function useAdminProviders() {
 
     try {
       setLoading(true)
-
       await deleteProviderAction(member)
-
       setTeam((prev) =>
         removeMemberFromList(prev, member)
       )
@@ -129,20 +113,5 @@ export function useAdminProviders() {
     }
   }
 
-  return {
-    team,
-    selectedId,
-    setSelectedId,
-    selectedMember,
-    showEditor,
-    setShowEditor,
-    loading,
-    banner,
-    addMember,
-    updateMember,
-    saveMember,
-    removeMember,
-    showpass,
-    setShowpass
-  }
+  return {team,selectedId,setSelectedId,selectedMember,showEditor,setShowEditor,loading,banner,addMember,updateMember,saveMember,removeMember,showpass,setShowpass}
 }

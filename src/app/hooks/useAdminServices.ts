@@ -11,11 +11,7 @@ import {
 
 import { loadProvidersAction } from '@/app/libs/team/action'
 
-import type {
-  Banner,
-  Service,
-  TeamMember,
-} from '@/app/libs/service/types'
+import type {Banner,Service,TeamMember,} from '@/app/libs/service/types'
 
 type UpdateKey = keyof Service
 
@@ -146,13 +142,12 @@ export function useAdminServices() {
         isActive: selectedService.isActive,
         assignedTeamIds: selectedService.assignedTeam.map(
           (m) => m.id
-        ),
+        ).filter((id): id is string => id !== null),
       }
 
       // CREATE
       if (!selectedService.id) {
         const created = await createServiceApi(payload)
-
         setServices((prev) =>
           prev.map((service) =>
             service.tempId === selectedService.tempId
@@ -209,21 +204,5 @@ export function useAdminServices() {
   }
 
   // ---------- RETURN ----------
-  return {
-    services,
-    team,
-    selectedId,
-    setSelectedId,
-    selectedService,
-    showEditor,
-    setShowEditor,
-    loading,
-    banner,
-    getKey,
-    addService,
-    updateService,
-    removeService,
-    saveService,
-    reload: loadData,
-  }
+  return {services,team,selectedId,setSelectedId,selectedService,showEditor,setShowEditor,loading,banner,getKey,addService,updateService,removeService,saveService,reload: loadData,}
 }

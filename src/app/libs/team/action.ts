@@ -1,10 +1,4 @@
-import {
-    fetchProviders,
-    createProvider,
-    updateProvider,
-    deleteProvider,
-    TeamMember,
-  } from './service'
+import {fetchProviders,createProvider,updateProvider,deleteProvider,TeamMember,} from './service'
   
   export async function loadProvidersAction(): Promise<TeamMember[]> {
     return fetchProviders()

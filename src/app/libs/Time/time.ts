@@ -1,4 +1,4 @@
-export const generateTimeSlots = async(start: string, end: string, interval: number,providerId:string,date:Date|string,groupId: string): string[] => {
+export const generateTimeSlots = async(start: string, end: string, interval: number,providerId:string,date:Date|string,groupId: string): Promise<string[]> => {
     const bookedProvidertime = await getProviderbookings(providerId, date, groupId);
 
     const busyTimes = bookedProvidertime.map((b: any) => b.time);
@@ -18,7 +18,7 @@ export const generateTimeSlots = async(start: string, end: string, interval: num
       
         const formattedTime = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
       
-        // 🚫 skip busy slots
+        // skip busy slots
         if (!busyTimes.includes(formattedTime)) {
           slots.push(formattedTime);
         }

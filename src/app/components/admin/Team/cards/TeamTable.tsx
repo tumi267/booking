@@ -49,6 +49,7 @@ export function TeamTable({ team, onEdit, onRemove }: Props) {
 
                 <td className="px-4 py-4 text-right">
                   <div className="space-x-3">
+                    {id&&<>
                     <button
                       onClick={() => onEdit(id)}
                       className="text-sm font-medium text-blue-600 hover:underline"
@@ -62,7 +63,9 @@ export function TeamTable({ team, onEdit, onRemove }: Props) {
                     >
                       Remove
                     </button>
+                    </>}
                   </div>
+                  
                 </td>
               </tr>
             )

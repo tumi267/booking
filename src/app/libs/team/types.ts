@@ -6,8 +6,8 @@ export type Banner = {
 }
 
 export type TeamMember = {
-  id: string 
-  tempId: string
+  id: string |null
+  tempId?: string
   firstName: string
   lastName: string
   email: string

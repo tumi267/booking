@@ -1,8 +1,8 @@
 import { ProviderRole } from '@prisma/client'
 
 export type TeamMember = {
-  id: string 
-  tempId: string
+  id: string |null
+  tempId?: string
   firstName: string
   lastName: string
   email: string
