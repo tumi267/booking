@@ -1,7 +1,5 @@
 import Hero from '@/app/components/(public)/Hero/Hero'
 import HowItWorks from '@/app/components/(public)/HowItWorks/HowItWorks'
-import History from '@/app/components/(public)/about/history/History'
-import Offer from '@/app/components/(public)/about/offers/Offer'
 import Team from '@/app/components/(public)/about/team/Team'
 import Features from '@/app/components/(public)/features/Features'
 import Loading from '@/app/components/Loading/Loading'
