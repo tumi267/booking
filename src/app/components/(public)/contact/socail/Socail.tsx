@@ -1,18 +1,21 @@
-import React from 'react'
-type link={
-    socaillink:string
-}
-interface props{
-    links:link[]
-}
-function Socail({links}:props) {
-  return (
-    <div>
-        <h3>Follow Us</h3>
-        {links.map((e,i)=>{return<div key={i}>{e.socaillink}</div>})}
+import type { SocialLink } from '@/app/types/contact'
 
-    </div>
+interface Props {
+  links: SocialLink[]
+}
+
+export default function Social({
+  links,
+}: Props) {
+  return (
+    <section>
+      <h3>Follow Us</h3>
+
+      {links.map((link) => (
+        <div key={link.socialLink}>
+          {link.socialLink}
+        </div>
+      ))}
+    </section>
   )
 }
-
-export default Socail

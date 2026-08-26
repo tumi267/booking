@@ -127,6 +127,7 @@ export function useHeroEditor(
     let uploadedUrl = data.imageUrl
     if (url!==null) {
     const res = await uploadToimage(url)
+    
     uploadedUrl = res.Key
     }
     await fetch('/api/hero/upsert', {

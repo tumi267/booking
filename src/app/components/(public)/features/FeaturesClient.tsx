@@ -1,61 +1,54 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Loading from '@/app/components/Loading/Loading'
 import { getImageUrl } from '@/app/utils/supabase/getImageUrl'
+import { useBreakpoint } from '@/app/hooks/useBreakpoint'
 
-type Breakpoint = 'mobile' | 'tablet' | 'desktop'
-
-function getBreakpoint(width: number): Breakpoint {
-  if (width < 768) return 'mobile'
-  if (width < 1024) return 'tablet'
-  return 'desktop'
+interface FeaturesProps {
+  data: any
 }
 
-function FeaturesClient({ data }: any) {
-  const [bp, setBp] = useState<Breakpoint>('desktop')
-
-  useEffect(() => {
-    const update = () => setBp(getBreakpoint(window.innerWidth))
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
+export default function FeaturesClient({
+  data,
+}: FeaturesProps) {
+  const breakpoint = useBreakpoint()
 
   if (!data) return <Loading />
 
-  const current = data.breakpoints?.[bp]
+  const current = data.breakpoints?.[breakpoint]
+
   if (!current) return null
 
-  const features = data.features
-
-  const gridStyle = {
+  const gridStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
     gap: current.grid.gap,
     justifyContent: current.grid.justifyContent,
     alignItems: current.grid.alignItems,
-  } as React.CSSProperties
-console.log(current)
+  }
+
   return (
     <div style={current.section}>
       <div style={gridStyle}>
-        {features.map((f: any) => (
+        {data.features.map((feature: any) => (
           <div
-            key={f.id}
+            key={feature.id}
             style={{
-            background:`${current.card.background}`,
-            padding:`${current.card.padding}px`,
-            borderRadius:`${current.card.radius}px`,
-            width :`${current.card.width}px`,  
+              background: current.card.background,
+              padding: `${current.card.padding}px`,
+              borderRadius: `${current.card.radius}px`,
+              width: `${current.card.width}px`,
             }}
           >
             <img
-              src={getImageUrl(f.image)}
-              alt={f.title}
+              src={getImageUrl(feature.image)}
+              alt={feature.title}
               style={{
-                width: f.imageWidth || current.image.width,
-                height: f.imageHeight || current.image.height,
+                width:
+                  feature.imageWidth || current.image.width,
+                height:
+                  feature.imageHeight || current.image.height,
                 objectFit: 'fill',
               }}
             />
@@ -63,12 +56,16 @@ console.log(current)
             <div
               style={{
                 ...current.text,
-                color: f.fontColor || current.text.color,
-                fontSize: f.fontSize || current.text.fontSize,
+                color:
+                  feature.fontColor ||
+                  current.text.color,
+                fontSize:
+                  feature.fontSize ||
+                  current.text.fontSize,
               }}
             >
-              <h3>{f.title}</h3>
-              <p>{f.text}</p>
+              <h3>{feature.title}</h3>
+              <p>{feature.text}</p>
             </div>
           </div>
         ))}
@@ -76,5 +73,3 @@ console.log(current)
     </div>
   )
 }
-
-export default FeaturesClient

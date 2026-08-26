@@ -1,51 +1,36 @@
-import Hero from '../components/(public)/Hero/Hero'
-import HowItWorks from '../components/(public)/HowItWorks/HowItWorks'
-import Features from '../components/(public)/features/Features'
-import Loading from '../components/Loading/Loading'
-import { Suspense } from 'react'
+import { getHero } from '@/app/libs/crud/sections/hero'
+import { getHowItWorks } from '@/app/libs/crud/sections/howItWorks'
+import { getFeatures } from '@/app/libs/crud/sections/features'
+import HeroClient from '../components/(public)/Hero/HeroClient'
+import HowItWorksClient from '../components/(public)/HowItWorks/HowItWorksClient'
+import FeaturesClient from '../components/(public)/features/FeaturesClient'
+export const revalidate = 60
 
-export default function Home() {
+export default async function Home() {
+  const [hero0,howItWorks0,hero1,howItWorks1,hero3,features0,
+  ] = await Promise.all([
+    getHero('0', '0'),
+    getHowItWorks('0', '0'),
+    getHero('0', '1'),
+    getHowItWorks('0', '1'),
+    getHero('0', '3'),
+    getFeatures('0', '0'),
+  ])
+
   return (
-    <main >
-      <div>
-      <Suspense fallback={<Loading/>}>
-      <Hero
-      location='0'
-      sectionNum='0'
-      />
-      </Suspense>
-      <Suspense fallback={<Loading/>}>
-     
-      <HowItWorks
-      location='0'
-      sectionNum='0'
-      />
-      </Suspense>
-      <Suspense fallback={<Loading/>}>
-      <Hero
-      location='0'
-      sectionNum='1'
-      />
-      </Suspense>
-      <Suspense fallback={<Loading/>}>
-      <HowItWorks
-      location='0'
-      sectionNum='1'
-      />
-      </Suspense>
-      <Suspense fallback={<Loading/>}>
-      <Hero
-      location='0'
-      sectionNum='3'
-      />
-      </Suspense>
-      <Suspense fallback={<Loading/>}>
-      <Features
-        location='0'
-        sectionNum='0'
-      />
-      </Suspense>
-      </div>
+    <main>
+      {hero0 && <HeroClient hero={hero0} />}
+      {howItWorks0 && (
+        <HowItWorksClient data={howItWorks0} />
+      )}
+      {hero1 && <HeroClient hero={hero1} />}
+      {howItWorks1 && (
+        <HowItWorksClient data={howItWorks1} />
+      )}
+      {hero3 && <HeroClient hero={hero3} />}
+      {features0 && (
+        <FeaturesClient data={features0} />
+      )}
     </main>
   )
 }

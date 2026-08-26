@@ -18,9 +18,10 @@ export async function uploadToimage(file:any) {
       },
       body: file // The raw File object from the input
     });
-  
+
     if (response.ok) {
       const result = await response.json();
+      console.log(result)
     //   console.log('Upload successful:', result);
       return result
       // The public URL will be: 

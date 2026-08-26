@@ -1,108 +1,162 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import Team from '../team/Team';
-import Calendar from '../calendar/Calendar';
-import Summery from '../summery/Summery';
-// import teamMembers from '@/app/libs/db/team'
-import Time from '../Time/Time';
-import Service from '../service/Service';
-type BookedDay = { date: string; times: string[];dayOfWeek:number; }
-type Team={ ProviderId: string
-    firstName: string
-    lastName: string
-    role: string
-    bio?: string
-    imageurl?: string
-    isAvailable?: boolean
-    bookedDates: BookedDay[]}
-type service = {
-        id: string
-        name: string
-        isActive: boolean
-        price: number
-        duration:number
-        assignedTeam: Team[]
-      }
-type BookingData = {
-        serviceId: string
-        providerId: string
-        team: string
-        dates: BookedDay[]
-      }
-function Bookingmain({data }:any) {
-   
-    const [selected,setSelected]=useState(0)
-    const [selectedDuration,setSelectedDuration]=useState<number>(0)
-    const [selectedservice,setselectedService]=useState<service>()
-    const [bookingdata,setbookingdata]=useState<BookingData>({serviceId: '',
-        providerId: '',team: '',dates: []})
-    const service=data
-    const [assignedTeam,setAssignedTeam]=useState<Team[]>([])
-    
 
-    const panel=()=>{
-    switch (selected) {
-        case 0:
-            return <Service
-            step={setSelected}
-            currentStep={selected}
-            selectService={setbookingdata}
-            bookingdata={bookingdata}
-            service={service}
-            setduration={setSelectedDuration}
-            setAssignedTeam={setAssignedTeam}
-            setselectedService={setselectedService}
-            />
-        case 1:
-            return <Team
-            step={setSelected}
-            currentStep={selected}
-            selectMember={setbookingdata}
-            bookingdata={bookingdata}
-            team={assignedTeam}
-            />        
-        case 2:
-            return <Calendar
-            step={setSelected}
-            currentStep={selected}
-            bookingdata={bookingdata}
-            selectedDate={setbookingdata}
-            />
-        case 3:
-            return <Time
-            step={setSelected}
-            service={selectedDuration}
-            currentStep={selected}
-            bookingdata={bookingdata}
-            selectedDate={setbookingdata}
-            />
-        case 4:
-            if(!selectedservice)return
-            return <Summery
-            step={setSelected}
-            currentStep={selected}
-            bookingdata={bookingdata}
-            selectedservice={selectedservice}
-            />
+import React from 'react'
 
-        default:
-            return <Service
-            step={setSelected}
-            currentStep={selected}
-            selectService={setbookingdata}
-            bookingdata={bookingdata}
-            service={service}
-            setduration={setSelectedDuration}
-            setAssignedTeam={setAssignedTeam}
-            setselectedService={setselectedService}
-            />
+import Service from '../service/Service'
+import Team from '../team/Team'
+import Calendar from '../calendar/Calendar'
+import Time from '../Time/Time'
+import Summary from '../summery/Summery'
+
+import type { Service as ServiceType } from '@/app/types/booking'
+import { useBooking } from '@/app/hooks/booking/useBooking'
+
+interface Props {
+  data: ServiceType[]
+}
+
+export default function Bookingmain({
+  data,
+}: Props) {
+  const booking = useBooking()
+
+  // --------------------------------
+  // CURRENT PANEL
+  // --------------------------------
+
+  const renderPanel = () => {
+    switch (booking.step) {
+
+      // ==============================
+      // SERVICE
+      // ==============================
+
+      case 0:
+        return (
+          <Service
+            currentStep={booking.step}
+            step={booking.goToStep}
+            service={data}
+            bookingdata={
+              booking.bookingData
+            }
+            onSelectService={
+              booking.selectService
+            }
+          />
+        )
+
+      // ==============================
+      // TEAM
+      // ==============================
+
+      case 1:
+        return (
+          <Team
+            currentStep={booking.step}
+            step={booking.goToStep}
+            bookingdata={
+              booking.bookingData
+            }
+            team={
+              booking.assignedTeam
+            }
+            onSelectMember={
+              booking.selectTeamMember
+            }
+          />
+        )
+
+      // ==============================
+      // CALENDAR
+      // ==============================
+
+      case 2:
+        return (
+            <Calendar
+            currentStep={booking.step}
+            step={booking.goToStep}
+            bookingdata={booking.bookingData}
+            onSelectDates={booking.selectDates}
+          />
+        )
+
+      // ==============================
+      // TIME
+      // ==============================
+
+      case 3:
+        return (
+          <Time
+            currentStep={booking.step}
+            step={booking.goToStep}
+            bookingdata={
+              booking.bookingData
+            }
+            service={
+              booking.selectedDuration
+            }
+            onSelectDates={
+              booking.selectDates
+            }
+          />
+        )
+
+      // ==============================
+      // SUMMARY
+      // ==============================
+
+      case 4:
+
+        if (
+          !booking.selectedService
+        ) {
+          return null
+        }
+
+        return (
+          <Summary
+            currentStep={booking.step}
+            step={booking.goToStep}
+            bookingdata={
+              booking.bookingData
+            }
+            selectedservice={
+              booking.selectedService
+            }
+            onConfirm={
+              booking.confirmBooking
+            }
+            submitting={
+              booking.submitting
+            }
+          />
+        )
+
+      // ==============================
+      // FALLBACK
+      // ==============================
+
+      default:
+        return (
+          <Service
+            currentStep={booking.step}
+            step={booking.goToStep}
+            service={data}
+            bookingdata={
+              booking.bookingData
+            }
+            onSelectService={
+              booking.selectService
+            }
+          />
+        )
     }
-    }
+  }
+
   return (
-    <div>
-        {panel()}
+    <div className="w-full">
+      {renderPanel()}
     </div>
   )
 }
-
-export default Bookingmain

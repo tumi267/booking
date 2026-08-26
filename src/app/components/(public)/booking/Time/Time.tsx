@@ -3,235 +3,339 @@
 import Loading from '@/app/components/Loading/Loading'
 import React, { useEffect, useState } from 'react'
 
-type BookedDay = {
-  date: string
-  times: string[]
-  dayOfWeek: number
-}
+import type {
+  BookedDay,
+  BookingData,
+} from '@/app/types/booking'
 
 type Hours = {
   dayOfWeek: number
   startTime: string
   endTime: string
 }
-type BookingData = {
-  serviceId: string
-  providerId: string
-  team: string
-  dates: BookedDay[]
-}
+
 interface Props {
   currentStep: number
   step: (newStep: number) => void
-  selectedDate: React.Dispatch<React.SetStateAction<BookingData>>
-  bookingdata: {
-    serviceId: string; providerId: string;
-    team: string
-    dates: BookedDay[]
-  }
+  bookingdata: BookingData
   service: number
+  onSelectDates: (dates: BookedDay[]) => void
 }
 
-function Time({
+export default function Time({
   step,
   currentStep,
-  selectedDate,
   bookingdata,
-  service
+  service,
+  onSelectDates,
 }: Props) {
   const [times, setTimes] = useState<Hours[]>([])
-  const [ALL_SLOTS, setHours] = useState<string[]>([])
-  const [selecteddate, setSelectedDate] = useState(0)
-
-  // ✅ better loading handling
+  const [allSlots, setAllSlots] = useState<string[]>([])
+  const [selectedDate, setSelectedDate] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const { dates } = bookingdata
   const interval = service
 
-  // =========================
-  // FETCH ONCE ONLY
-  // =========================
+  // --------------------------------
+  // GET OPERATING HOURS
+  // --------------------------------
+
   useEffect(() => {
     let mounted = true
 
-    const gettime = async () => {
+    const getTimes = async () => {
       try {
-        const res = await fetch('/api/operating-hours')
-        if (!res.ok) throw new Error('Request failed')
+        const response = await fetch(
+          '/api/operating-hours'
+        )
 
-        const data = await res.json()
+        if (!response.ok) {
+          throw new Error('Failed to load operating hours')
+        }
+
+        const data = await response.json()
 
         if (mounted) {
-          setTimes(data) // ✅ store all
+          setTimes(data)
         }
       } catch (error) {
-        console.log(error)
+        console.error(error)
       } finally {
-        if (mounted) setLoading(false)
+        if (mounted) {
+          setLoading(false)
+        }
       }
     }
 
-    gettime()
+    getTimes()
 
     return () => {
       mounted = false
     }
   }, [])
 
-  // =========================
-  // GENERATE SLOTS ONLY WHEN NEEDED
-  // =========================
-  useEffect(() => {
-    if (!times.length || !dates.length) return
+  // --------------------------------
+  // GENERATE TIME SLOTS
+  // --------------------------------
 
-    const selected = dates[selecteddate]
-    if (!selected) return
+  useEffect(() => {
+    if (!times.length || !dates.length) {
+      setAllSlots([])
+      return
+    }
+
+    const selected = dates[selectedDate]
+
+    if (!selected) {
+      setAllSlots([])
+      return
+    }
 
     const match = times.find(
-      t => t.dayOfWeek === selected.dayOfWeek
+      (time) =>
+        time.dayOfWeek === selected.dayOfWeek
     )
 
-    if (match) {
-      createtimeslots(match.startTime, match.endTime)
-    } else {
-      setHours([])
+    if (!match) {
+      setAllSlots([])
+      return
     }
-  }, [selecteddate, times, dates])
 
-  // =========================
-  // HELPERS
-  // =========================
-  const updateTimes = (newTimes: string[]) => {
-    const newDates = dates.map((d, i) => {
-      if (i !== selecteddate) return d
+    createTimeSlots(
+      match.startTime,
+      match.endTime
+    )
+  }, [selectedDate, times, dates, interval])
 
-      return {
-        ...d,
-        times: newTimes
-      }
-    })
+  // --------------------------------
+  // CREATE TIME SLOTS
+  // --------------------------------
 
-    selectedDate(prev => ({
-      ...prev,
-      dates: newDates
-    }))
+  const createTimeSlots = (
+    start: string,
+    end: string
+  ) => {
+    const slots: string[] = []
+
+    const [
+      startHour,
+      startMinute,
+    ] = start.split(':').map(Number)
+
+    const [
+      endHour,
+      endMinute,
+    ] = end.split(':').map(Number)
+
+    const current = new Date()
+
+    current.setHours(
+      startHour,
+      startMinute,
+      0,
+      0
+    )
+
+    const endDate = new Date()
+
+    endDate.setHours(
+      endHour,
+      endMinute,
+      0,
+      0
+    )
+
+    while (current < endDate) {
+      const hours = String(
+        current.getHours()
+      ).padStart(2, '0')
+
+      const minutes = String(
+        current.getMinutes()
+      ).padStart(2, '0')
+
+      slots.push(`${hours}:${minutes}`)
+
+      current.setMinutes(
+        current.getMinutes() + interval
+      )
+    }
+
+    setAllSlots(slots)
   }
 
-  const handleTimeChange = (time: string) => {
-    const currentTimes = dates[selecteddate]?.times || []
+  // --------------------------------
+  // UPDATE SELECTED DATE TIMES
+  // --------------------------------
 
-    // 1️⃣ start
+  const updateTimes = (
+    newTimes: string[]
+  ) => {
+    const newDates = dates.map(
+      (date, index) => {
+        if (index !== selectedDate) {
+          return date
+        }
+
+        return {
+          ...date,
+          times: newTimes,
+        }
+      }
+    )
+
+    onSelectDates(newDates)
+  }
+
+  // --------------------------------
+  // SELECT TIME
+  // --------------------------------
+
+  const handleTimeChange = (
+    time: string
+  ) => {
+    const currentTimes =
+      dates[selectedDate]?.times || []
+
+    // First click = start time
     if (currentTimes.length === 0) {
       updateTimes([time])
       return
     }
 
-    // 2️⃣ range
+    // Second click = end time
     if (currentTimes.length === 1) {
       const start = currentTimes[0]
       const end = time
 
-      const startIndex = ALL_SLOTS.indexOf(start)
-      const endIndex = ALL_SLOTS.indexOf(end)
+      const startIndex =
+        allSlots.indexOf(start)
 
-      if (startIndex === -1 || endIndex === -1) return
+      const endIndex =
+        allSlots.indexOf(end)
+
+      if (
+        startIndex === -1 ||
+        endIndex === -1
+      ) {
+        return
+      }
 
       const [from, to] =
         startIndex < endIndex
           ? [startIndex, endIndex]
           : [endIndex, startIndex]
 
-      const range = ALL_SLOTS.slice(from, to + 1)
+      const range = allSlots.slice(
+        from,
+        to + 1
+      )
 
       updateTimes(range)
+
       return
     }
 
-    // 3️⃣ reset
+    // Third click = start a new selection
     updateTimes([time])
   }
 
-  const createtimeslots = (start: string, end: string) => {
-    const slots: string[] = []
+  // --------------------------------
+  // CHANGE DATE
+  // --------------------------------
 
-    const [startHour, startMin] = start.split(':').map(Number)
-    const [endHour, endMin] = end.split(':').map(Number)
-
-    const current = new Date()
-    current.setHours(startHour, startMin, 0, 0)
-
-    const endDate = new Date()
-    endDate.setHours(endHour, endMin, 0, 0)
-
-    while (current < endDate) { // ✅ fixed overflow
-      const hours = String(current.getHours()).padStart(2, '0')
-      const minutes = String(current.getMinutes()).padStart(2, '0')
-
-      slots.push(`${hours}:${minutes}`)
-      current.setMinutes(current.getMinutes() + interval)
-    }
-
-    setHours(slots)
-  }
-
-  const handleDateChange = (index: number) => {
+  const handleDateChange = (
+    index: number
+  ) => {
     setSelectedDate(index)
   }
 
-  // =========================
-  // UI
-  // =========================
-if(loading) return <Loading/>
-  return (
-    <div className={`p-4 space-y-6 ${loading ? 'opacity-50 pointer-events-none' : ''}`}>
+  // --------------------------------
+  // LOADING
+  // --------------------------------
 
-      {/* LOADING OVERLAY (no flicker) */}
-      
+  if (loading) {
+    return <Loading />
+  }
+
+  // --------------------------------
+  // UI
+  // --------------------------------
+
+  return (
+    <div className="p-4 space-y-6">
 
       {/* DATE SELECT */}
+
       <div>
-        <h2 className="text-lg font-semibold mb-2">Select Date</h2>
+        <h2 className="text-lg font-semibold mb-2">
+          Select Date
+        </h2>
 
         <div className="flex gap-2 flex-wrap">
-          {dates.map((d, i) => (
+          {dates.map((date, index) => (
             <button
-              key={i}
-              onClick={() => handleDateChange(i)}
-              className={`px-4 py-2 rounded-lg border transition
+              key={index}
+              onClick={() =>
+                handleDateChange(index)
+              }
+              className={`
+                px-4 py-2
+                rounded-lg
+                border
+                transition
+
                 ${
-                  selecteddate === i
+                  selectedDate === index
                     ? 'bg-black text-white'
                     : 'bg-white hover:bg-gray-100'
-                }`}
+                }
+              `}
             >
-              {d.date}
+              {date.date}
             </button>
           ))}
         </div>
       </div>
 
       {/* TIME SLOTS */}
+
       <div>
         <h2 className="text-lg font-semibold mb-2">
-          Select Time {dates[selecteddate]?.times.length === 1 && '(Select end time)'}
+          Select Time
+
+          {dates[selectedDate]?.times.length ===
+            1 && (
+            ' (Select end time)'
+          )}
         </h2>
 
         <div className="grid grid-cols-3 gap-2">
-          {ALL_SLOTS.map((slot, i) => {
+          {allSlots.map((slot) => {
             const isSelected =
-              dates[selecteddate]?.times.includes(slot)
+              dates[selectedDate]?.times.includes(
+                slot
+              )
 
             return (
               <button
-                key={i}
-                onClick={() => handleTimeChange(slot)}
-                className={`p-2 rounded-lg border transition
+                key={slot}
+                onClick={() =>
+                  handleTimeChange(slot)
+                }
+                className={`
+                  p-2
+                  rounded-lg
+                  border
+                  transition
+
                   ${
                     isSelected
                       ? 'bg-blue-600 text-white'
                       : 'bg-white hover:bg-gray-100'
-                  }`}
+                  }
+                `}
               >
                 {slot}
               </button>
@@ -241,24 +345,47 @@ if(loading) return <Loading/>
       </div>
 
       {/* ACTIONS */}
+
       <div className="flex justify-center gap-6 mt-4">
+
         <button
-          onClick={() => step(currentStep - 1)}
-          className="px-6 py-2 bg-gray-300 hover:bg-gray-400 rounded-md transition"
+          onClick={() =>
+            step(currentStep - 1)
+          }
+          className="
+            px-6 py-2
+            bg-gray-300
+            hover:bg-gray-400
+            rounded-md
+            transition
+          "
         >
           Prev
         </button>
 
         <button
-          disabled={!dates[selecteddate]?.times.length}
-          onClick={() => step(currentStep + 1)}
-          className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition"
+          disabled={
+            !dates[selectedDate]?.times.length
+          }
+          onClick={() =>
+            step(currentStep + 1)
+          }
+          className="
+            px-6 py-2
+            bg-blue-600
+            hover:bg-blue-700
+            text-white
+            rounded-md
+            transition
+            disabled:opacity-50
+            disabled:cursor-not-allowed
+          "
         >
           Next
         </button>
+
       </div>
+
     </div>
   )
 }
-
-export default Time

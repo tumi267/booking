@@ -1,8 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-
-type Breakpoint = 'mobile' | 'tablet' | 'desktop'
+import { useBreakpoint } from '@/app/hooks/useBreakpoint'
 
 type TeamMember = {
   id: string
@@ -16,59 +14,28 @@ type TeamMember = {
   imageRadius?: string
 }
 
-type Props = {
-  intro: string 
+interface TeamClientProps {
+  intro: string |null
   members: TeamMember[]
   breakpoints: any
 }
 
-// ----------------------
-// BREAKPOINT DETECTOR
-// ----------------------
-function getBreakpoint(width: number): Breakpoint {
-  if (width < 768) return 'mobile'
-  if (width < 1024) return 'tablet'
-  return 'desktop'
-}
+export default function TeamClient({intro,members,breakpoints,}: TeamClientProps) {
+  const breakpoint = useBreakpoint()
 
-export default function TeamClient({
-  intro,
-  members,
-  breakpoints,
-}: Props) {
-  const [bp, setBp] = useState<Breakpoint>('desktop')
-
-  // ----------------------
-  // WATCH SCREEN SIZE
-  // ----------------------
-  useEffect(() => {
-    const handleResize = () => {
-      setBp(getBreakpoint(window.innerWidth))
-    }
-
-    handleResize()
-    window.addEventListener('resize', handleResize)
-
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  // ----------------------
-  // CURRENT STYLES
-  // ----------------------
-  const current = breakpoints?.[bp]
+  const current = breakpoints?.[breakpoint]
 
   const gridStyle = current?.grid || {
-    display: 'flex',
-    flexWrap: 'wrap',
     gap: 20,
+    columns: 1,
     justifyContent: 'center',
   }
 
   const cardStyle = current?.card || {
     background: '#fff',
     padding: 10,
-    borderRadius: 8,
-    textAlign: 'center',
+    radius: 8,
+    width: 100,
   }
 
   const introStyle = current?.intro || {
@@ -80,45 +47,55 @@ export default function TeamClient({
   const imageStyle = current?.image || {
     width: '100%',
     height: 160,
-    objectFit: 'cover',
   }
 
-  // ----------------------
-  // RENDER
-  // ----------------------
   return (
     <div>
-      {intro && <h3 style={introStyle}>{intro}</h3>}
+      {intro && (
+        <h3 style={introStyle}>
+          {intro}
+        </h3>
+      )}
 
-      <div style={{display:'grid',
-      gap:`${gridStyle.gap}px`,
-      gridTemplateColumns:`repeat(${gridStyle.columns}, 1fr)`,
-      justifyContent:`${gridStyle.justifyContent}`}}>
-        {members.map((m) => (
-          <div key={m.id} style={{
-            width:`${cardStyle.width}%`,
-            borderRadius:`${cardStyle.radius}px`,
-            padding:`${cardStyle.padding}px`,
-            background:`${cardStyle.background}`
-            }}>
+      <div
+        style={{
+          display: 'grid',
+          gap: `${gridStyle.gap}px`,
+          gridTemplateColumns: `repeat(${gridStyle.columns}, 1fr)`,
+          justifyContent: gridStyle.justifyContent,
+        }}
+      >
+        {members.map((member) => (
+          <div
+            key={member.id}
+            style={{
+              width: `${cardStyle.width}%`,
+              borderRadius: `${cardStyle.radius}px`,
+              padding: `${cardStyle.padding}px`,
+              background: cardStyle.background,
+            }}
+          >
             <img
-              src={m.image}
+              src={member.image}
+              alt={member.name}
               style={{
-                width: m.imageWidth || imageStyle.width,
-                height: m.imageHeight || imageStyle.height,
-                borderRadius: m.imageRadius,
+                width:
+                  member.imageWidth || imageStyle.width,
+                height:
+                  member.imageHeight || imageStyle.height,
+                borderRadius: member.imageRadius,
                 objectFit: 'fill',
               }}
             />
 
             <div
               style={{
-                fontSize: m.fontSize,
-                color: m.fontColor,
+                fontSize: member.fontSize,
+                color: member.fontColor,
               }}
             >
-              <h4>{m.name}</h4>
-              <p>{m.role}</p>
+              <h4>{member.name}</h4>
+              <p>{member.role}</p>
             </div>
           </div>
         ))}

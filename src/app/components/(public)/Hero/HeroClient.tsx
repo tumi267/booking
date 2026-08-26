@@ -1,41 +1,29 @@
 'use client'
 
 import { getImageUrl } from '@/app/utils/supabase/getImageUrl'
-import React, { useEffect, useState } from 'react'
+import { useBreakpoint } from '@/app/hooks/useBreakpoint'
 
-type Breakpoint = 'mobile' | 'tablet' | 'desktop'
-
-function getBreakpoint(width: number): Breakpoint {
-  if (width < 768) return 'mobile'
-  if (width < 1024) return 'tablet'
-  return 'desktop'
+interface HeroProps {
+  hero: any
 }
 
-export default function HeroClient({ hero }: any) {
-  const [bp, setBp] = useState<Breakpoint>('desktop')
+export default function HeroClient({ hero }: HeroProps) {
+  const breakpoint = useBreakpoint()
 
-  useEffect(() => {
-    const update = () => setBp(getBreakpoint(window.innerWidth))
-
-    update()
-    window.addEventListener('resize', update)
-
-    return () => window.removeEventListener('resize', update)
-  }, [])
-
-  const data = hero.breakpoints?.[bp]
+  const data = hero.breakpoints?.[breakpoint]
 
   if (!data) return null
 
   return (
     <div style={data.heroContainer}>
       <div style={data.heroContainer}>
-      <img
-        src={getImageUrl(hero.imageUrl)}
-        style={hero.heroImage }
-        className="w-full h-full object-fill"
-      />
-    </div>
+        <img
+          src={getImageUrl(hero.imageUrl)}
+          style={hero.heroImage}
+          className="w-full h-full object-fill"
+        />
+      </div>
+
       <div
         style={{
           position: 'absolute',
