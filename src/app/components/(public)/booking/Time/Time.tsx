@@ -1,40 +1,32 @@
 'use client'
 
+import React, {useEffect,useMemo,useState,} from 'react'
+
 import Loading from '@/app/components/Loading/Loading'
-import React, { useEffect, useState } from 'react'
 
-import type {
-  BookedDay,
-  BookingData,
-} from '@/app/types/booking'
-
-type Hours = {
-  dayOfWeek: number
-  startTime: string
-  endTime: string
-}
+import type {BookedDay,BookingData,} from '@/app/types/booking'
+import type {OperatingHour,} from '@/app/types/availability'
+import { generateTimeSlots, selectTimeRange } from '@/app/utils/time'
 
 interface Props {
   currentStep: number
   step: (newStep: number) => void
   bookingdata: BookingData
   service: number
-  onSelectDates: (dates: BookedDay[]) => void
+  onSelectDates: (
+    dates: BookedDay[]
+  ) => void
 }
 
-export default function Time({
-  step,
-  currentStep,
-  bookingdata,
-  service,
-  onSelectDates,
-}: Props) {
-  const [times, setTimes] = useState<Hours[]>([])
-  const [allSlots, setAllSlots] = useState<string[]>([])
-  const [selectedDate, setSelectedDate] = useState(0)
+export default function Time({step,currentStep,bookingdata,service,onSelectDates,}: Props) {
+  const [times, setTimes] =useState<OperatingHour[]>([])
+
   const [loading, setLoading] = useState(true)
 
+  const [selectedDate,setSelectedDate,] = useState(0)
+
   const { dates } = bookingdata
+
   const interval = service
 
   // --------------------------------
@@ -42,28 +34,29 @@ export default function Time({
   // --------------------------------
 
   useEffect(() => {
-    let mounted = true
-
-    const getTimes = async () => {
+    let cancelled = false
+    async function getTimes() {
+      setLoading(true)
       try {
-        const response = await fetch(
-          '/api/operating-hours'
-        )
+        const response = await fetch('/api/operating-hours',
+            {
+              method: 'GET',
+              cache: 'no-store',
+            }
+          )
 
         if (!response.ok) {
-          throw new Error('Failed to load operating hours')
+          throw new Error(
+            'Failed to load operating hours'
+          )
         }
 
-        const data = await response.json()
+        const data =(await response.json()) as OperatingHour[]
 
-        if (mounted) {
-          setTimes(data)
-        }
-      } catch (error) {
-        console.error(error)
+        if (!cancelled &&Array.isArray(data)) { setTimes(data)}
+      } catch (error) {console.error('Failed to load operating hours:',error)
       } finally {
-        if (mounted) {
-          setLoading(false)
+        if (!cancelled) {setLoading(false)
         }
       }
     }
@@ -71,121 +64,97 @@ export default function Time({
     getTimes()
 
     return () => {
-      mounted = false
+      cancelled = true
     }
   }, [])
 
   // --------------------------------
-  // GENERATE TIME SLOTS
+  // KEEP SELECTED DATE VALID
   // --------------------------------
 
   useEffect(() => {
-    if (!times.length || !dates.length) {
-      setAllSlots([])
+    if (!dates.length) {
+      setSelectedDate(0)
       return
     }
 
-    const selected = dates[selectedDate]
-
-    if (!selected) {
-      setAllSlots([])
-      return
+    if (selectedDate >=dates.length
+    ) {
+      setSelectedDate(dates.length - 1)
     }
-
-    const match = times.find(
-      (time) =>
-        time.dayOfWeek === selected.dayOfWeek
-    )
-
-    if (!match) {
-      setAllSlots([])
-      return
-    }
-
-    createTimeSlots(
-      match.startTime,
-      match.endTime
-    )
-  }, [selectedDate, times, dates, interval])
+  }, [dates,selectedDate,])
 
   // --------------------------------
-  // CREATE TIME SLOTS
+  // GENERATE SLOTS
   // --------------------------------
 
-  const createTimeSlots = (
-    start: string,
-    end: string
-  ) => {
-    const slots: string[] = []
+  const allSlots =
+    useMemo(() => {
+      if (
+        !times.length ||
+        !dates.length
+      ) {
+        return []
+      }
 
-    const [
-      startHour,
-      startMinute,
-    ] = start.split(':').map(Number)
+      const selected =
+        dates[selectedDate]
 
-    const [
-      endHour,
-      endMinute,
-    ] = end.split(':').map(Number)
+      if (!selected) {
+        return []
+      }
 
-    const current = new Date()
+      const match =
+        times.find(
+          time =>
+            time.dayOfWeek ===
+            selected.dayOfWeek &&
+            time.isActive !== false
+        )
 
-    current.setHours(
-      startHour,
-      startMinute,
-      0,
-      0
-    )
+      if (!match) {
+        return []
+      }
 
-    const endDate = new Date()
-
-    endDate.setHours(
-      endHour,
-      endMinute,
-      0,
-      0
-    )
-
-    while (current < endDate) {
-      const hours = String(
-        current.getHours()
-      ).padStart(2, '0')
-
-      const minutes = String(
-        current.getMinutes()
-      ).padStart(2, '0')
-
-      slots.push(`${hours}:${minutes}`)
-
-      current.setMinutes(
-        current.getMinutes() + interval
+      return generateTimeSlots(
+        match.startTime,
+        match.endTime,
+        interval
       )
-    }
-
-    setAllSlots(slots)
-  }
+    }, [
+      times,
+      dates,
+      selectedDate,
+      interval,
+    ])
 
   // --------------------------------
-  // UPDATE SELECTED DATE TIMES
+  // UPDATE SELECTED DATE
   // --------------------------------
 
   const updateTimes = (
     newTimes: string[]
   ) => {
-    const newDates = dates.map(
-      (date, index) => {
-        if (index !== selectedDate) {
-          return date
-        }
+    const newDates =
+      dates.map(
+        (date, index) => {
+          if (
+            index !==
+            selectedDate
+          ) {
+            return date
+          }
 
-        return {
-          ...date,
-          times: newTimes,
+          return {
+            ...date,
+            times: newTimes,
+          }
         }
-      }
+      )
+
+    onSelectDates(
+      newDates
     )
-
-    onSelectDates(newDates)
   }
 
   // --------------------------------
@@ -196,49 +165,20 @@ export default function Time({
     time: string
   ) => {
     const currentTimes =
-      dates[selectedDate]?.times || []
+      dates[
+        selectedDate
+      ]?.times ?? []
 
-    // First click = start time
-    if (currentTimes.length === 0) {
-      updateTimes([time])
-      return
-    }
-
-    // Second click = end time
-    if (currentTimes.length === 1) {
-      const start = currentTimes[0]
-      const end = time
-
-      const startIndex =
-        allSlots.indexOf(start)
-
-      const endIndex =
-        allSlots.indexOf(end)
-
-      if (
-        startIndex === -1 ||
-        endIndex === -1
-      ) {
-        return
-      }
-
-      const [from, to] =
-        startIndex < endIndex
-          ? [startIndex, endIndex]
-          : [endIndex, startIndex]
-
-      const range = allSlots.slice(
-        from,
-        to + 1
+    const nextTimes =
+      selectTimeRange(
+        currentTimes,
+        time,
+        allSlots
       )
 
-      updateTimes(range)
-
-      return
-    }
-
-    // Third click = start a new selection
-    updateTimes([time])
+    updateTimes(
+      nextTimes
+    )
   }
 
   // --------------------------------
@@ -274,28 +214,34 @@ export default function Time({
         </h2>
 
         <div className="flex gap-2 flex-wrap">
-          {dates.map((date, index) => (
-            <button
-              key={index}
-              onClick={() =>
-                handleDateChange(index)
-              }
-              className={`
-                px-4 py-2
-                rounded-lg
-                border
-                transition
-
-                ${
-                  selectedDate === index
-                    ? 'bg-black text-white'
-                    : 'bg-white hover:bg-gray-100'
+          {dates.map(
+            (date, index) => (
+              <button
+                type="button"
+                key={date.date}
+                onClick={() =>
+                  handleDateChange(
+                    index
+                  )
                 }
-              `}
-            >
-              {date.date}
-            </button>
-          ))}
+                className={`
+                  px-4 py-2
+                  rounded-lg
+                  border
+                  transition
+
+                  ${
+                    selectedDate ===
+                    index
+                      ? 'bg-black text-white'
+                      : 'bg-white hover:bg-gray-100'
+                  }
+                `}
+              >
+                {date.date}
+              </button>
+            )
+          )}
         </div>
       </div>
 
@@ -305,43 +251,60 @@ export default function Time({
         <h2 className="text-lg font-semibold mb-2">
           Select Time
 
-          {dates[selectedDate]?.times.length ===
+          {dates[
+            selectedDate
+          ]?.times.length ===
             1 && (
             ' (Select end time)'
           )}
         </h2>
 
-        <div className="grid grid-cols-3 gap-2">
-          {allSlots.map((slot) => {
-            const isSelected =
-              dates[selectedDate]?.times.includes(
-                slot
-              )
+        {allSlots.length ===
+        0 ? (
+          <p className="text-gray-500">
+            No times available for
+            this date.
+          </p>
+        ) : (
+          <div className="grid grid-cols-3 gap-2">
+            {allSlots.map(
+              slot => {
+                const isSelected =
+                  dates[
+                    selectedDate
+                  ]?.times.includes(
+                    slot
+                  )
 
-            return (
-              <button
-                key={slot}
-                onClick={() =>
-                  handleTimeChange(slot)
-                }
-                className={`
-                  p-2
-                  rounded-lg
-                  border
-                  transition
+                return (
+                  <button
+                    type="button"
+                    key={slot}
+                    onClick={() =>
+                      handleTimeChange(
+                        slot
+                      )
+                    }
+                    className={`
+                      p-2
+                      rounded-lg
+                      border
+                      transition
 
-                  ${
-                    isSelected
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white hover:bg-gray-100'
-                  }
-                `}
-              >
-                {slot}
-              </button>
-            )
-          })}
-        </div>
+                      ${
+                        isSelected
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white hover:bg-gray-100'
+                      }
+                    `}
+                  >
+                    {slot}
+                  </button>
+                )
+              }
+            )}
+          </div>
+        )}
       </div>
 
       {/* ACTIONS */}
@@ -349,8 +312,11 @@ export default function Time({
       <div className="flex justify-center gap-6 mt-4">
 
         <button
+          type="button"
           onClick={() =>
-            step(currentStep - 1)
+            step(
+              currentStep - 1
+            )
           }
           className="
             px-6 py-2
@@ -364,11 +330,16 @@ export default function Time({
         </button>
 
         <button
+          type="button"
           disabled={
-            !dates[selectedDate]?.times.length
+            !dates[
+              selectedDate
+            ]?.times.length
           }
           onClick={() =>
-            step(currentStep + 1)
+            step(
+              currentStep + 1
+            )
           }
           className="
             px-6 py-2

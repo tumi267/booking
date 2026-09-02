@@ -50,7 +50,15 @@ export async function getAllServices() {
     assignedTeam: s.providers,
   }))
 }
-
+//GET BY ID
+export async function getServiceById(id: string) {
+  return prisma.service.findUnique({
+    where: { id },
+    include: {
+      providers: true,
+    },
+  })
+}
 // UPDATE
 export async function updateService(
   id: string,
