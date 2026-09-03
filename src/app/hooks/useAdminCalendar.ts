@@ -7,15 +7,7 @@ export type CalendarBooking = {
   count: number
 }
 export function useAdminCalendar() {
-  const {
-    month,
-    year,
-    firstDay,
-    daysInMonth,
-    monthNames,
-    prevMonth,
-    nextMonth,
-  } = useCalendar()
+  const {month,year,firstDay,daysInMonth,monthNames,prevMonth,nextMonth,} = useCalendar()
   const [bookings, setBookings] = useState<CalendarBooking[]>([])
   const [loading, setLoading] = useState(true)
   // FETCH BOOKINGS

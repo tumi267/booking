@@ -1,9 +1,11 @@
 'use client'
 import React, { useState } from 'react'
-import { stats } from '@/app/libs/KPI/KPI'
+
 import OperatingHours from './OperatingHours'
 import Calendar from './Calendar'
+import { useKpi } from '@/app/hooks/useKpi'
 export default function OperationsDashboard() {
+  const {stats}=useKpi();
   return (
     <div className="space-y-6 p-6">
       {/* KPI */}

@@ -1,10 +1,10 @@
-// ==============================
-// KPI STATS
-// ==============================
-export const stats = [
-    { label: "Today's Bookings", value: '14' },
-    { label: 'Pending Confirmations', value: '3' },
-    { label: 'Active Providers', value: '8/10' },
-    { label: 'Daily Revenue', value: 'R9,450' },
-  ]
-  
+export async function getkpi(){
+   const response= await fetch('/api/kpi',{cache: 'no-store',})
+   if (!response.ok) {
+    throw new Error(
+      'Failed to load KPIs'
+    )
+  }
+
+  return response.json()
+}
