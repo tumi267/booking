@@ -16,9 +16,7 @@ export function useAdminCalendar() {
   }, [month, year])
   async function load() {
     setLoading(true)
-    const res = await fetch(
-      `/api/adminCal?month=${month}&year=${year}`
-    )
+    const res = await fetch(`/api/adminCal?month=${month}&year=${year}`)
     const data = await res.json()
     setBookings(data)
     setLoading(false)
