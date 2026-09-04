@@ -28,7 +28,7 @@ async function BookingInfo({ params }: { params: { id: string, date: string } })
   // Since all bookings in a group share the same client/service (per your schema), 
   // we pull those details from the first item.
   const firstItem = data[0];
-
+  const totalPrice = data.reduce((total, item) => total + item.price,0)
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Edit Group Booking</h1>
@@ -42,7 +42,7 @@ async function BookingInfo({ params }: { params: { id: string, date: string } })
         date={firstItem.date}
         sessionDuration={firstItem.services.defaultSessionDuration}
         status={firstItem.status}
-        totalPrice={firstItem.price} // This is your stored group total
+        totalPrice={totalPrice} // This is your stored group total
         items={data.map(item => ({
           id: item.id,
           time: item.time,

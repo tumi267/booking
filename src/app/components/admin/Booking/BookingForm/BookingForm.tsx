@@ -26,7 +26,7 @@ interface Props {
 function BookingForm(props: Props) {
   const {groupId,providerId,status,date,items,serviceId,sessionDuration,totalPrice,clientName,contact,availableProviders,} = props
   const { formState, setFormState, handleSubmit, submitting } =useAdminBookingForm({groupId,providerId,status,date,items,})
- 
+
   return (
     <form
       className="space-y-6 p-6 border rounded-xl bg-white shadow-sm"
