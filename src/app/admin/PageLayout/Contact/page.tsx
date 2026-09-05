@@ -1,8 +1,11 @@
+import PageBuilder from '@/app/components/admin/AdminComponents/PageBuilder/PageBuilder'
 import React from 'react'
 
 function page() {
   return (
-    <div>page</div>
+    <div>
+      <PageBuilder page="contact" />
+    </div>
   )
 }
 
