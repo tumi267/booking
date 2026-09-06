@@ -106,7 +106,7 @@ function HowItWorks({
           </div>
           {open.text && (
             <div style={group}>
-              <input
+              <textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />

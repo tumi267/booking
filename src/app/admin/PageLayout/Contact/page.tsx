@@ -1,12 +1,11 @@
-import PageBuilder from '@/app/components/admin/AdminComponents/PageBuilder/PageBuilder'
-import React from 'react'
+'use client'
 
-function page() {
+import PageBuilder from "@/app/components/admin/AdminComponents/PageBuilder/PageBuilder"
+
+export default function ContactAdminPage() {
   return (
-    <div>
+    <div className="p-6">
       <PageBuilder page="contact" />
     </div>
   )
 }
-
-export default page
