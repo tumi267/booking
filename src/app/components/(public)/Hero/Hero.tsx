@@ -7,6 +7,7 @@ interface Props {
 }
 
 export default async function Hero({ location, sectionNum }: Props) {
+  
   const hero = await getHero(location, sectionNum)
 
   if (!hero) return null

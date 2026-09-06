@@ -1,7 +1,7 @@
-
-
 role base permissions
-smart search
-contact admin page
-
 security logic
+
+user page 
+booking history
+upcoming bookings
+page restictions logic

@@ -1,50 +1,11 @@
 'use client'
-import Features from '@/app/components/admin/AdminComponents/Featues/Features'
-import HowItWorks from '@/app/components/admin/AdminComponents/HowItWorks/HowItWorks'
-import TeamAbout from '@/app/components/admin/AdminComponents/TeamAbout/TeamAbout'
-import Hero from '@/app/components/admin/Hero/Hero'
-import EditViewPort from '@/app/components/admin/editViewport/EditViewPort'
-import React, { useState } from 'react'
 
-function Page() {
-  const [viewport, setViewport] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
-  const sizes = {
-    desktop: '100%',
-    tablet: '768px',
-    mobile: '375px',
-  }
+import PageBuilder from "@/app/components/admin/AdminComponents/PageBuilder/PageBuilder"
+
+export default function Page() {
   return (
-    <div style={{
-      width: sizes[viewport],
-      margin:'0 auto',
-      transition: 'width 0.3s ease',
-    }}>
-      <EditViewPort
-      viewport={viewport}
-      setViewport={setViewport}
-      />
-      <Hero
-            location='1'
-            sectionNum='0'
-            viewport={viewport}
-      />
-      <HowItWorks
-            location='1'
-            sectionNum='0'
-            viewport={viewport}
-      />
-      <TeamAbout
-        location='1'
-        sectionNum='0'
-        viewport={viewport}
-      />
-      <Features
-            location='1'
-            sectionNum='0'
-            viewport={viewport}
-      />
+    <div className="p-6">
+      <PageBuilder page="about" />
     </div>
   )
 }
-
-export default Page

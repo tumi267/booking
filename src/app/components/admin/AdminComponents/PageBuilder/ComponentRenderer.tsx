@@ -2,9 +2,7 @@
 
 import React from 'react'
 
-import {
-  PAGE_COMPONENT_REGISTRY,
-} from './componentRegistry'
+import {PAGE_COMPONENT_REGISTRY,} from './componentRegistry'
 
 type PageComponentItem = {
   id: string
@@ -18,14 +16,8 @@ interface Props {
   page: string
 }
 
-export default function ComponentRenderer({
-  component,
-  page,
-}: Props) {
-  const Component =
-    PAGE_COMPONENT_REGISTRY[
-      component.component as keyof typeof PAGE_COMPONENT_REGISTRY
-    ]
+export default function ComponentRenderer({component,page,}: Props) {
+  const Component =PAGE_COMPONENT_REGISTRY[component.component as keyof typeof PAGE_COMPONENT_REGISTRY]
 
   if (!Component) {
     return (

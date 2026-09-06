@@ -1,25 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-
-import {
-  usePageBuilder,
-} from '@/app/hooks/usePageBuilder'
-
+import { usePageBuilder,} from '@/app/hooks/usePageBuilder'
 import ComponentPicker from './ComponentPicker'
 import ComponentRenderer from './ComponentRenderer'
+import { PAGE_BUILDER_COMPONENTS,} from './componentRegistry'
 
-import {
-  PAGE_BUILDER_COMPONENTS,
-} from './componentRegistry'
+type PageBuilderProps = {page: string}
 
-type PageBuilderProps = {
-  page: string
-}
-
-export default function PageBuilder({
-  page,
-}: PageBuilderProps) {
+export default function PageBuilder({page,}: PageBuilderProps) {
   const {components,loading,saving,adding,removing,error,addComponent,removeComponent,moveComponent,saveLayout,} = usePageBuilder(page)
 
   const [draggedIndex,setDraggedIndex,] = useState<number | null>(null)
@@ -31,10 +20,7 @@ export default function PageBuilder({
   // --------------------------------
 
   const getComponentLabel = (type: string) => {
-    const component =
-      PAGE_BUILDER_COMPONENTS.find(
-        item =>item.type === type
-      )
+    const component =PAGE_BUILDER_COMPONENTS.find(item =>item.type === type)
 
     return (component?.label ?? type)
   }
@@ -43,8 +29,7 @@ export default function PageBuilder({
   // DRAG START
   // --------------------------------
 
-  const handleDragStart = ( index: number
-  ) => { setDraggedIndex(index)}
+  const handleDragStart = ( index: number) => { setDraggedIndex(index)}
 
   // --------------------------------
   // DRAG OVER
@@ -96,8 +81,7 @@ export default function PageBuilder({
   const handleRemove = async (id: string,component: string) => {
     const label =getComponentLabel(component)
 
-    const confirmed =
-      window.confirm(`Remove ${label} from this page?`)
+    const confirmed = window.confirm(`Remove ${label} from this page?`)
     if (!confirmed) {return}
     await removeComponent(id)
   }
@@ -139,23 +123,9 @@ export default function PageBuilder({
         </div>
 
         <button type="button" onClick={saveLayout} disabled={saving ||components.length === 0}
-          className="shrink-0
-            rounded-md
-            bg-black
-            px-5
-            py-2.5
-            text-sm
-            font-medium
-            text-white
-            transition
-            hover:bg-gray-800
-            disabled:cursor-not-allowed
-            disabled:opacity-50
-          "
+          className="shrink-0 rounded-md bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 "
         >
-          {saving
-            ? 'Saving...'
-            : 'Save Changes'}
+          {saving? 'Saving...': 'Save Changes'}
         </button>
       </div>
 
@@ -226,20 +196,15 @@ export default function PageBuilder({
                     component => (
                       <ComponentRenderer
                         key={component.id}
-                        component={
-                          component
-                        }
+                        component={ component}
                         page={page}
                       />
                     )
                   )}
                 </div>
               )}
-
             </div>
-
           </div>
-
 
           {components.length === 0 ? (
               <div className="rounded-lg border border-dashed border-gray-300 bg-white py-16 text-center">
@@ -261,59 +226,25 @@ export default function PageBuilder({
 
               <div className="space-y-3">
                 {components.map(
-                  (
-                    component,
-                    index
-                  ) => {
-                    const isDragging =
-                      draggedIndex ===
-                      index
-
-                    const isDragOver =
-                      dragOverIndex ===
-                      index
-
+                  (component,index) => {
+                    const isDragging = draggedIndex === index
+                    const isDragOver = dragOverIndex === index
                     return (
                       <div
                         key={component.id}
                         draggable
-                        onDragStart={() =>
-                          handleDragStart(
-                            index
-                          )
+                        onDragStart={() =>handleDragStart(index)
                         }
-                        onDragOver={event =>
-                          handleDragOver(
-                            event,
-                            index
-                          )
+                        onDragOver={event => handleDragOver(event,index)
                         }
                         onDrop={event =>
-                          handleDrop(
-                            event,
-                            index
-                          )
+                          handleDrop(event,index)
                         }
-                        onDragEnd={
-                          handleDragEnd
-                        }
-                        className={`
-                          rounded-lg
-                          border
-                          bg-white
-                          transition
+                        onDragEnd={handleDragEnd}
+                        className={`rounded-lg border bg-white transition
+                          ${isDragging? 'border-gray-400 opacity-50': 'border-gray-200'}
 
-                          ${
-                            isDragging
-                              ? 'border-gray-400 opacity-50'
-                              : 'border-gray-200'
-                          }
-
-                          ${
-                            isDragOver
-                              ? 'border-blue-400 bg-blue-50'
-                              : ''
-                          }
+                          ${isDragOver ? 'border-blue-400 bg-blue-50' : ''}
                         `}
                       >
                         <div className="flex items-center gap-1 px-4 py-4">
@@ -321,16 +252,7 @@ export default function PageBuilder({
                           {/* DRAG HANDLE */}
 
                           <div
-                            className="
-                              flex
-                              shrink-0
-                              cursor-grab
-                              select-none
-                              items-center
-                              justify-center
-                              text-gray-400
-                              active:cursor-grabbing
-                            "
+                            className="flex shrink-0 cursor-grab select-none items-center justify-center text-gray-400 active:cursor-grabbing"
                           >
                             <span className="text-xl leading-none">
                               ⋮⋮
@@ -347,9 +269,7 @@ export default function PageBuilder({
 
                           <div className="min-w-0 flex-1">
                             <p className="font-medium text-gray-900">
-                              {getComponentLabel(
-                                component.component
-                              )}
+                              {getComponentLabel(component.component)}
                             </p>
 
                             <p className="mt-1 text-xs text-gray-400">
@@ -361,28 +281,9 @@ export default function PageBuilder({
 
                           <button
                             type="button"
-                            onClick={() =>
-                              handleRemove(
-                                component.id,
-                                component.component
-                              )
-                            }
-                            disabled={
-                              removing
-                            }
-                            className="
-                              shrink-0
-                              rounded-md
-                              px-2.5
-                              py-1.5
-                              text-sm
-                              text-gray-400
-                              transition
-                              hover:bg-red-50
-                              hover:text-red-600
-                              disabled:cursor-not-allowed
-                              disabled:opacity-50
-                            "
+                            onClick={() => handleRemove(component.id,component.component) }
+                            disabled={removing}
+                            className="shrink-0 rounded-md px-2.5 py-1.5 text-sm text-gray-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 "
                           >
                             Remove
                           </button>
@@ -398,31 +299,18 @@ export default function PageBuilder({
             <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
               <p className="text-sm text-gray-500">
                 {components.length}{' '}
-                {components.length === 1
-                  ? 'section'
-                  : 'sections'}{' '}
+                {components.length === 1 ? 'section': 'sections'}{' '}
                 on this page
               </p>
 
-              <button
-                type="button"
+              <button type="button"
                 onClick={saveLayout}
                 disabled={
                   saving
                 }
-                className="
-                  text-sm
-                  font-medium
-                  text-gray-700
-                  transition
-                  hover:text-black
-                  disabled:cursor-not-allowed
-                  disabled:opacity-50
-                "
+                className=" text-sm font-medium text-gray-700 transition hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {saving
-                  ? 'Saving...'
-                  : 'Save Layout'}
+                {saving ? 'Saving...' : 'Save Layout'}
               </button>
             </div>
           )}

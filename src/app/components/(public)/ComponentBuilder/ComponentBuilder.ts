@@ -1,7 +1,8 @@
-import Hero from "../../Hero/Hero"
-import FeaturesSection from "../Featues/Features"
+import Hero from "../Hero/Hero"
 import HowItWorks from "../HowItWorks/HowItWorks"
-import TeamAbout from "../TeamAbout/TeamAbout"
+import TeamAbout from "../about/team/Team"
+import Features from "../features/Features"
+
 
 export type PageBuilderComponent = {
   type: string
@@ -49,7 +50,7 @@ export const PAGE_BUILDER_COMPONENTS: PageBuilderComponent[] = [
 
 export const PAGE_COMPONENT_REGISTRY = {
   HERO: Hero,
-  FEATURES: FeaturesSection,
+  FEATURES: Features,
   HOW_IT_WORKS: HowItWorks,
   TEAM: TeamAbout,
 } as const

@@ -1,52 +1,24 @@
+import { getPageComponents } from '@/app/libs/crud/pageComponent'
+import { renderPageComponent } from '@/app/components/(public)/ComponentBuilder/PageComponentRenderer'
 
-import ContactForm from '@/app/components/(public)/contact/contactForm/ContactForm'
-import ContactInfo from '@/app/components/(public)/contact/contactInfo/ContactInfo'
-import Map from '@/app/components/(public)/contact/map/Map'
-import Socail from '@/app/components/(public)/contact/socail/Socail'
+export const revalidate = 60
 
+export default async function Contact() {
+  const data = await getPageComponents('contact')
 
-import type {
-  ContactInfo as ContactInfoType,
-  SocialLink,
-} from '@/app/types/contact'
+  const components = await Promise.all(
+    data.map((item) =>
+      renderPageComponent({
+        component: item.component,
+        location: 'contact',
+        sectionNum: item.position+1,
+      })
+    )
+  )
 
-const socialLinks: SocialLink[] = [
-  {
-    socialLink: 'facebook.com',
-  },
-  {
-    socialLink: 'instagram.com',
-  },
-]
-
-const contactInfo: ContactInfoType = {
-  heading: 'Contact Information',
-  addressLine1: '123 Studio Street',
-  addressLine2: 'Creative District, CA 90210',
-  phone: '+27 72 123 4567',
-  hours: 'Mon–Fri, 9am–6pm',
-  email: 'hello@studiocreative.com',
-  note: 'We reply within 24 hours',
-}
-
-export default function Contact() {
   return (
     <main>
-      <section>
-        <ContactForm />
-
-        <Socail
-          links={socialLinks}
-        />
-      </section>
-
-      <section>
-        <ContactInfo
-          info={contactInfo}
-        />
-
-        <Map />
-      </section>
+      {components}
     </main>
   )
 }
