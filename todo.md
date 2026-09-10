@@ -2,8 +2,8 @@ role base permissions
 security logic
 
 user page 
-booking history
-upcoming bookings
+booking history group by
+upcoming bookings group by
 page restictions logic
 
 fix cms issues 
