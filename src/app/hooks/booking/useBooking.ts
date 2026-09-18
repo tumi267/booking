@@ -14,57 +14,31 @@ const initialBookingData: BookingData = {
 
 export function useBooking() {
   const { userId } = useAuth()
-
   const [step, setStep] = useState(0)
-
-  const [bookingData, setBookingData] =
-    useState<BookingData>(initialBookingData)
-
-  const [selectedService, setSelectedService] =
-    useState<Service | null>(null)
-
-  const [selectedDuration, setSelectedDuration] =
-    useState(0)
-
-  const [assignedTeam, setAssignedTeam] =
-    useState<TeamMember[]>([])
-
-  const [submitting, setSubmitting] =
-    useState(false)
+  const [bookingData, setBookingData] =useState<BookingData>(initialBookingData)
+  const [selectedService, setSelectedService] =useState<Service | null>(null)
+  const [selectedDuration, setSelectedDuration] =useState(0)
+  const [assignedTeam, setAssignedTeam] =useState<TeamMember[]>([])
+  const [submitting, setSubmitting] =useState(false)
 
   // --------------------------------
   // NAVIGATION
   // --------------------------------
 
-  const goToStep = (newStep: number) => {
-    setStep(newStep)
-  }
+  const goToStep = (newStep: number) => {setStep(newStep)}
 
-  const nextStep = () => {
-    setStep((current) => current + 1)
-  }
+  const nextStep = () => {setStep((current) => current + 1)}
 
-  const previousStep = () => {
-    setStep((current) => current - 1)
-  }
+  const previousStep = () => {setStep((current) => current - 1)}
 
   // --------------------------------
   // SELECT SERVICE
   // --------------------------------
 
-  const selectService = (
-    service: Service
-  ) => {
+  const selectService = (service: Service) => {
     setSelectedService(service)
-
-    setSelectedDuration(
-      service.duration
-    )
-
-    setAssignedTeam(
-      service.assignedTeam ?? []
-    )
-
+    setSelectedDuration(service.duration)
+    setAssignedTeam(service.assignedTeam ?? [])
     setBookingData({
       serviceId: service.id,
       providerId: '',
@@ -77,9 +51,7 @@ export function useBooking() {
   // SELECT TEAM MEMBER
   // --------------------------------
 
-  const selectTeamMember = (
-    member: TeamMember
-  ) => {
+  const selectTeamMember = (member: TeamMember) => {
     setBookingData((current) => ({
       ...current,
       providerId: member.id,
@@ -91,13 +63,8 @@ export function useBooking() {
   // SELECT DATES
   // --------------------------------
 
-  const selectDates = (
-    dates: BookedDay[]
-  ) => {
-    setBookingData((current) => ({
-      ...current,
-      dates,
-    }))
+  const selectDates = (dates: BookedDay[]) => {
+    setBookingData((current) => ({...current,dates,}))
   }
 
   // --------------------------------
@@ -113,7 +80,7 @@ export function useBooking() {
       (total, day) =>
         total +
         day.times.length *
-          selectedService.price,
+        selectedService.price,
       0
     )
   }
@@ -124,10 +91,7 @@ export function useBooking() {
 
   const isBookingValid = () => {
     return (
-      bookingData.dates.length > 0 &&
-      bookingData.dates.every(
-        (day) => day.times.length > 0
-      )
+      bookingData.dates.length > 0 &&bookingData.dates.every((day) => day.times.length > 0)
     )
   }
 
@@ -137,146 +101,133 @@ export function useBooking() {
 
   const confirmBooking = async () => {
     if (!selectedService) {
-      throw new Error(
-        'No service selected'
-      )
+      throw new Error('No service selected')
     }
-
-    if (!isBookingValid()) {
-      throw new Error(
-        'Please select a time for every date'
-      )
+    if (!isBookingValid()){throw new Error('Please select a time for every date')
     }
-
-    if (!userId) {
-      throw new Error(
-        'You must be logged in to book'
-      )
+    if (!userId) {throw new Error('You must be logged in to book')
     }
 
     setSubmitting(true)
 
     try {
       const total = getTotal()
-
-      const response = await fetch(
-        '/api/booking',
-        {
+      const response = await fetch('/api/booking',{
           method: 'POST',
-
           headers: {
             'content-type': 'application/json',
           },
-
           body: JSON.stringify({
             bookingdata: {
               ...bookingData,
-
               total,
-
               clientId: userId,
-
-              sessionDuration:
-                selectedService.duration,
-
-              servicename:
-                selectedService.name,
+              sessionDuration:selectedService.duration,
+              servicename:selectedService.name,
             },
           }),
         }
       )
-
       const data = await response.json()
-
       if (!response.ok) {
         throw new Error(
           data.error ||
             'Booking submission failed'
         )
       }
-
-      // --------------------------------
-      // PAYFAST
-      // --------------------------------
-
-      const form =
-        document.createElement('form')
-
-      form.method = 'POST'
-
-      form.action =
-        'https://sandbox.payfast.co.za/eng/process'
-
-      Object.entries(data).forEach(
-        ([key, value]) => {
-          if (
-            value === undefined ||
-            value === null ||
-            value === ''
-          ) {
-            return
-          }
-
-          const input =
-            document.createElement('input')
-
-          input.type = 'hidden'
-
-          input.name = key
-
-          input.value = String(value)
-
-          form.appendChild(input)
-        }
-      )
-
-      document.body.appendChild(form)
-
-      form.submit()
+      // console.log(data)
+      payfast(data)
 
     } catch (error) {
-      console.error(
-        'Booking submission failed:',
-        error
-      )
-
+      console.error('Booking submission failed:',error)
       throw error
     } finally {
       setSubmitting(false)
     }
   }
-
+  // --------------------------------
+  // UPDATE BOOKING
+  // --------------------------------
+  const updateBooking = async (data: any) => {
+    setSubmitting(true)
+  
+    try {
+      const response = await fetch('/api/paybooking', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          groupId: data.groupId,
+        }),
+      })
+  
+      const payfastData = await response.json()
+  
+      if (!response.ok) {
+        throw new Error(
+          payfastData.error || 'Unable to create payment'
+        )
+      }
+  
+      // Server has already calculated the amount
+      // and created the PayFast payload.
+      // console.log(payfastData)
+      payfast(payfastData)
+    } catch (error) {
+      console.error(
+        'Booking payment failed:',
+        error
+      )
+  
+      throw error
+    } finally {
+      setSubmitting(false)
+    }
+  }
   // --------------------------------
   // RETURN
   // --------------------------------
 
   return {
     // navigation
-    step,
-    goToStep,
-    nextStep,
-    previousStep,
-
+    step,goToStep,nextStep,previousStep,
     // booking state
-    bookingData,
-
-    selectedService,
-    selectedDuration,
-    assignedTeam,
-
+    bookingData,selectedService,selectedDuration,assignedTeam,
     // submission
     submitting,
-
     // actions
-    selectService,
-    selectTeamMember,
-    selectDates,
-
+    selectService,selectTeamMember,selectDates,
     // helpers
-    getTotal,
-    isBookingValid,
-
+    getTotal,isBookingValid,
     // submit
-    confirmBooking,
+    confirmBooking,updateBooking
   }
+}
+
+const payfast=(data:any)=>{
+        // --------------------------------
+      // PAYFAST
+      // --------------------------------
+
+      const form =document.createElement('form')
+      form.method = 'POST'
+      form.action ='https://sandbox.payfast.co.za/eng/process'
+      const payfastData = {
+        ...data,
+      }
+      Object.entries(payfastData).forEach(
+        ([key, value]) => {
+          if (value === undefined ||value === null ||value === '') {
+            return
+          }
+          const input = document.createElement('input')
+          input.type = 'hidden'
+          input.name = key
+          input.value = String(value)
+          form.appendChild(input)
+        }
+      )
+      document.body.appendChild(form)
+      form.submit()
 }

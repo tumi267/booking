@@ -1,4 +1,5 @@
 import React from 'react'
+import Paybtn from './paybtn'
 
 type GroupedBooking = {
   groupId: string
@@ -55,6 +56,9 @@ function BookingCards({ bookingData }: Props) {
                 )}`}
               >
                 {group.status}
+                {group.status=='PENDING'&&<Paybtn
+                data={group}
+                />}
               </span>
             </div>
 

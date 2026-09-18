@@ -229,39 +229,26 @@ export async function POST(req: Request) {
     // PAYFAST
     // --------------------------------
 
-    const payfast =
-      createPayfastPayload({
-        merchant_id:
-          process.env
-            .PAYFAST_MERCHANT_ID!,
+    const payfast =createPayfastPayload({
+        merchant_id:process.env.PAYFAST_MERCHANT_ID!,
 
-        merchant_key:
-          process.env
-            .PAYFAST_MERCHANT_KEY!,
+        merchant_key:process.env .PAYFAST_MERCHANT_KEY!,
 
-        return_url:
-          `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
+        return_url:`${process.env.NEXT_PUBLIC_BASE_URL}/success`,
 
-        cancel_url:
-          `${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
+        cancel_url:`${process.env.NEXT_PUBLIC_BASE_URL}/cancel`,
 
-        notify_url:
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/payfast-itn`,
+        notify_url: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payfast-itn`,
 
         // Server-calculated amount.
-        amount:
-          totalPrice.toString(),
+        amount: totalPrice.toString(),
 
         // Server-trusted service name.
-        item_name:
-          service.name,
+        item_name:service.name,
 
-        custom_str1:
-          groupId,
+        custom_str1:groupId,
 
-        passphrase:
-          process.env
-            .PAYFAST_PASSPHRASE!,
+        passphrase:process.env.PAYFAST_PASSPHRASE!,
       });
 
     return NextResponse.json(

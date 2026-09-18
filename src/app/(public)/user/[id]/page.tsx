@@ -6,7 +6,7 @@ async function Page({ params }: { params: Promise<{ id: string }> }) {
   
   const { id } = await params;
   const userdata=await getUserByID(id)
-  console.log(userdata)
+ 
   return (
     <div>
       <Nav

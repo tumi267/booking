@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { confirmBookingGroup, getBookingByGroup } from '@/app/libs/crud/booking';
 
 export async function POST(req: Request) {
+  console.log('hit')
   try {
     const rawData = await req.text();
     const params = new URLSearchParams(rawData);

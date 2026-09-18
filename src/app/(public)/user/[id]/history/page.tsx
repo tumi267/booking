@@ -6,8 +6,6 @@ import { groupBookingsByDate } from '@/app/libs/groupbydate/groupByDate'
 async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const bookings = await GetUserBooking(id)
- 
-console.log(bookings)
   return (
     <div>
       <Nav id={id} />
