@@ -1,45 +1,78 @@
 'use client'
 
 import { useState } from 'react'
-import { usePageBuilder,} from '@/app/hooks/usePageBuilder'
+import { usePageBuilder } from '@/app/hooks/usePageBuilder'
 import ComponentPicker from './ComponentPicker'
 import ComponentRenderer from './ComponentRenderer'
-import { PAGE_BUILDER_COMPONENTS,} from './componentRegistry'
+import { PAGE_BUILDER_COMPONENTS } from './componentRegistry'
 
-type PageBuilderProps = {page: string}
+type PageBuilderProps = {
+  page: string
+}
 
-export default function PageBuilder({page,}: PageBuilderProps) {
-  const {components,loading,saving,adding,removing,error,addComponent,removeComponent,moveComponent,saveLayout,} = usePageBuilder(page)
+type Viewport = 'desktop' | 'tablet' | 'mobile'
 
-  const [draggedIndex,setDraggedIndex,] = useState<number | null>(null)
+export default function PageBuilder({ page }: PageBuilderProps) {
+  const {
+    components,
+    loading,
+    saving,
+    adding,
+    removing,
+    error,
+    addComponent,
+    removeComponent,
+    moveComponent,
+    saveLayout,
+  } = usePageBuilder(page)
 
-  const [dragOverIndex,setDragOverIndex,] = useState<number | null>(null)
+  // --------------------------------
+  // VIEWPORT
+  // --------------------------------
+
+  const [viewport, setViewport] = useState<Viewport>('desktop')
+
+  // --------------------------------
+  // DRAG STATE
+  // --------------------------------
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
+
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null)
 
   // --------------------------------
   // LABEL
   // --------------------------------
 
   const getComponentLabel = (type: string) => {
-    const component =PAGE_BUILDER_COMPONENTS.find(item =>item.type === type)
+    const component = PAGE_BUILDER_COMPONENTS.find(
+      item => item.type === type
+    )
 
-    return (component?.label ?? type)
+    return component?.label ?? type
   }
 
   // --------------------------------
   // DRAG START
   // --------------------------------
 
-  const handleDragStart = ( index: number) => { setDraggedIndex(index)}
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index)
+  }
 
   // --------------------------------
   // DRAG OVER
   // --------------------------------
 
-  const handleDragOver = (event: React.DragEvent<HTMLDivElement>,index: number) => {
+  const handleDragOver = (
+    event: React.DragEvent<HTMLDivElement>,
+    index: number
+  ) => {
     event.preventDefault()
 
     if (
-      draggedIndex === null ||draggedIndex === index
+      draggedIndex === null ||
+      draggedIndex === index
     ) {
       return
     }
@@ -51,16 +84,23 @@ export default function PageBuilder({page,}: PageBuilderProps) {
   // DROP
   // --------------------------------
 
-  const handleDrop = ( event: React.DragEvent<HTMLDivElement>, index: number) => {
+  const handleDrop = (
+    event: React.DragEvent<HTMLDivElement>,
+    index: number
+  ) => {
     event.preventDefault()
 
-    if (draggedIndex === null || draggedIndex === index) {
+    if (
+      draggedIndex === null ||
+      draggedIndex === index
+    ) {
       setDraggedIndex(null)
       setDragOverIndex(null)
       return
     }
 
-    moveComponent(draggedIndex,index)
+    moveComponent(draggedIndex, index)
+
     setDraggedIndex(null)
     setDragOverIndex(null)
   }
@@ -78,11 +118,20 @@ export default function PageBuilder({page,}: PageBuilderProps) {
   // REMOVE
   // --------------------------------
 
-  const handleRemove = async (id: string,component: string) => {
-    const label =getComponentLabel(component)
+  const handleRemove = async (
+    id: string,
+    component: string
+  ) => {
+    const label = getComponentLabel(component)
 
-    const confirmed = window.confirm(`Remove ${label} from this page?`)
-    if (!confirmed) {return}
+    const confirmed = window.confirm(
+      `Remove ${label} from this page?`
+    )
+
+    if (!confirmed) {
+      return
+    }
+
     await removeComponent(id)
   }
 
@@ -122,10 +171,16 @@ export default function PageBuilder({page,}: PageBuilderProps) {
           </p>
         </div>
 
-        <button type="button" onClick={saveLayout} disabled={saving ||components.length === 0}
-          className="shrink-0 rounded-md bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 "
+        <button
+          type="button"
+          onClick={saveLayout}
+          disabled={
+            saving ||
+            components.length === 0
+          }
+          className="shrink-0 rounded-md bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {saving? 'Saving...': 'Save Changes'}
+          {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
@@ -168,92 +223,202 @@ export default function PageBuilder({page,}: PageBuilderProps) {
 
         {/* CONTENT */}
 
-        <div className="space-y-8 flex w-full">
+        <div className="flex w-full space-y-8">
 
           {/* LIVE PREVIEW */}
 
           <div className="w-full">
 
-            <div className="mb-3">
-              <h3 className="font-semibold text-gray-900">
-                Preview
-              </h3>
+            {/* PREVIEW HEADER */}
 
-              <p className="mt-1 text-xs text-gray-500">
-                Preview the page using the current component order.
-              </p>
+            <div className="mb-3 flex items-start justify-between gap-4">
+
+              <div>
+                <h3 className="font-semibold text-gray-900">
+                  Preview
+                </h3>
+
+                <p className="mt-1 text-xs text-gray-500">
+                  Preview the page using the current component order.
+                </p>
+              </div>
+
+              {/* VIEWPORT SWITCHER */}
+
+              <div className="flex shrink-0 items-center gap-1 rounded-md border border-gray-200 bg-white p-1">
+
+                {/* DESKTOP */}
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('desktop')}
+                  className={`rounded px-3 py-1.5 text-xs font-medium transition ${
+                    viewport === 'desktop'
+                      ? 'bg-black text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  Desktop
+                </button>
+
+                {/* TABLET */}
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('tablet')}
+                  className={`rounded px-3 py-1.5 text-xs font-medium transition ${
+                    viewport === 'tablet'
+                      ? 'bg-black text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  Tablet
+                </button>
+
+                {/* MOBILE */}
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('mobile')}
+                  className={`rounded px-3 py-1.5 text-xs font-medium transition ${
+                    viewport === 'mobile'
+                      ? 'bg-black text-white'
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  Mobile
+                </button>
+
+              </div>
             </div>
 
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            {/* PREVIEW FRAME */}
+
+            <div className="overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
 
               {components.length === 0 ? (
+
                 <div className="px-6 py-16 text-center text-sm text-gray-500">
                   Add a component to preview the page.
                 </div>
+
               ) : (
-                <div>
-                  {components.map(
-                    component => (
-                      <ComponentRenderer
-                        key={component.id}
-                        component={ component}
-                        page={page}
-                      />
-                    )
-                  )}
+
+                <div
+                  className={`
+                    mx-auto
+                    min-h-[300px]
+                    overflow-hidden
+                    bg-white
+                    transition-all
+                    duration-200
+                    ${
+                      viewport === 'desktop'
+                        ? 'w-full'
+                        : viewport === 'tablet'
+                        ? 'w-[768px] max-w-full'
+                        : 'w-[375px] max-w-full'
+                    }
+                  `}
+                >
+
+                  {components.map((component) => (
+                    <ComponentRenderer
+                      key={component.id}
+                      component={component}
+                      page={page}
+                      viewport={viewport}
+                    />
+                  ))}
+
                 </div>
+
               )}
+
             </div>
           </div>
 
-          {components.length === 0 ? (
+          {/* COMPONENT LIST */}
+
+          <div className="w-full">
+
+            {components.length === 0 ? (
+
               <div className="rounded-lg border border-dashed border-gray-300 bg-white py-16 text-center">
+
                 <div className="mx-auto max-w-sm">
+
                   <p className="font-medium text-gray-900">
                     No components yet
                   </p>
 
                   <p className="mt-2 text-sm text-gray-500">
-                    Choose a component from the
-                    panel on the left to start
-                    building this page.
+                    Choose a component from the panel on the left to
+                    start building this page.
                   </p>
+
                 </div>
+
               </div>
+
             ) : (
 
-              /* COMPONENT LIST */
-
               <div className="space-y-3">
+
                 {components.map(
-                  (component,index) => {
-                    const isDragging = draggedIndex === index
-                    const isDragOver = dragOverIndex === index
+                  (component, index) => {
+
+                    const isDragging =
+                      draggedIndex === index
+
+                    const isDragOver =
+                      dragOverIndex === index
+
                     return (
                       <div
                         key={component.id}
                         draggable
-                        onDragStart={() =>handleDragStart(index)
+                        onDragStart={() =>
+                          handleDragStart(index)
                         }
-                        onDragOver={event => handleDragOver(event,index)
+                        onDragOver={event =>
+                          handleDragOver(
+                            event,
+                            index
+                          )
                         }
                         onDrop={event =>
-                          handleDrop(event,index)
+                          handleDrop(
+                            event,
+                            index
+                          )
                         }
                         onDragEnd={handleDragEnd}
-                        className={`rounded-lg border bg-white transition
-                          ${isDragging? 'border-gray-400 opacity-50': 'border-gray-200'}
+                        className={`
+                          rounded-lg
+                          border
+                          bg-white
+                          transition
 
-                          ${isDragOver ? 'border-blue-400 bg-blue-50' : ''}
+                          ${
+                            isDragging
+                              ? 'border-gray-400 opacity-50'
+                              : 'border-gray-200'
+                          }
+
+                          ${
+                            isDragOver
+                              ? 'border-blue-400 bg-blue-50'
+                              : ''
+                          }
                         `}
                       >
+
                         <div className="flex items-center gap-1 px-4 py-4">
 
                           {/* DRAG HANDLE */}
 
-                          <div
-                            className="flex shrink-0 cursor-grab select-none items-center justify-center text-gray-400 active:cursor-grabbing"
-                          >
+                          <div className="flex shrink-0 cursor-grab select-none items-center justify-center text-gray-400 active:cursor-grabbing">
                             <span className="text-xl leading-none">
                               ⋮⋮
                             </span>
@@ -268,22 +433,31 @@ export default function PageBuilder({page,}: PageBuilderProps) {
                           {/* INFO */}
 
                           <div className="min-w-0 flex-1">
+
                             <p className="font-medium text-gray-900">
-                              {getComponentLabel(component.component)}
+                              {getComponentLabel(
+                                component.component
+                              )}
                             </p>
 
                             <p className="mt-1 text-xs text-gray-400">
                               {component.component}
                             </p>
+
                           </div>
 
                           {/* REMOVE */}
 
                           <button
                             type="button"
-                            onClick={() => handleRemove(component.id,component.component) }
+                            onClick={() =>
+                              handleRemove(
+                                component.id,
+                                component.component
+                              )
+                            }
                             disabled={removing}
-                            className="shrink-0 rounded-md px-2.5 py-1.5 text-sm text-gray-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50 "
+                            className="shrink-0 rounded-md px-2.5 py-1.5 text-sm text-gray-400 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                           >
                             Remove
                           </button>
@@ -293,31 +467,39 @@ export default function PageBuilder({page,}: PageBuilderProps) {
                     )
                   }
                 )}
+
                 {/* SAVE BAR */}
 
-          {components.length > 0 && (
-            <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
-              <p className="text-sm text-gray-500">
-                {components.length}{' '}
-                {components.length === 1 ? 'section': 'sections'}{' '}
-                on this page
-              </p>
+                {components.length > 0 && (
+                  <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-4 py-3">
 
-              <button type="button"
-                onClick={saveLayout}
-                disabled={
-                  saving
-                }
-                className=" text-sm font-medium text-gray-700 transition hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {saving ? 'Saving...' : 'Save Layout'}
-              </button>
-            </div>
-          )}
+                    <p className="text-sm text-gray-500">
+                      {components.length}{' '}
+                      {components.length === 1
+                        ? 'section'
+                        : 'sections'}{' '}
+                      on this page
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={saveLayout}
+                      disabled={saving}
+                      className="text-sm font-medium text-gray-700 transition hover:text-black disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {saving
+                        ? 'Saving...'
+                        : 'Save Layout'}
+                    </button>
+
+                  </div>
+                )}
 
               </div>
             )}
-          
+
+          </div>
+
         </div>
       </div>
     </div>

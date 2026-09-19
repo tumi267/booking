@@ -14,9 +14,10 @@ type PageComponentItem = {
 interface Props {
   component: PageComponentItem
   page: string
+  viewport:"desktop" | "tablet" | "mobile"
 }
 
-export default function ComponentRenderer({component,page,}: Props) {
+export default function ComponentRenderer({component,page,viewport}: Props) {
   const Component =PAGE_COMPONENT_REGISTRY[component.component as keyof typeof PAGE_COMPONENT_REGISTRY]
 
   if (!Component) {
@@ -38,7 +39,7 @@ export default function ComponentRenderer({component,page,}: Props) {
       <Component
         location={page}
         sectionNum={String(component.position + 1)}
-        viewport="desktop"
+        viewport={viewport}
       />
     </div>
   )
