@@ -40,5 +40,8 @@ export async function upsertFeatures(
         create: features ?? [],
       },
     },
+    include: {
+      features: true,
+    },
   });
 }

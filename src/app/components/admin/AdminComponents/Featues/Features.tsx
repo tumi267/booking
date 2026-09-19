@@ -14,23 +14,7 @@ function FeaturesSection({
   sectionNum: string
   viewport: 'desktop' | 'tablet' | 'mobile'
 }) {
-  const {
-    features,
-    current,
-    setSelectedId,
-    showEditor,
-    setShowEditor,
-    isLoading,
-    addFeature,
-    handleSave,
-    selected,
-    updateFeature,
-    removeFeature,
-    toggleSection,
-    openSections,
-    updateBreakpoint,
-    updateFeatureFile,
-  } = useAdminFeat(location, sectionNum, viewport)
+  const {features,current,setSelectedId,showEditor,setShowEditor,isLoading,addFeature,handleSave,selected, updateFeature,removeFeature,toggleSection, openSections, updateBreakpoint, updateFeatureFile,} = useAdminFeat(location, sectionNum, viewport)
 
   const {
     dragPosition,
@@ -158,6 +142,61 @@ function FeaturesSection({
 
           {openSections.section && (
             <>
+             {/* PADDING */}
+
+    <label style={labelStyle}>Padding Top</label>
+    <input
+      style={inputStyle}
+      type="number"
+      min={0}
+      value={current.section.paddingTop}
+      onChange={(e) =>
+        updateBreakpoint('section', {
+          paddingTop: Number(e.target.value),
+        })
+      }
+    />
+
+    <label style={labelStyle}>Padding Bottom</label>
+    <input
+      style={inputStyle}
+      type="number"
+      min={0}
+      value={current.section.paddingBottom}
+      onChange={(e) =>
+        updateBreakpoint('section', {
+          paddingBottom: Number(e.target.value),
+        })
+      }
+    />
+
+    <label style={labelStyle}>Padding Left</label>
+    <input
+      style={inputStyle}
+      type="number"
+      min={0}
+      value={current.section.paddingLeft}
+      onChange={(e) =>
+        updateBreakpoint('section', {
+          paddingLeft: Number(e.target.value),
+        })
+      }
+    />
+
+    <label style={labelStyle}>Padding Right</label>
+    <input
+      style={inputStyle}
+      type="number"
+      min={0}
+      value={current.section.paddingRight}
+      onChange={(e) =>
+        updateBreakpoint('section', {
+          paddingRight: Number(e.target.value),
+        })
+      }
+    />
+
+    {/* MARGIN */}
               <label style={labelStyle}>Margin Top</label>
               <input
                 style={inputStyle}

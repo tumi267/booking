@@ -21,24 +21,44 @@ export default function FeaturesClient({
   if (!current) return null
 
   const gridStyle: React.CSSProperties = {
-    display: 'flex',
-    flexWrap: 'wrap',
+    display: 'grid',
+
+    gridTemplateColumns: `repeat(
+      ${current.grid.columns},
+      minmax(0, 1fr)
+    )`,
+
     gap: current.grid.gap,
+
     justifyContent: current.grid.justifyContent,
+
     alignItems: current.grid.alignItems,
   }
 
   return (
-    <div style={current.section}>
-      <div style={gridStyle}>
-        {data.features.map((feature: any) => (
+    <section className='flex justify-center'
+      style={{
+        ...current.section,
+      }}
+    >
+      <div  style={gridStyle}>
+        {data.features?.map((feature: any) => (
           <div
             key={feature.id}
             style={{
-              background: current.card.background,
-              padding: `${current.card.padding}px`,
-              borderRadius: `${current.card.radius}px`,
-              width: `${current.card.width}px`,
+              width:
+                current.card.width === 100
+                  ? '100%'
+                  : `${current.card.width}px`,
+
+              background:
+                current.card.background,
+
+              padding:
+                current.card.padding,
+
+              borderRadius:
+                current.card.radius,
             }}
           >
             <img
@@ -46,30 +66,38 @@ export default function FeaturesClient({
               alt={feature.title}
               style={{
                 width:
-                  feature.imageWidth || current.image.width,
+                  feature.imageWidth ||
+                  current.image.width,
+
                 height:
-                  feature.imageHeight || current.image.height,
-                objectFit: 'fill',
+                  feature.imageHeight ||
+                  current.image.height,
+
+                objectFit:
+                  current.image.objectFit,
               }}
             />
 
             <div
               style={{
                 ...current.text,
+
                 color:
                   feature.fontColor ||
                   current.text.color,
+
                 fontSize:
                   feature.fontSize ||
                   current.text.fontSize,
               }}
             >
               <h3>{feature.title}</h3>
+
               <p>{feature.text}</p>
             </div>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   )
 }

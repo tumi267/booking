@@ -56,13 +56,17 @@ const defaultBp = (): {
   section: {
     marginTop: 40,
     marginBottom: 40,
-    height: 650,
+    paddingTop: 20,
+    paddingBottom: 20,
+    paddingLeft: 20,
+    paddingRight: 20,
     maxWidth: '100%',
     width: '100%',
     backgroundColor: '#ffffff',
     borderRadius: 0,
     overflow: 'hidden',
     position: 'relative',
+    
   },
 
   grid: {
@@ -273,9 +277,12 @@ function useAdminFeat(location: string, sectionNum: string, viewport: Breakpoint
     const cleaned = cleanFeaturesPayload(payload)
   
     const newdata = await updateFeat(location, sectionNum, cleaned)
-  
+
     if (newdata) {
-      setData(newdata)
+      setData({
+        features: newdata.features,
+        breakpoints: newdata.breakpoints,
+      })
     }
   
     setShowEditor(false)

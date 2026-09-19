@@ -168,11 +168,11 @@ export default function PageBuilder({page,}: PageBuilderProps) {
 
         {/* CONTENT */}
 
-        <div className="space-y-8 flex">
+        <div className="space-y-8 flex w-full">
 
           {/* LIVE PREVIEW */}
 
-          <div>
+          <div className="w-full">
 
             <div className="mb-3">
               <h3 className="font-semibold text-gray-900">
