@@ -137,6 +137,20 @@ model HeroSection {
 
   @@unique([location, sectionNum])
 }
+model Contact {
+  id            String   @id @default(cuid())
+  location      String
+  sectionNum    String
+  title         String
+  ctaMessage    String
+  city          String
+  contactNumber String
+  breakpoints   Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([location, sectionNum])
+}
 model FeaturesSection {
   id            String        @id @default(uuid())
   location      String

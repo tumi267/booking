@@ -44,7 +44,7 @@ export function useContactForm() {
 
     try {
       const response = await fetch(
-        '/api/contact',
+        '/api/contact/send',
         {
           method: 'POST',
           headers: {

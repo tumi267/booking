@@ -2,6 +2,7 @@ import Hero from '../Hero/Hero'
 import Features from '../features/Features'
 import HowItWorks from '../HowItWorks/HowItWorks'
 import TeamAbout from '../about/team/Team'
+import ContactForm from '../contact/contactForm/ContactForm'
 
 interface Props {
   component: string
@@ -38,7 +39,11 @@ export async function renderPageComponent({
         location,
         sectionNum: String(sectionNum),
       })
-
+    case 'CONTACTFORM':
+        return await ContactForm({
+          location,
+          sectionNum: String(sectionNum),
+        })
     default:
       console.warn(`Unknown page component: ${component}`)
       return null

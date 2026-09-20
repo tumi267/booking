@@ -5,23 +5,14 @@ import useAdminFeat from '@/app/hooks/useAdminFeat'
 import { getImageUrl } from '@/app/utils/supabase/getImageUrl'
 import React, { CSSProperties } from 'react'
 
-function FeaturesSection({
-  location,
-  sectionNum,
-  viewport,
-}: {
-  location: string
+function FeaturesSection({location,sectionNum,viewport,}: {
+location: string
   sectionNum: string
   viewport: 'desktop' | 'tablet' | 'mobile'
 }) {
   const {features,current,setSelectedId,showEditor,setShowEditor,isLoading,addFeature,handleSave,selected, updateFeature,removeFeature,toggleSection, openSections, updateBreakpoint, updateFeatureFile,} = useAdminFeat(location, sectionNum, viewport)
 
-  const {
-    dragPosition,
-    handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
-  } = Drag()
+  const { dragPosition,handleMouseDown,handleMouseMove,handleMouseUp,} = Drag()
 
   const editorBox: CSSProperties = {
     position: 'fixed',

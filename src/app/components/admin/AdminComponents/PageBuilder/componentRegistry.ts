@@ -1,4 +1,5 @@
 import Hero from "../../Hero/Hero"
+import ContactForm from "../Contactform/ContactForm"
 import FeaturesSection from "../Featues/Features"
 import HowItWorks from "../HowItWorks/HowItWorks"
 import TeamAbout from "../TeamAbout/TeamAbout"
@@ -30,11 +31,11 @@ export const PAGE_BUILDER_COMPONENTS: PageBuilderComponent[] = [
     label: 'Team',
     description: 'Display team members.',
   },
-  // {
-  //   type: 'TESTIMONIALS',
-  //   label: 'Testimonials',
-  //   description: 'Display customer testimonials.',
-  // },
+  {
+    type: 'CONTACTFORM',
+    label: 'ContactForm',
+    description: 'Display contact information.',
+  },
   // {
   //   type: 'CTA',
   //   label: 'Call To Action',
@@ -52,4 +53,5 @@ export const PAGE_COMPONENT_REGISTRY = {
   FEATURES: FeaturesSection,
   HOW_IT_WORKS: HowItWorks,
   TEAM: TeamAbout,
+  CONTACTFORM:ContactForm
 } as const
