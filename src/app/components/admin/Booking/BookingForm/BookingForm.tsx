@@ -22,9 +22,13 @@ interface Props {
   totalPrice: number
   items: BookingItem[]
   availableProviders: { id: string; firstName: string; lastName: string }[]
+  user: {
+    id: string
+    role: string
+  }
 }
 function BookingForm(props: Props) {
-  const {groupId,providerId,status,date,items,serviceId,sessionDuration,totalPrice,clientName,contact,availableProviders,} = props
+  const {groupId,providerId,status,date,items,serviceId,sessionDuration,totalPrice,clientName,contact,availableProviders,user} = props
   const { formState, setFormState, handleSubmit, submitting } =useAdminBookingForm({groupId,providerId,status,date,items,})
 
   return (
@@ -45,7 +49,7 @@ function BookingForm(props: Props) {
         sessionDuration={sessionDuration}
         groupId={groupId}
       />
-      <BookingFooter totalPrice={totalPrice} submitting={submitting} />
+      <BookingFooter totalPrice={totalPrice} submitting={submitting} user={user.role} />
     </form>
   )
 }

@@ -7,8 +7,10 @@ import { TeamBanner } from './cards/TeamBanner'
 import { TeamHeader } from './cards/TeamHeader'
 import { TeamTable } from './cards/TeamTable'
 import { TeamEditorModal } from './cards/TeamEditorModal'
-
-export default function TeamManagement() {
+interface Props{
+user:string
+}
+export default function TeamManagement({user}:Props) {
   const {team,selectedId,setSelectedId,selectedMember,showEditor,setShowEditor,loading,banner,addMember,updateMember,saveMember,removeMember,showpass,setShowpass} = useAdminProviders()
   const roles = Object.values(ProviderRole) as ProviderRole[]
   if (loading) {
@@ -17,7 +19,7 @@ export default function TeamManagement() {
   return (
     <div className="space-y-6 rounded-xl border bg-white p-6 shadow-sm">
       <TeamBanner banner={banner} />
-      <TeamHeader onAdd={() => addMember()} />
+      <TeamHeader onAdd={() => addMember()} user={user}/>
       <TeamTable
         team={team}
         onEdit={(id) => {
@@ -25,6 +27,7 @@ export default function TeamManagement() {
           setShowEditor(true)
         }}
         onRemove={removeMember}
+        user={user}
       />
       {selectedMember&&<TeamEditorModal
         open={showEditor}

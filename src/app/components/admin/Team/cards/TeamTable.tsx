@@ -4,9 +4,10 @@ type Props = {
   team: TeamMember[]
   onEdit: (id: string) => void
   onRemove: (id: string) => void
+  user:string
 }
 
-export function TeamTable({ team, onEdit, onRemove }: Props) {
+export function TeamTable({ team, onEdit, onRemove,user }: Props) {
   return (
     <div className="overflow-hidden rounded-xl border">
       <table className="w-full border-collapse text-left">
@@ -50,19 +51,19 @@ export function TeamTable({ team, onEdit, onRemove }: Props) {
                 <td className="px-4 py-4 text-right">
                   <div className="space-x-3">
                     {id&&<>
-                    <button
+                   {(user==='ADMIN'||user==='MANAGER')&& <button
                       onClick={() => onEdit(id)}
                       className="text-sm font-medium text-blue-600 hover:underline"
                     >
                       Edit
-                    </button>
+                    </button>}
 
-                    <button
+                    {(user==='ADMIN'||user==='MANAGER')&& <button
                       onClick={() => onRemove(id)}
                       className="text-sm font-medium text-red-600 hover:underline"
                     >
                       Remove
-                    </button>
+                    </button>}
                     </>}
                   </div>
                   

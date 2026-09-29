@@ -31,9 +31,9 @@ function Page() {
 
           // Logic based on your API response
           if (data.user === 0) {
-            router.push(`/user/${user.id}`);
+            router.push(`/user/user`);
           } else if (data.user === 1) {
-            router.push(`/provider/${user.id}`); // Or wherever providers go
+            router.push(`/admin`); // Or wherever providers go
           }
           
         } catch (error) {

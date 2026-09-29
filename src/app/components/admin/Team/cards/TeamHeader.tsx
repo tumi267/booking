@@ -1,8 +1,9 @@
 type Props = {
     onAdd: () => void
+    user:string
   }
   
-  export function TeamHeader({ onAdd }: Props) {
+  export function TeamHeader({ onAdd ,user}: Props) {
     return (
       <div className="flex items-center justify-between">
         <div>
@@ -12,12 +13,12 @@ type Props = {
           </p>
         </div>
   
-        <button
+        {(user==='ADMIN'||user==='MANAGER')&&<button
           onClick={onAdd}
           className="rounded-lg bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
         >
           + Add Staff
-        </button>
+        </button>}
       </div>
     )
   }

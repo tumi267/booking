@@ -2,14 +2,7 @@
 
 import Link from 'next/link'
 import React from 'react'
-import {
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-  useAuth
-} from '@clerk/nextjs'
-
+import {SignedIn,SignedOut,SignInButton,UserButton,useAuth,SignOutButton} from '@clerk/nextjs'
 
 function Nav() {
   const links = [
@@ -36,17 +29,20 @@ function Nav() {
 
         {/* Logged OUT */}
         <SignedOut>
-          <SignInButton mode="modal" forceRedirectUrl="/booking">
-            <button>Sign In / Sign Up</button>
-          </SignInButton>
+  <SignInButton mode="modal" forceRedirectUrl="/booking">
+    <button>Sign In / Sign Up</button>
+  </SignInButton>
+</SignedOut>
 
+<SignedIn>
+  <Link href="/user/user">
+    Profile
+  </Link>
 
-        </SignedOut>
-        {userId&&<Link href={`/user/${userId}`}>profile</Link>}
-        {/* Logged IN */}
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
+  <SignOutButton>
+    <button>Sign Out</button>
+  </SignOutButton>
+</SignedIn>
       </div>
     </div>
   )

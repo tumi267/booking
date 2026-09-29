@@ -4,7 +4,10 @@ import React, { useState } from 'react'
 import OperatingHours from './OperatingHours'
 import Calendar from './Calendar'
 import { useKpi } from '@/app/hooks/useKpi'
-export default function OperationsDashboard() {
+interface Props{
+  user:string
+}
+export default function OperationsDashboard({user}:Props) {
   const {stats}=useKpi();
   return (
     <div className="space-y-6 p-6">
@@ -24,9 +27,9 @@ export default function OperationsDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ---------- OPERATING HOURS ---------- */}
-        <OperatingHours/>
+        {(user=== 'ADMIN' || user === 'MANAGER')&&<OperatingHours/>}
         {/* ---------- CALENDAR ---------- */}
-        <Calendar/>
+        {(user=== 'ADMIN' || user === 'MANAGER')&&<Calendar/>}
       </div>
     </div>
   )

@@ -1,20 +1,48 @@
+
 import React from 'react'
 
 interface NavProps {
-  selected: 'Bookings' | 'Team' | 'Services' | 'Customers' | 'Operations'|'pagelayout'
-  setSelected: React.Dispatch<React.SetStateAction<'Bookings' | 'Team' | 'Services' | 'Customers' | 'Operations' |'pagelayout'>>
+  selected:
+    | 'Bookings'
+    | 'Team'
+    | 'Services'
+    | 'Customers'
+    | 'Operations'
+    | 'pagelayout'
+
+  setSelected: React.Dispatch<
+    React.SetStateAction<
+      | 'Bookings'
+      | 'Team'
+      | 'Services'
+      | 'Customers'
+      | 'Operations'
+      | 'pagelayout'
+    >
+  >
+
+  role: string
 }
 
-function Nav({ selected, setSelected }: NavProps) {
-  const links: NavProps['selected'][] = ['Bookings', 'Team', 'Services', 'Customers', 'Operations','pagelayout']
+function Nav({ selected, setSelected, role }: NavProps) {
+  const links: NavProps['selected'][] = ['Bookings','Team','Customers','Operations',]
+
+  if (role === 'ADMIN' || role === 'MANAGER') {
+    links.push('Services')
+    links.push('pagelayout')
+  }
 
   return (
     <div>
-      {links.map((link, i) => (
+      {links.map((link) => (
         <span
-          key={i}
+          key={link}
           onClick={() => setSelected(link)}
-          style={{ marginRight: 12, cursor: 'pointer', fontWeight: selected === link ? 'bold' : 'normal' }}
+          style={{
+            marginRight: 12,
+            cursor: 'pointer',
+            fontWeight: selected === link ? 'bold' : 'normal',
+          }}
         >
           {link}
         </span>
@@ -24,3 +52,5 @@ function Nav({ selected, setSelected }: NavProps) {
 }
 
 export default Nav
+
+

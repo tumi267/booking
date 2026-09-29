@@ -31,10 +31,10 @@ export async function GetUserBooking(id: string) {
     },
     orderBy: [
       {
-        date: "asc",
+        date: 'desc',
       },
       {
-        time: "asc",
+        time: "desc",
       },
     ],
   });
