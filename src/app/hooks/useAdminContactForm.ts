@@ -34,7 +34,7 @@ export type ContactData = {
   location: string
   city: string
   contactNumber: string
-
+  displayEmail:string
   breakpoints: Record<
     Breakpoint,
     ContactBreakpoint
@@ -127,28 +127,20 @@ function useAdminContact(
   sectionNum: string,
   viewport: Breakpoint
 ) {
-  const [showEditor, setShowEditor] =
-    useState(false)
+  const [showEditor, setShowEditor] =useState(false)
 
-  const [isLoading, setLoading] =
-    useState(true)
+  const [isLoading, setLoading] =useState(true)
 
-  const [saving, setSaving] =
-    useState(false)
+  const [saving, setSaving] =useState(false)
 
-  const [data, setData] =
-    useState<ContactData>({
+  const [data, setData] =useState<ContactData>({
       title: 'Contact Us',
-
       ctaMessage:
         'We would love to hear from you. Get in touch with us today.',
-
       location: '',
-
       city: '',
-
       contactNumber: '',
-
+      displayEmail:'',
       breakpoints: {
         desktop: defaultBreakpoint(),
         tablet: defaultBreakpoint(),
@@ -241,7 +233,8 @@ function useAdminContact(
       | 'ctaMessage'
       | 'location'
       | 'city'
-      | 'contactNumber',
+      | 'contactNumber'
+      | 'displayEmail',
 
     value: string
   ) => {

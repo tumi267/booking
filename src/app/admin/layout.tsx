@@ -1,20 +1,16 @@
 import React from 'react'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { getUserByClerkId } from '@/app/libs/crud/user'
+import { getProviderByClerkId } from '../libs/crud/provider'
 
-export default async function Layout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function Layout({children,}: {children: React.ReactNode}) {
   const { userId } = auth()
 
   if (!userId) {
     redirect('/user')
   }
 
-  const user = await getUserByClerkId(userId)
+  const user = await getProviderByClerkId(userId)
 
   if (!user) {
     redirect('/user')

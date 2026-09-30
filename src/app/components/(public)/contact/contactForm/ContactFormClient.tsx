@@ -23,6 +23,7 @@ interface ContactFormClientProps {
   location: string
   city: string
   contactNumber: string
+  displayEmail: string
   breakpoints: Record<string, ContactBreakpoint>
 }
 
@@ -33,6 +34,7 @@ export default function ContactFormClient({
   city,
   contactNumber,
   breakpoints,
+  displayEmail,
 }: ContactFormClientProps) {
   const breakpoint = useBreakpoint()
 
@@ -112,14 +114,24 @@ export default function ContactFormClient({
           <p
             style={{
               ...current.cityStyle,
-              marginBottom: 20,
+              marginBottom: 10,
             }}
           >
             {contactNumber}
           </p>
         )}
 
-        <form
+      {displayEmail && (
+          <p
+            style={{
+              ...current.cityStyle,
+              marginBottom: 20,
+            }}
+          >
+            {displayEmail}
+          </p>
+        )}
+        {/* <form
           onSubmit={handleSubmit}
           style={{
             display: 'flex',
@@ -214,7 +226,7 @@ export default function ContactFormClient({
               ? 'Sending...'
               : 'Submit'}
           </button>
-        </form>
+        </form> */}
       </div>
     </section>
   )

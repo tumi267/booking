@@ -29,7 +29,7 @@ function Nav() {
 
         {/* Logged OUT */}
         <SignedOut>
-  <SignInButton mode="modal" forceRedirectUrl="/booking">
+  <SignInButton mode="modal" forceRedirectUrl="/user">
     <button>Sign In / Sign Up</button>
   </SignInButton>
 </SignedOut>

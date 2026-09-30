@@ -1,7 +1,6 @@
 import BookingForm from '@/app/components/admin/Booking/BookingForm/BookingForm'
 import { getBookingByGroupIdAndDate } from '@/app/libs/crud/booking'
-import { getAllProviders, getProvider } from '@/app/libs/crud/provider'
-import { getUserByClerkId } from '@/app/libs/crud/user'
+import { getAllProviders, getProvider, getProviderByClerkId } from '@/app/libs/crud/provider'
 import { auth } from '@clerk/nextjs/server'
 import React from 'react'
 
@@ -36,7 +35,7 @@ async function BookingInfo({ params }: { params: { id: string, date: string } })
   if (!userId) {
     return null
   }
-  const user = await getUserByClerkId(userId)
+  const user = await getProviderByClerkId(userId)
 
   if (!user) {
   return <div>User not found</div>

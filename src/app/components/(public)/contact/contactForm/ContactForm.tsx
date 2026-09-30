@@ -20,6 +20,7 @@ export default async function ContactForm({location,sectionNum,}: Props) {
       city={data.city || ''}
       contactNumber={data.contactNumber || ''}
       breakpoints={data.breakpoints}
+      displayEmail={data.displayEmail}
     />
   )
 }

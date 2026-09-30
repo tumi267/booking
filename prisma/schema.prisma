@@ -145,6 +145,7 @@ model Contact {
   ctaMessage    String
   city          String
   contactNumber String
+  displayEmail  String
   breakpoints   Json
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -236,6 +237,7 @@ enum UserRole {
   PROVIDER
   ADMIN
   SUPPORT
+  MANAGER
 }
 
 enum BookingStatus {

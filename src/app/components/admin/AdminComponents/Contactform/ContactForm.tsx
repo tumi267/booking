@@ -259,7 +259,7 @@ function ContactForm({
           <p
             style={{
               ...current.cityStyle,
-              marginBottom: 20,
+              marginBottom: 10,
             }}
           >
             {data.contactNumber}
@@ -267,10 +267,25 @@ function ContactForm({
         )}
 
         {/* ====================================== */}
-        {/* CONTACT FORM */}
+        {/* CONTACT EMAIL */}
         {/* ====================================== */}
 
-        <form
+        {data.displayEmail&& (
+          <p
+            style={{
+              ...current.cityStyle,
+              marginBottom: 20,
+            }}
+          >
+            {data.displayEmail}
+          </p>
+        )}
+
+        {/* ====================================== */}
+        {/* CONTACT FORM */}
+        {/* ====================================== */}
+        
+        {/* <form
           onSubmit={handleSubmit}
           style={{
             display: 'flex',
@@ -279,45 +294,45 @@ function ContactForm({
 
             gap: 16,
           }}
-        >
+        > */}
           {/* NAME */}
 
-          <input
+          {/* <input
             type="text"
             name="name"
             placeholder="Name"
             style={current.inputStyle}
             required
-          />
+          /> */}
 
           {/* EMAIL */}
 
-          <input
+          {/* <input
             type="email"
             name="email"
             placeholder="Email"
             style={current.inputStyle}
             required
-          />
+          /> */}
 
           {/* MESSAGE */}
 
-          <textarea
+          {/* <textarea
             name="message"
             placeholder="Message"
             style={current.textareaStyle}
             required
-          />
+          /> */}
 
           {/* BUTTON */}
 
-          <button
+          {/* <button
             type="submit"
             style={current.buttonStyle}
           >
             Submit
           </button>
-        </form>
+        </form> */}
       </div>
 
       {/* ====================================== */}
@@ -500,7 +515,15 @@ function ContactForm({
               }
               style={editorInput}
             />
+           {/* INPUT EMAIL */}
+           <label style={labelStyle}>Display Email</label>
 
+          <input 
+            type="email"
+            placeholder="info@business.com"
+            value={data.displayEmail}
+            onChange={event =>updateContactField('displayEmail',event.target.value)} style={editorInput}
+            />
             {/* ================================= */}
             {/* SECTION */}
             {/* ================================= */}
@@ -1045,19 +1068,20 @@ function ContactForm({
               style={editorInput}
             />
 
+ 
             {/* ================================= */}
             {/* BUTTON */}
             {/* ================================= */}
 
-            <div
+            {/* <div
               style={sectionHeader}
             >
               Button
-            </div>
+            </div> */}
 
             {/* FONT SIZE */}
 
-            <label
+            {/* <label
               style={labelStyle}
             >
               Font Size
@@ -1083,11 +1107,11 @@ function ContactForm({
                 )
               }
               style={editorInput}
-            />
+            /> */}
 
             {/* FONT WEIGHT */}
 
-            <label
+            {/* <label
               style={labelStyle}
             >
               Font Weight
@@ -1134,11 +1158,11 @@ function ContactForm({
               <option value="800">
                 Extra Bold
               </option>
-            </select>
+            </select> */}
 
             {/* BACKGROUND */}
 
-            <label
+            {/* <label
               style={labelStyle}
             >
               Background
@@ -1162,11 +1186,11 @@ function ContactForm({
                 )
               }
               style={editorInput}
-            />
+            /> */}
 
             {/* TEXT COLOR */}
 
-            <label
+            {/* <label
               style={labelStyle}
             >
               Text Color
@@ -1190,11 +1214,11 @@ function ContactForm({
                 )
               }
               style={editorInput}
-            />
+            /> */}
 
             {/* BORDER RADIUS */}
 
-            <label
+            {/* <label
               style={labelStyle}
             >
               Border Radius
@@ -1220,7 +1244,7 @@ function ContactForm({
                 )
               }
               style={editorInput}
-            />
+            /> */}
 
             {/* ================================= */}
             {/* SAVE */}

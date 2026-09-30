@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 
 import Dash from '../components/admin/Dash/Dash'
 import { getUserByClerkId } from '@/app/libs/crud/user'
+import { getProviderByClerkId } from '../libs/crud/provider'
 
 export default async function Admin() {
   const { userId } = auth()
@@ -11,10 +12,10 @@ export default async function Admin() {
     return null
   }
 
-  const user = await getUserByClerkId(userId)
+  const user = await getProviderByClerkId(userId)
 
   if (!user) {
-    return null
+    return <div>No user found</div>
   }
 
   return (

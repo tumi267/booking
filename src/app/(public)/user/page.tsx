@@ -28,7 +28,7 @@ function Page() {
           if (!res.ok) throw new Error('Failed to sync user');
           
           const data = await res.json(); 
-
+// console.log(data.user)
           // Logic based on your API response
           if (data.user === 0) {
             router.push(`/user/user`);

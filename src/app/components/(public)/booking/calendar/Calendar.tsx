@@ -6,6 +6,7 @@ import type {BookedDay,BookingData,} from '@/app/types/booking'
 import { useBookingAvailability } from '@/app/hooks/useBookingAvailability'
 import { buildDateRange, formatLocalDate, getDaysInMonth, isSameLocalDay, parseLocalDate, startOfLocalDay } from '@/app/utils/date'
 
+
 interface Props {
   currentStep: number
   step: (newStep: number) => void
@@ -24,22 +25,65 @@ export default function Calendar({currentStep,step,bookingdata,onSelectDates,}: 
     to?: Date
   }>({})
   const [hoverDate,setHoverDate,] = useState<Date | null>(null)
-  const {operatingHours,member,loading,error,} =useBookingAvailability({providerId:bookingdata.providerId,year,month,})
-
+  const {
+    operatingHours,
+    member,
+    overrideDates,
+    loading,
+    error,
+  } = useBookingAvailability({
+    providerId: bookingdata.providerId,
+    year,
+    month,
+  })
   // --------------------------------
   // DISABLED DAYS
   // --------------------------------
 
-  const disabledDays =useMemo(() => {const result: Date[] = []
-  const daysInMonth =getDaysInMonth(year,month)
-      for (let day = 1;day <= daysInMonth;day++) {
-  const date =startOfLocalDay(new Date(year,month,day))
-  const hour = operatingHours.find(item =>item.dayOfWeek ===date.getDay() &&item.isActive === false)
-        if (hour) {result.push(date)}
+  const disabledDays = useMemo(() => {
+    const result: Date[] = []
+  
+    const daysInMonth = getDaysInMonth(year, month)
+  
+    // Normal operating-hour disabled days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = startOfLocalDay(
+        new Date(year, month, day)
+      )
+  
+      const hour = operatingHours.find(
+        item =>
+          item.dayOfWeek === date.getDay() &&
+          item.isActive === false
+      )
+  
+      if (hour) {
+        result.push(date)
       }
-  const fullyBooked =member.filter(day =>day.times &&day.times.length > 0).map(day => parseLocalDate(day.date))
-      return [...result,...fullyBooked,]
-    },[operatingHours,member,year,month,])
+    }
+  
+    // Fully booked days
+    const fullyBooked = member
+      .filter(day => day.times && day.times.length > 0)
+      .map(day => parseLocalDate(day.date))
+      
+    // Manually blocked override days
+    const overridden = overrideDates
+      .filter(override => override.isBlocked)
+      .map(override =>  parseLocalDate(override.date.split('T')[0]))
+  console.log(overridden)
+    return [
+      ...result,
+      ...fullyBooked,
+      ...overridden,
+    ]
+  }, [
+    operatingHours,
+    member,
+    overrideDates,
+    year,
+    month,
+  ])
 
   // --------------------------------
   // DATE DISABLED

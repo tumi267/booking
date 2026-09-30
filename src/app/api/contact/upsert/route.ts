@@ -25,6 +25,7 @@ export async function POST(
           ctaMessage:data.ctaMessage,
           city: data.city,
           contactNumber:data.contactNumber,
+          displayEmail:data.displayEmail,
           breakpoints:data.breakpoints,
         },
         create: {
@@ -33,6 +34,7 @@ export async function POST(
           title:data.title ??'Contact Us',
           ctaMessage:data.ctaMessage ?? '',
           city:data.city ?? '',
+          displayEmail:data.displayEmail??'',
           contactNumber:data.contactNumber ?? '',
           breakpoints:data.breakpoints ?? {},
         },

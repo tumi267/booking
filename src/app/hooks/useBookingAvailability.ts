@@ -1,22 +1,21 @@
 'use client'
 
-import {
-  useEffect,
-  useState,
-} from 'react'
-
-import type {
-  BookedDay,
-} from '@/app/types/booking'
-
-import type {
-  OperatingHour,
-} from '@/app/types/availability'
+import { useEffect, useState } from 'react'
+import type { BookedDay } from '@/app/types/booking'
+import type { OperatingHour } from '@/app/types/availability'
 
 type UseBookingAvailabilityProps = {
   providerId?: string
   year: number
   month: number
+}
+
+type DayOverride = {
+  id: string
+  date: string
+  isBlocked: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 type AvailabilityResponse = {
@@ -29,17 +28,15 @@ export function useBookingAvailability({
   year,
   month,
 }: UseBookingAvailabilityProps) {
-  const [operatingHours, setOperatingHours] =
-    useState<OperatingHour[]>([])
+  const [operatingHours, setOperatingHours] =useState<OperatingHour[]>([])
 
-  const [member, setMember] =
-    useState<BookedDay[]>([])
+  const [member, setMember] =useState<BookedDay[]>([])
 
-  const [loading, setLoading] =
-    useState(true)
+  const [overrideDates, setOverrideDates] =useState<DayOverride[]>([])
 
-  const [error, setError] =
-    useState<string | null>(null)
+  const [loading, setLoading] =useState(true)
+
+  const [error, setError] =useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -49,49 +46,49 @@ export function useBookingAvailability({
       setError(null)
 
       try {
-        const params =
-          new URLSearchParams()
+        const params = new URLSearchParams()
 
         if (providerId) {
-          params.set(
-            'providerId',
-            providerId
-          )
+          params.set('providerId', providerId)
         }
 
-        params.set(
-          'year',
-          String(year)
-        )
+        params.set('year', String(year))
+        params.set('month', String(month + 1))
 
-        params.set(
-          'month',
-          String(month + 1)
-        )
-
-        const response =
-          await fetch(
-            `/api/publicCal?${params.toString()}`,
-            {
+        const [availabilityResponse, overrideResponse] =
+          await Promise.all([
+            fetch(`/api/publicCal?${params.toString()}`, {
               method: 'GET',
               cache: 'no-store',
-            }
-          )
+            }),
 
-        if (!response.ok) {
+            fetch('/api/getOverwrightenDates', {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json',
+              },
+              body: JSON.stringify({
+                month: month ,
+                year,
+              }),
+            }),
+          ])
+
+        if (!availabilityResponse.ok) {
           throw new Error(
-            `API error: ${response.status}`
+            `Availability API error: ${availabilityResponse.status}`
           )
         }
 
-        const data =
-          (await response.json()) as AvailabilityResponse
-
-        if (!data) {
+        if (!overrideResponse.ok) {
           throw new Error(
-            'Invalid API response'
+            `Override API error: ${overrideResponse.status}`
           )
         }
+
+        const data = (await availabilityResponse.json()) as AvailabilityResponse
+
+        const overrides = (await overrideResponse.json()) 
 
         if (cancelled) {
           return
@@ -106,6 +103,12 @@ export function useBookingAvailability({
         setMember(
           Array.isArray(data.member)
             ? data.member
+            : []
+        )
+
+        setOverrideDates(
+          Array.isArray(overrides?.res)
+            ? overrides.res
             : []
         )
       } catch (error) {
@@ -130,15 +133,12 @@ export function useBookingAvailability({
     return () => {
       cancelled = true
     }
-  }, [
-    providerId,
-    year,
-    month,
-  ])
+  }, [providerId, year, month])
 
   return {
     operatingHours,
     member,
+    overrideDates,
     loading,
     error,
   }
