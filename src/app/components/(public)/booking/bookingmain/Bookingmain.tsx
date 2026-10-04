@@ -76,6 +76,9 @@ export default function Bookingmain({
             <Calendar
             currentStep={booking.step}
             step={booking.goToStep}
+            service={
+              booking.selectedDuration
+            }
             bookingdata={booking.bookingData}
             onSelectDates={booking.selectDates}
           />

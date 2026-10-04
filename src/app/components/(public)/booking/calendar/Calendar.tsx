@@ -5,33 +5,30 @@ import Loading from '@/app/components/Loading/Loading'
 import type {BookedDay,BookingData,} from '@/app/types/booking'
 import { useBookingAvailability } from '@/app/hooks/useBookingAvailability'
 import { buildDateRange, formatLocalDate, getDaysInMonth, isSameLocalDay, parseLocalDate, startOfLocalDay } from '@/app/utils/date'
+import { generateTimeSlots } from '@/app/utils/time'
 
 
 interface Props {
   currentStep: number
   step: (newStep: number) => void
   bookingdata: BookingData
+  service:number
   onSelectDates: (
     dates: BookedDay[]
   ) => void
 }
 
-export default function Calendar({currentStep,step,bookingdata,onSelectDates,}: Props) {
+export default function Calendar({currentStep,step,bookingdata,onSelectDates,service,}: Props) {
   const today =useMemo(() =>startOfLocalDay(new Date()),[])
   const [month,setMonth,] = useState(today.getMonth())
   const [year,setYear,] = useState(today.getFullYear())
+
   const [selectedRange,setSelectedRange,] = useState<{
     from?: Date
     to?: Date
   }>({})
   const [hoverDate,setHoverDate,] = useState<Date | null>(null)
-  const {
-    operatingHours,
-    member,
-    overrideDates,
-    loading,
-    error,
-  } = useBookingAvailability({
+  const {operatingHours,member,overrideDates,providerBookings,loading,error,} = useBookingAvailability({
     providerId: bookingdata.providerId,
     year,
     month,
@@ -61,17 +58,70 @@ export default function Calendar({currentStep,step,bookingdata,onSelectDates,}: 
         result.push(date)
       }
     }
+
+
+
+    
   
     // Fully booked days
-    const fullyBooked = member
-      .filter(day => day.times && day.times.length > 0)
-      .map(day => parseLocalDate(day.date))
-      
+    
+      const fullyBooked: Date[] = []
+  const datebooking=()=>{
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = startOfLocalDay(
+          new Date(year, month, day)
+        )
+    
+        const dateKey = formatLocalDate(date)
+    
+        const bookingsForDate =
+          providerBookings.filter(
+            booking =>
+              booking.date.split('T')[0] === dateKey
+          )
+    
+        // Nothing booked on this date
+        if (!bookingsForDate.length) {
+          continue
+        }
+    
+        const operatingHour =
+          operatingHours.find(
+            hour =>
+              hour.dayOfWeek === date.getDay() &&
+              hour.isActive !== false
+          )
+    
+        if (!operatingHour) {
+          continue
+        }
+    
+        const slots = generateTimeSlots(
+          operatingHour.startTime,
+          operatingHour.endTime,
+          service
+        )
+        
+        if (
+          slots.length > 0 &&
+          bookingsForDate.length >= slots.length
+          
+        ) {
+          fullyBooked.push(date)
+         
+        }
+      }}
+    
+     
+     datebooking()
+
+
+
     // Manually blocked override days
     const overridden = overrideDates
       .filter(override => override.isBlocked)
       .map(override =>  parseLocalDate(override.date.split('T')[0]))
-  console.log(overridden)
+ 
     return [
       ...result,
       ...fullyBooked,

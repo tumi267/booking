@@ -1,12 +1,30 @@
 'use client'
 
-import React, {useEffect,useMemo,useState,} from 'react'
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 import Loading from '@/app/components/Loading/Loading'
 
-import type {BookedDay,BookingData,} from '@/app/types/booking'
-import type {OperatingHour,} from '@/app/types/availability'
-import { generateTimeSlots, selectTimeRange } from '@/app/utils/time'
+import type {
+  BookedDay,
+  BookingData,
+} from '@/app/types/booking'
+
+import type {
+  OperatingHour,
+} from '@/app/types/availability'
+
+import {
+  generateTimeSlots,
+  selectTimeRange,
+} from '@/app/utils/time'
+
+import {
+  useBookingAvailability,
+} from '@/app/hooks/useBookingAvailability'
 
 interface Props {
   currentStep: number
@@ -18,16 +36,41 @@ interface Props {
   ) => void
 }
 
-export default function Time({step,currentStep,bookingdata,service,onSelectDates,}: Props) {
-  const [times, setTimes] =useState<OperatingHour[]>([])
+export default function Time({
+  step,
+  currentStep,
+  bookingdata,
+  service,
+  onSelectDates,
+}: Props) {
+  const [times, setTimes] =
+    useState<OperatingHour[]>([])
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] =
+    useState(true)
 
-  const [selectedDate,setSelectedDate,] = useState(0)
+  const [selectedDate, setSelectedDate] =
+    useState(0)
 
   const { dates } = bookingdata
 
   const interval = service
+
+  // --------------------------------
+  // GET PROVIDER BOOKINGS
+  // --------------------------------
+
+  const {
+    providerBookings,
+  } = useBookingAvailability({
+    providerId: bookingdata.providerId,
+    year: new Date(
+      dates[selectedDate]?.date
+    ).getFullYear(),
+    month: new Date(
+      dates[selectedDate]?.date
+    ).getMonth(),
+  })
 
   // --------------------------------
   // GET OPERATING HOURS
@@ -35,10 +78,14 @@ export default function Time({step,currentStep,bookingdata,service,onSelectDates
 
   useEffect(() => {
     let cancelled = false
+
     async function getTimes() {
       setLoading(true)
+
       try {
-        const response = await fetch('/api/operating-hours',
+        const response =
+          await fetch(
+            '/api/operating-hours',
             {
               method: 'GET',
               cache: 'no-store',
@@ -51,12 +98,23 @@ export default function Time({step,currentStep,bookingdata,service,onSelectDates
           )
         }
 
-        const data =(await response.json()) as OperatingHour[]
+        const data =
+          (await response.json()) as OperatingHour[]
 
-        if (!cancelled &&Array.isArray(data)) { setTimes(data)}
-      } catch (error) {console.error('Failed to load operating hours:',error)
+        if (
+          !cancelled &&
+          Array.isArray(data)
+        ) {
+          setTimes(data)
+        }
+      } catch (error) {
+        console.error(
+          'Failed to load operating hours:',
+          error
+        )
       } finally {
-        if (!cancelled) {setLoading(false)
+        if (!cancelled) {
+          setLoading(false)
         }
       }
     }
@@ -78,55 +136,87 @@ export default function Time({step,currentStep,bookingdata,service,onSelectDates
       return
     }
 
-    if (selectedDate >=dates.length
+    if (
+      selectedDate >= dates.length
     ) {
-      setSelectedDate(dates.length - 1)
+      setSelectedDate(
+        dates.length - 1
+      )
     }
-  }, [dates,selectedDate,])
+  }, [
+    dates,
+    selectedDate,
+  ])
 
   // --------------------------------
   // GENERATE SLOTS
   // --------------------------------
 
-  const allSlots =
-    useMemo(() => {
-      if (
-        !times.length ||
-        !dates.length
-      ) {
-        return []
-      }
+  const allSlots = useMemo(() => {
+    if (
+      !times.length ||
+      !dates.length
+    ) {
+      return []
+    }
 
-      const selected =
-        dates[selectedDate]
+    const selected =
+      dates[selectedDate]
 
-      if (!selected) {
-        return []
-      }
+    if (!selected) {
+      return []
+    }
 
-      const match =
-        times.find(
-          time =>
-            time.dayOfWeek ===
+    const match =
+      times.find(
+        time =>
+          time.dayOfWeek ===
             selected.dayOfWeek &&
-            time.isActive !== false
-        )
-
-      if (!match) {
-        return []
-      }
-
-      return generateTimeSlots(
-        match.startTime,
-        match.endTime,
-        interval
+          time.isActive !== false
       )
-    }, [
-      times,
-      dates,
-      selectedDate,
-      interval,
-    ])
+
+    if (!match) {
+      return []
+    }
+
+    return generateTimeSlots(
+      match.startTime,
+      match.endTime,
+      interval
+    )
+  }, [
+    times,
+    dates,
+    selectedDate,
+    interval,
+  ])
+
+  // --------------------------------
+  // BOOKED TIMES FOR SELECTED DATE
+  // --------------------------------
+
+  const bookedTimes = useMemo(() => {
+    const selected =
+      dates[selectedDate]
+
+    if (!selected) {
+      return []
+    }
+
+    return providerBookings
+      .filter(
+        booking =>
+          booking.date.split('T')[0] ===
+          selected.date
+      )
+      .map(
+        booking => booking.time
+      )
+  }, [
+    providerBookings,
+    dates,
+    selectedDate,
+  ])
 
   // --------------------------------
   // UPDATE SELECTED DATE
@@ -164,21 +254,36 @@ export default function Time({step,currentStep,bookingdata,service,onSelectDates
   const handleTimeChange = (
     time: string
   ) => {
+    // Cannot select a provider-booked time
+    if (bookedTimes.includes(time)) {
+      return
+    }
+  
     const currentTimes =
-      dates[
-        selectedDate
-      ]?.times ?? []
-
+      dates[selectedDate]?.times ?? []
+  
     const nextTimes =
       selectTimeRange(
         currentTimes,
         time,
         allSlots
       )
-
-    updateTimes(
-      nextTimes
-    )
+  
+    // Do not allow a selected range
+    // to contain an already booked time.
+    const containsBookedTime =
+      nextTimes.some(
+        selectedTime =>
+          bookedTimes.includes(
+            selectedTime
+          )
+      )
+  
+    if (containsBookedTime) {
+      return
+    }
+  
+    updateTimes(nextTimes)
   }
 
   // --------------------------------
@@ -267,6 +372,7 @@ export default function Time({step,currentStep,bookingdata,service,onSelectDates
           </p>
         ) : (
           <div className="grid grid-cols-3 gap-2">
+
             {allSlots.map(
               slot => {
                 const isSelected =
@@ -276,10 +382,18 @@ export default function Time({step,currentStep,bookingdata,service,onSelectDates
                     slot
                   )
 
+                const isBooked =
+                  bookedTimes.includes(
+                    slot
+                  )
+
                 return (
                   <button
                     type="button"
                     key={slot}
+                    disabled={
+                      isBooked
+                    }
                     onClick={() =>
                       handleTimeChange(
                         slot
@@ -292,9 +406,21 @@ export default function Time({step,currentStep,bookingdata,service,onSelectDates
                       transition
 
                       ${
-                        isSelected
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white hover:bg-gray-100'
+                        isBooked
+                          ? `
+                            bg-gray-200
+                            text-gray-400
+                            cursor-not-allowed
+                          `
+                          : isSelected
+                            ? `
+                              bg-blue-600
+                              text-white
+                            `
+                            : `
+                              bg-white
+                              hover:bg-gray-100
+                            `
                       }
                     `}
                   >
@@ -303,6 +429,7 @@ export default function Time({step,currentStep,bookingdata,service,onSelectDates
                 )
               }
             )}
+
           </div>
         )}
       </div>
