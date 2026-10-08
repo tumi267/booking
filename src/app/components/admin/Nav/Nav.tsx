@@ -1,4 +1,5 @@
 
+import { SignOutButton, SignedOut } from '@clerk/nextjs'
 import React from 'react'
 
 interface NavProps {
@@ -47,6 +48,9 @@ function Nav({ selected, setSelected, role }: NavProps) {
           {link}
         </span>
       ))}
+        <SignOutButton>
+        <button>Sign Out</button>
+      </SignOutButton>
     </div>
   )
 }

@@ -30,7 +30,7 @@ interface Props {
 function BookingForm(props: Props) {
   const {groupId,providerId,status,date,items,serviceId,sessionDuration,totalPrice,clientName,contact,availableProviders,user} = props
   const { formState, setFormState, handleSubmit, submitting } =useAdminBookingForm({groupId,providerId,status,date,items,})
-
+console.log(formState)
   return (
     <form
       className="space-y-6 p-6 border rounded-xl bg-white shadow-sm"

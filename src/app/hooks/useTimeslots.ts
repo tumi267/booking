@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { generateTimeSlots } from '@/app/libs/Time/time'
+import { generateTimeSlotsbydate } from '@/app/libs/Time/time'
 
 type Hours = {
   dayOfWeek: number
@@ -36,6 +36,7 @@ export function useTimeslots({
   const [allPossibleSlots, setAllPossibleSlots] = useState<string[]>([])
   const [times, setTimes] = useState<Hours[]>([])
   const [isSlotsLoading, setSlotsLoading] = useState(false)
+  const [booked,setbooked]=useState<string[]>([])
   const [isHoursLoading, setHoursLoading] = useState(false)
 
   // 🔥 Fetch operating hours
@@ -47,6 +48,7 @@ export function useTimeslots({
       try {
         const res = await fetch('/api/operating-hours')
         const data = await res.json()
+       
         if (mounted) setTimes(data)
       } catch (error) {
         console.error(error)
@@ -83,7 +85,7 @@ export function useTimeslots({
           return
         }
 
-        const generated = await generateTimeSlots(
+        const generated = await generateTimeSlotsbydate(
           todaysHours.startTime,
           todaysHours.endTime,
           sessionDuration,
@@ -91,8 +93,8 @@ export function useTimeslots({
           date,
           groupId
         )
-
-        setAllPossibleSlots(generated)
+        setbooked(generated.booked)
+        setAllPossibleSlots(generated.slots)
 
       } catch (err) {
         console.error(err)
@@ -132,6 +134,7 @@ export function useTimeslots({
   }
 
   return {
+    booked,
     allPossibleSlots,
     isLoading: isSlotsLoading || isHoursLoading,
     handleTimeClick,
