@@ -15,7 +15,7 @@ interface Props {
 function CreateBookingForm({ onClose }: Props) {
   const { formState, setFormState,handleSubmit,submitting,error,services} = useCreateBooking({ onSuccess: onClose })
   useCreateBooking({ onSuccess: onClose })
-  console.log(services)
+  
   return (
     <form
       className="space-y-6 p-6"

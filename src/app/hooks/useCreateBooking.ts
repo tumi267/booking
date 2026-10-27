@@ -3,6 +3,12 @@
 import { useEffect, useState } from 'react'
 import { fetchServices } from '../libs/service/service'
 
+interface BookingSlot {
+  id: string
+  time: string
+  date: Date | string
+}
+
 export interface CreateBookingState {
   firstName: string
   lastName: string
@@ -12,6 +18,7 @@ export interface CreateBookingState {
   serviceId: string
   date: string
   time: string
+  slots: BookingSlot[]
 }
 
 interface Props {
@@ -27,20 +34,31 @@ const initialState: CreateBookingState = {
   serviceId: '',
   date: '',
   time: '',
+  slots: [],
 }
 
 export function useCreateBooking({ onSuccess }: Props) {
-  const [formState, setFormState] =useState<CreateBookingState>(initialState)
-  const [services,setServices]=useState([])
+  const [formState, setFormState] =
+    useState<CreateBookingState>(initialState)
+
+  const [services, setServices] = useState<any[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  useEffect(()=>{
-    const getservice=async()=>{
-      const service=await fetchServices()
-      setServices(service)
+
+  useEffect(() => {
+    const getServices = async () => {
+      try {
+        const result = await fetchServices()
+        setServices(result)
+      } catch (err) {
+        console.error('Failed to fetch services:', err)
+        setError('Unable to load services.')
+      }
     }
-    getservice()
-  },[])
+
+    getServices()
+  }, [])
+
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>
   ) {
@@ -50,28 +68,29 @@ export function useCreateBooking({ onSuccess }: Props) {
     setError(null)
 
     try {
-      const response = await fetch('/api/admin/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formState),
-      })
+      // const response = await fetch('/api/admin/bookings', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //   },
+      //   body: JSON.stringify(formState),
+      // })
 
-      const result = await response.json()
+      // const result = await response.json()
 
-      if (!response.ok) {
-        setError(result.error ?? 'Failed to create booking')
-        return
-      }
+      // if (!response.ok) {
+      //   setError(result.error ?? 'Failed to create booking')
+      //   return
+      // }
 
-      setFormState(initialState)
-      onSuccess()
+      // setFormState(initialState)
+      console.log(formState)
+      // onSuccess()
     } catch (err) {
       console.error('Create booking error:', err)
       setError('Unable to create booking. Please try again.')
     } finally {
-      setSubmitting(false)
+      // setSubmitting(false)
     }
   }
 
@@ -81,6 +100,6 @@ export function useCreateBooking({ onSuccess }: Props) {
     handleSubmit,
     submitting,
     error,
-    services
+    services,
   }
 }
