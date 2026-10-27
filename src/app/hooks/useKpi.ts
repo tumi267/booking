@@ -1,7 +1,8 @@
 'use client'
 
 import {useEffect,useState,} from 'react'
-import { getkpi } from '../libs/kpi/kpi'
+import { getkpi } from '../libs/KPI/kpi'
+
 
 type Stat = {
     label: string
