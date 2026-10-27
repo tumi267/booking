@@ -23,13 +23,14 @@ export function ServiceEditorModal({open,service,team,onClose,onUpdate,onRemove,
         <h3 className="mb-4 text-lg font-bold">Edit Service</h3>
 
         <div className="space-y-4">
+          <label>Name</label>
           <input
             className="w-full rounded border px-3 py-2"
             value={service.name}
             onChange={(e) => onUpdate(id, 'name', e.target.value)}
             placeholder="Service Name"
           />
-
+          <label>Price</label>
           <input
             type="number"
             className="w-full rounded border px-3 py-2"
@@ -37,7 +38,7 @@ export function ServiceEditorModal({open,service,team,onClose,onUpdate,onRemove,
             onChange={(e) => onUpdate(id, 'price', Number(e.target.value))}
             placeholder="Price"
           />
-
+          <label>Duration</label>
           <input
             type="number"
             className="w-full rounded border px-3 py-2"
@@ -47,14 +48,14 @@ export function ServiceEditorModal({open,service,team,onClose,onUpdate,onRemove,
             }
             placeholder="Duration"
           />
-
+          <label>Description</label>
           <textarea
             className="w-full rounded border px-3 py-2"
             value={service.description}
             onChange={(e) => onUpdate(id, 'description', e.target.value)}
             placeholder="Description"
           />
-
+          
           <select
             className="w-full rounded border px-3 py-2"
             value={service.isActive ? 'true' : 'false'}

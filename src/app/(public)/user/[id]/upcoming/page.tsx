@@ -22,7 +22,7 @@ return ( <div className="min-h-screen bg-gray-50"> <Nav />
         </h2>
 
         <p className="mt-2 text-gray-500">
-          You don't have any upcoming appointments.
+          You don&apos;t have any upcoming appointments.
         </p>
       </div>
     ) : (
