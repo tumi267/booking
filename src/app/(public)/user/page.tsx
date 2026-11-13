@@ -9,39 +9,39 @@ function Page() {
     const router = useRouter();
 
     const createUserInDb = async () => {
-        if (!user){
-          return <div>user not found</div>
-        };
-        console.log(user)
-//         try {
-//           const res = await fetch('/api/user', {
-//             method: 'PUT',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ 
-//               clerkId: user.id,
-//               email: user.primaryEmailAddress?.emailAddress,
-//               firstName: user.firstName,
-//               lastName: user.lastName,
-//               imageurl: user.imageUrl,
-//               phone: user.primaryPhoneNumber?.phoneNumber
-//             })
-//           });
+        if (!user) return;
+
+        try {
+          const res = await fetch('/api/user', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              clerkId: user.id,
+              email: user.primaryEmailAddress?.emailAddress,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              imageurl: user.imageUrl,
+              phone: user.primaryPhoneNumber?.phoneNumber
+            })
+          });
       
-//           if (!res.ok) throw new Error('Failed to sync user');
+          // if (!res.ok) throw new Error('Failed to sync user');
           
-//           const data = await res.json(); 
-// // console.log(data.user)
-//           // Logic based on your API response
-//           if (data.user === 0) {
-//             router.push(`/user/user`);
-//           } else if (data.user === 1) {
-//             router.push(`/admin`); // Or wherever providers go
-//           }
+          const data = await res.json(); 
+          console.log(data)
+          // Logic based on your API response
+          // if (data.user === 0) {
+          //   router.push(`/user/user`);
+          // } else if (data.user === 1) {
+          //   router.push(`/admin`); // Or wherever providers go
+          // }
           
-//         } catch (error) {
-//           console.error('Error syncing user:', error);
-//           // Optional: router.push('/error') so they aren't stuck on Loading
-//         }
+        } catch (error) {
+          <div>looks like something went wrong</div>
+          // console.error('Error syncing user:', error);
+          // Optional:  so they aren't stuck on Loading
+          // router.push('/error')
+        }
     };
 
     useEffect(() => {
