@@ -10,7 +10,9 @@ import { NextRequest, NextResponse } from "next/server"
     try {
       const body = await req.json();
       const { clerkId, imageurl, lastName, firstName, email } = body;
-  
+      console.log('API USER ROUTE HIT');
+      console.log('Received Clerk ID:', body.clerkId);
+      console.log('Received email:', body.email);
       // 1. Check existing records
       const user = await getUserByClerkId(clerkId);
       const provider = await getProviderByClerkId(clerkId);
