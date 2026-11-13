@@ -38,7 +38,7 @@ function Page() {
           
         } catch (error) {
       
-          console.error('Error syncing user:', error);
+          // console.error('Error syncing user:', error);
           // Optional:  so they aren't stuck on Loading
           // router.push('/error')
         }
