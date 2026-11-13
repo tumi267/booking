@@ -11,11 +11,11 @@ function Nav() {
     },
     {
       title: 'Upcoming',
-      link: '/user//user/upcoming',
+      link: '/user/profile/upcoming',
     },
     {
       title: 'History',
-      link: '/user//user/history',
+      link: '/user/profile/history',
     },
   ]
 
