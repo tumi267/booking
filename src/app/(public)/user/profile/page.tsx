@@ -7,14 +7,14 @@ import React from 'react'
 async function Page() {
   const { userId } =await auth()
 
-  if (!userId) {
-    redirect('/user')
+  if (!userId) {return
+    // redirect('/user')
   }
 
   const userdata = await getUserByClerkId(userId)
 
-  if (!userdata) {
-    redirect('/user')
+  if (!userdata) {return
+    // redirect('/user')
   }
 
   const initials = `${userdata.firstName?.charAt(0) || ''}${userdata.lastName?.charAt(0) || ''}`
@@ -22,7 +22,7 @@ async function Page() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex justify-center">
-      {/* <Nav /> */}
+      <Nav />
       </div>
       <main className="max-w-3xl mx-auto px-4 py-10">
 
