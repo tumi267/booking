@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import React from 'react'
 
 async function Page() {
-  const { userId } = auth()
+  const { userId } =await auth()
 
   if (!userId) {
     redirect('/user')

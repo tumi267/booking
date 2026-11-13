@@ -6,7 +6,7 @@ import { getUserByClerkId } from '@/app/libs/crud/user'
 import { getProviderByClerkId } from '../libs/crud/provider'
 
 export default async function Admin() {
-  const { userId } = auth()
+  const { userId } =await auth()
 
   if (!userId) {
     return null
