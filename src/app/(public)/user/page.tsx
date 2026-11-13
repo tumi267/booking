@@ -25,20 +25,20 @@ function Page() {
             })
           });
       
-          // if (!res.ok) throw new Error('Failed to sync user');
+          if (!res.ok) throw new Error('Failed to sync user');
           
           const data = await res.json(); 
-          console.log(res.ok)
+      
           // Logic based on your API response
-          // if (data.user === 0) {
-          //   router.push(`/user/user`);
-          // } else if (data.user === 1) {
-          //   router.push(`/admin`); // Or wherever providers go
-          // }
+          if (data.user === 0) {
+            router.push(`/user/user`);
+          } else if (data.user === 1) {
+            router.push(`/admin`); // Or wherever providers go
+          }
           
         } catch (error) {
-          <div>looks like something went wrong</div>
-          // console.error('Error syncing user:', error);
+      
+          console.error('Error syncing user:', error);
           // Optional:  so they aren't stuck on Loading
           // router.push('/error')
         }
