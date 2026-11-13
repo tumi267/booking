@@ -28,19 +28,17 @@ function Page() {
           if (!res.ok) throw new Error('Failed to sync user');
           
           const data = await res.json(); 
-      
+// console.log(data.user)
           // Logic based on your API response
           if (data.user === 0) {
-            router.push(`/user/profile`);
+            router.push(`/user/user`);
           } else if (data.user === 1) {
-            // router.push(`/admin`); // Or wherever providers go
+            router.push(`/admin`); // Or wherever providers go
           }
           
         } catch (error) {
-      
-          // console.error('Error syncing user:', error);
-          // Optional:  so they aren't stuck on Loading
-          // router.push('/error')
+          console.error('Error syncing user:', error);
+          // Optional: router.push('/error') so they aren't stuck on Loading
         }
     };
 
