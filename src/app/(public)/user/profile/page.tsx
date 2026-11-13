@@ -7,9 +7,9 @@ import React from 'react'
 async function Page() {
   const { userId } =await auth()
 
-  if (!userId) {
-    redirect('/user')
-  }
+  // if (!userId) {
+  //   redirect('/user')
+  // }
 
   // const userdata = await getUserByClerkId(userId)
 
